@@ -14,18 +14,18 @@ public class PUMLDiagram implements Diagram {
 
     private static final String PLANT_UML_BEGIN_STRING = "@startuml\nskinparam linetype ortho\n";
     private static final String PLANT_UML_END_STRING = "\n@enduml";
-    private PUMLDiagramDesciption plantUMLClassDiagramDescription;
+    private PUMLDiagramDescription plantUMLClassDiagramDescription;
     private DiagramColorScheme colorScheme;
     private int size;
 
-    public PUMLDiagram(final PUMLDiagramDesciption plantUMLClassDescription, DiagramColorScheme colorScheme, int size) {
+    public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, DiagramColorScheme colorScheme, int size) {
         this.plantUMLClassDiagramDescription = plantUMLClassDescription;
         this.colorScheme = colorScheme;
         this.size = size;
     }
 
     @Override
-    public final String svgText() throws IOException {
+    public final String svgText() {
 
         final long startTime = new Date().getTime();
         final String plantUMLString = genPlantUMLString();

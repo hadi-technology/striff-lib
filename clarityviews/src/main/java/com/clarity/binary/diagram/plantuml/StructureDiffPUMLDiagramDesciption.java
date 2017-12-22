@@ -1,10 +1,5 @@
 package com.clarity.binary.diagram.plantuml;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.clarity.binary.DefaultText;
 import com.clarity.binary.HtmlTagsStrippedText;
 import com.clarity.binary.JavaDocSymbolStrippedText;
@@ -16,12 +11,18 @@ import com.clarity.binary.diagram.display.DiagramMethodDisplayName;
 import com.clarity.binary.diagram.scheme.DiagramColorScheme;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.ColoredBinaryClassAssociation;
+import com.clarity.invocation.ComponentInvocation;
 import com.clarity.sourcemodel.Component;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
 import com.clarity.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.clarity.sourcemodel.OOPSourceModelConstants.ComponentType;
 
-public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDesciption {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescription {
 
     private Set<Component> diagramComponents;
     private Map<String, Component> allComponents;
@@ -56,8 +57,15 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDesciption
         for (final Component component : diagramComponents) {
             String cmpPUMLStr = "";
             List<String> componentPUMLStrings = new ArrayList<String>();
-            // determine if we have base component type...
-            if (component.componentType().isBaseComponent()) {
+            // determine if we have base component type and it is not a child of a method component type...
+            if (component.componentType().isBaseComponent() && !component.uniqueName().contains("(")) {
+                // list of methods from this component we don't want to display in the diagram
+                List<String> ignoreMethods = new ArrayList<>();
+                if (component.name().contains("SubscribeBuilder")) {
+                    System.out.println("");
+                }
+                findMethodsToIgnoreInDiagram(component, component.uniqueName(), allComponents, ignoreMethods);
+
                 if (component.modifiers().contains(
                         // if class is abstract...
                         OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT))) {
@@ -86,7 +94,8 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDesciption
                 for (final String classChildCmpName : component.children()) {
                     final Component childCmp = allComponents.get(classChildCmpName);
                     String childCmpPUMLStr = "";
-                    if (childCmp.componentType() == ComponentType.METHOD
+                    if ((childCmp.componentType() == ComponentType.METHOD
+                            && !ignoreMethods.contains(childCmp.name()))
                             || childCmp.componentType().isVariableComponent()) {
                         if (childCmp.componentType().isMethodComponent()
                                 && (childCmp.name().startsWith("get") || childCmp.name().startsWith("set"))) {
@@ -205,6 +214,38 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDesciption
         return tempStrBuilder.toString();
     }
 
+    /**
+     * Returns a list in the ignoreMethods variable of all the original component's methods that correspond to an
+     * implemented/extended method specification. (We want to remove these because they make diagrams verbose).
+     */
+    private void findMethodsToIgnoreInDiagram(Component component, String originalComponent, Map<String, Component> allComponents, List<String> methodsToIgnore) {
+        if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION).isEmpty()) {
+            for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
+                Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
+                if (invkCmp != null) {
+                    findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
+                }
+            }
+        }
+        if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION).isEmpty()) {
+            for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION)) {
+                Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
+                if (invkCmp != null) {
+                    findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
+                }
+            }
+        }
+            if (component != null && !component.uniqueName().equals(originalComponent)) {
+                for (String child : component.children()) {
+                    Component childCmp = allComponents.get(child);
+                    if (childCmp != null && childCmp.componentType().isMethodComponent()) {
+                        methodsToIgnore.add(childCmp.name());
+                    }
+                }
+            }
+
+    }
+
     public String relationsDesciptionString() {
         final StringBuilder tempStrBuilder = new StringBuilder();
         for (BinaryClassRelationship relationship : binaryRelationships) {
@@ -212,7 +253,9 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDesciption
             String classAName = relationship.getClassA().name();
             String classBName = relationship.getClassB().name();
 
-            if ((classAName != null) && ((classBName != null) && diagramComponents.contains(relationship.getClassA())
+            if ((classAName != null) && ((classBName != null) && !relationship.getClassA().uniqueName().contains("(")
+                    && !relationship.getClassB().uniqueName().contains("(")
+                    && diagramComponents.contains(relationship.getClassA())
                     && diagramComponents.contains(relationship.getClassB())
                     && relationship.getClassA().componentType().isBaseComponent()
                     && relationship.getClassB().componentType().isBaseComponent() && (relationship != null))) {

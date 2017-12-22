@@ -1,10 +1,10 @@
 package com.clarity.binary.extractor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.sourcemodel.Component;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SimplifiedBinaryClassRelationships {
 
@@ -20,9 +20,9 @@ public class SimplifiedBinaryClassRelationships {
     public Set<BinaryClassRelationship> relationships() {
         final Set<BinaryClassRelationship> newRelations = new HashSet<BinaryClassRelationship>();
         for (final BinaryClassRelationship tmpRelation : relationships) {
-            if ((tmpRelation.getaSideAssociation() == BinaryClassAssociation.WEAK_ASSOCIATION
+            if ((tmpRelation.getaSideAssociation().getStrength() <= BinaryClassAssociation.WEAK_ASSOCIATION.getStrength()
 
-                    || tmpRelation.getbSideAssociation() == BinaryClassAssociation.WEAK_ASSOCIATION)
+                    || tmpRelation.getbSideAssociation().getStrength() <= BinaryClassAssociation.WEAK_ASSOCIATION.getStrength())
                     && (!importantComponents.contains(tmpRelation.getClassA())
                             && !importantComponents.contains(tmpRelation.getClassB()))) {
                 continue;

@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,10 @@ import java.util.zip.ZipInputStream;
 
 public class ClarityTestUtil {
 
-    public static OOPSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref)
+    public static OOPSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref, String token)
             throws Exception {
 
-        String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/zipball/" + ref.trim();
+        String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/zipball/" + URLEncoder.encode(ref.trim(), "UTF-8") + "?access_token=" + token;
         final URL repoUrl = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) repoUrl.openConnection();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

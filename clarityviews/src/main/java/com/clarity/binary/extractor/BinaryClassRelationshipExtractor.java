@@ -131,6 +131,14 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
             }
         }
 
+        if (!filterComponent.componentInvocations(ComponentInvocations.EXTENSION).isEmpty()) {
+            for (ComponentInvocation inv : filterComponent.componentInvocations(ComponentInvocations.EXTENSION)) {
+                Component invokedComponent = components.get(inv.invokedComponent());
+                if (invokedComponent != null) {
+                    filterComponentInvocations(componentInvocations, components, invokedComponent, originalComponent);
+                }
+            }
+        }
         if (!filterComponent.uniqueName().equals(originalComponent.uniqueName())) {
             removeMatchingInvocations(filterComponent.componentInvocations(), componentInvocations);
         }
