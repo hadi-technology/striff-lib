@@ -7,7 +7,13 @@ import com.clarity.compiler.SourceFiles;
 import com.clarity.sourcemodel.OOPSourceCodeModel;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -19,7 +25,7 @@ import java.util.zip.ZipInputStream;
 
 public class ClarityTestUtil {
 
-    public static OOPSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref, String token)
+    public static OOPSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref, String token, Lang lang)
             throws Exception {
 
         String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/zipball/" + URLEncoder.encode(ref.trim(), "UTF-8") + "?access_token=" + token;
@@ -28,7 +34,7 @@ public class ClarityTestUtil {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copy(new BufferedInputStream(conn.getInputStream(), 1024), baos);
         final SourceFiles sourceFiles = extractProjectFromArchive(new ByteArrayInputStream(baos.toByteArray()),
-                null, Lang.JAVA);
+                null, lang);
         OOPSourceCodeModel model = new ParsedProject(sourceFiles).model();
         return model;
     }

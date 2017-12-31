@@ -61,11 +61,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
             if (component.componentType().isBaseComponent() && !component.uniqueName().contains("(")) {
                 // list of methods from this component we don't want to display in the diagram
                 List<String> ignoreMethods = new ArrayList<>();
-                if (component.name().contains("SubscribeBuilder")) {
-                    System.out.println("");
-                }
                 findMethodsToIgnoreInDiagram(component, component.uniqueName(), allComponents, ignoreMethods);
-
                 if (component.modifiers().contains(
                         // if class is abstract...
                         OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT))) {
@@ -73,7 +69,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             + " ");
                 }
                 // add component type name (eg: class, interface, etc...)
-                cmpPUMLStr += (OOPSourceModelConstants.getJavaComponentTypes().get(component.componentType()) + " ");
+                cmpPUMLStr += component.componentType().getValue() + " ";
                 // add the actual component short name
                 cmpPUMLStr += (component.uniqueName() + " ");
                 // add class generics if exist
@@ -83,6 +79,9 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 // use special blue color for class stereotype
                 if (component.componentType() == ComponentType.CLASS && !component.modifiers().contains("abstract")) {
                     cmpPUMLStr += " << (C,5599ff) >> ";
+                } else if (component.componentType() == ComponentType.STRUCT) {
+                    // use special orange color for struct stereotype
+                    cmpPUMLStr += " << (S,ffbb55) >> ";
                 }
                 // open the brackets
                 componentPUMLStrings
@@ -121,7 +120,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             }
 
                             if (childCmp.componentType().isMethodComponent()) {
-                                childCmpPUMLStr += new DiagramMethodDisplayName(childCmp.uniqueName()).value() + " ";
+                                childCmpPUMLStr += new DiagramMethodDisplayName(childCmp, allComponents).value() + " ";
                             } else {
                                 childCmpPUMLStr += childCmp.name() + " ";
                             }
@@ -131,20 +130,22 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                                     && (childCmp.componentType() == ComponentType.METHOD
                                             || childCmp.componentType() == ComponentType.CONSTRUCTOR)) {
                                 // add the return/ field type
-                                childCmpPUMLStr += (" : ");
-                                childCmpPUMLStr += ("void");
+                                // childCmpPUMLStr += (" : ");
+                                // childCmpPUMLStr += ("void");
                             } else {
                                 if (childCmp.componentType() != ComponentType.ENUM_CONSTANT) {
                                     // add the return/ field type
-                                    childCmpPUMLStr += (" : ");
-                                    if (!childCmp.value().contains(".")) {
-                                        childCmpPUMLStr += (childCmp.value());
-                                    } else {
-                                        if (childCmp.value().contains(".")) {
-                                            childCmpPUMLStr += (childCmp.value()
-                                                    .substring(childCmp.value().lastIndexOf(".") + 1));
+                                    if (childCmp.value() != null) {
+                                        childCmpPUMLStr += (" : ");
+                                        if (!childCmp.value().contains(".")) {
+                                            childCmpPUMLStr += (childCmp.value());
                                         } else {
-                                            childCmpPUMLStr += childCmp.value();
+                                            if (childCmp.value().contains(".")) {
+                                                childCmpPUMLStr += (childCmp.value()
+                                                        .substring(childCmp.value().lastIndexOf(".") + 1));
+                                            } else {
+                                                childCmpPUMLStr += childCmp.value();
+                                            }
                                         }
                                     }
                                 }

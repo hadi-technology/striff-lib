@@ -1,33 +1,37 @@
 package com.clarity.binary.diagram.display;
 
-import org.apache.commons.lang.StringUtils;
+import com.clarity.sourcemodel.Component;
+import com.clarity.sourcemodel.OOPSourceModelConstants;
+
+import java.util.Map;
 
 public class DiagramMethodDisplayName implements DiagramDisplayName {
 
     private String displayName;
 
 
-    public DiagramMethodDisplayName(String methodComponentUniqueName) {
-        String longMethodName = methodComponentUniqueName.substring(0, methodComponentUniqueName.indexOf("("));
-        String shortMethodName;
-        if (longMethodName.contains(".")) {
-            shortMethodName = longMethodName.substring(longMethodName.lastIndexOf(".") + 1);
-        } else {
-            shortMethodName = longMethodName;
-        }
-        String methodParamList = methodComponentUniqueName.substring(longMethodName.length() + 1,
-                methodComponentUniqueName.length() - 1);
-        String[] longMethodParams = methodParamList.split(",");
-        String[] shortMethodParams = new String[longMethodParams.length];
-        int i = 0;
-        for (String longMethodParam : longMethodParams) {
-            if (longMethodParam.contains(".")) {
-                shortMethodParams[i++] = longMethodParam.substring(longMethodParam.lastIndexOf(".") + 1);
-            } else {
-                shortMethodParams[i++] = longMethodParam;
+    public DiagramMethodDisplayName(Component methodComponent, Map<String, Component> allComponents) {
+
+        displayName = methodComponent.name() + "(";
+        for (String methodChild : methodComponent.children()) {
+            Component child = allComponents.get(methodChild);
+            if (child != null && child.componentType() == OOPSourceModelConstants.ComponentType.METHOD_PARAMETER_COMPONENT) {
+                if (child.value() != null) {
+                    displayName += child.value() + ", ";
+                } else if (child.componentInvocations(OOPSourceModelConstants.ComponentInvocations.DECLARATION).size() > 0) {
+                    String methodParamType = child.componentInvocations(OOPSourceModelConstants.ComponentInvocations.DECLARATION).get(0).invokedComponent();
+                    if (methodParamType.contains(".")) {
+                        methodParamType = methodParamType.substring(methodParamType.lastIndexOf(".") + 1);
+                    }
+                    displayName += methodParamType + ", ";
+                }
             }
+            }
+        displayName = displayName.trim();
+        if (displayName.endsWith(",")) {
+            displayName = displayName.substring(0, displayName.length() - 1);
         }
-        this.displayName = shortMethodName + "(" + StringUtils.join(shortMethodParams, ", ") + ")";
+        displayName += ")";
     }
 
     @Override
