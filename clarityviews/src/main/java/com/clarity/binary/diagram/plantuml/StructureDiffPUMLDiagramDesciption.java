@@ -129,6 +129,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             } else if (childCmp.declarationTypeSnippet() == null
                                     && (childCmp.componentType() == ComponentType.METHOD
                                             || childCmp.componentType() == ComponentType.CONSTRUCTOR)) {
+                                childCmpPUMLStr += "";
                                 // add the return/ field type
                                 // childCmpPUMLStr += (" : ");
                                 // childCmpPUMLStr += ("void");
