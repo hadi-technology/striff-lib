@@ -34,9 +34,9 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     private DiagramColorScheme colorScheme;
 
     public StructureDiffPUMLDiagramDesciption(Set<Component> diagramComponents,
-            Set<BinaryClassRelationship> allRelationships, List<BinaryClassRelationship> deletedRelationships,
-            List<BinaryClassRelationship> addedRelationships, List<String> deletedComponents,
-            List<String> addedComponents, Map<String, Component> allComponents, DiagramColorScheme colorScheme) {
+                                              Set<BinaryClassRelationship> allRelationships, List<BinaryClassRelationship> deletedRelationships,
+                                              List<BinaryClassRelationship> addedRelationships, List<String> deletedComponents,
+                                              List<String> addedComponents, Map<String, Component> allComponents, DiagramColorScheme colorScheme) {
         this.diagramComponents = diagramComponents;
         this.allComponents = allComponents;
         this.addedComponents = addedComponents;
@@ -126,27 +126,18 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             }
                             if (childCmp.componentType() == ComponentType.ENUM) {
                                 break;
-                            } else if (childCmp.declarationTypeSnippet() == null
-                                    && (childCmp.componentType() == ComponentType.METHOD
-                                            || childCmp.componentType() == ComponentType.CONSTRUCTOR)) {
-                                childCmpPUMLStr += "";
+                            } else if (childCmp.componentType() != ComponentType.ENUM_CONSTANT) {
                                 // add the return/ field type
-                                // childCmpPUMLStr += (" : ");
-                                // childCmpPUMLStr += ("void");
-                            } else {
-                                if (childCmp.componentType() != ComponentType.ENUM_CONSTANT) {
-                                    // add the return/ field type
-                                    if (childCmp.value() != null) {
-                                        childCmpPUMLStr += (" : ");
-                                        if (!childCmp.value().contains(".")) {
-                                            childCmpPUMLStr += (childCmp.value());
+                                if (childCmp.value() != null) {
+                                    childCmpPUMLStr += (" : ");
+                                    if (!childCmp.value().contains(".")) {
+                                        childCmpPUMLStr += (childCmp.value());
+                                    } else {
+                                        if (childCmp.value().contains(".")) {
+                                            childCmpPUMLStr += (childCmp.value()
+                                                    .substring(childCmp.value().lastIndexOf(".") + 1));
                                         } else {
-                                            if (childCmp.value().contains(".")) {
-                                                childCmpPUMLStr += (childCmp.value()
-                                                        .substring(childCmp.value().lastIndexOf(".") + 1));
-                                            } else {
-                                                childCmpPUMLStr += childCmp.value();
-                                            }
+                                            childCmpPUMLStr += childCmp.value();
                                         }
                                     }
                                 }
@@ -237,14 +228,14 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 }
             }
         }
-            if (component != null && !component.uniqueName().equals(originalComponent)) {
-                for (String child : component.children()) {
-                    Component childCmp = allComponents.get(child);
-                    if (childCmp != null && childCmp.componentType().isMethodComponent()) {
-                        methodsToIgnore.add(childCmp.name());
-                    }
+        if (component != null && !component.uniqueName().equals(originalComponent)) {
+            for (String child : component.children()) {
+                Component childCmp = allComponents.get(child);
+                if (childCmp != null && childCmp.componentType().isMethodComponent()) {
+                    methodsToIgnore.add(childCmp.name());
                 }
             }
+        }
 
     }
 
@@ -299,7 +290,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     }
 
     private String colorTextBackground(Component cmp, List<String> addedComponents2, List<String> deletedComponents2,
-            String text) {
+                                       String text) {
         if (text.trim().isEmpty()) {
             return text;
         } else if (addedComponents2.contains(cmp.uniqueName())) {
@@ -312,7 +303,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     }
 
     private String colorClassBackground(Component cmp, List<String> addedComponents2, List<String> deletedComponents2,
-            String text) {
+                                        String text) {
         if (addedComponents2.contains(cmp.uniqueName())) {
             return text + " " + colorScheme.addedComponentColor();
         } else if (deletedComponents2.contains(cmp.uniqueName())) {
@@ -323,7 +314,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     }
 
     private String arrowDiffColor(BinaryClassRelationship relation, List<BinaryClassRelationship> addedRelationships,
-            List<BinaryClassRelationship> deletedRelationships) {
+                                  List<BinaryClassRelationship> deletedRelationships) {
         for (BinaryClassRelationship bCR : addedRelationships) {
             if (bCR.equals(relation)) {
                 return colorScheme.addedRelationColor();
