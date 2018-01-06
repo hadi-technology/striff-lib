@@ -45,7 +45,7 @@ public class SDView implements ClarityBotView, Serializable {
         // not in the older code base.
         List<String> addedComponents = new ArrayList<String>();
         for (final Map.Entry<String, Component> entry : newerModel.getComponents().entrySet()) {
-            if (!olderModel.containsComponent(entry.getKey())) {
+            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !olderModel.containsComponent(entry.getKey())) {
                 addedComponents.add(entry.getKey());
             }
         }
@@ -69,7 +69,7 @@ public class SDView implements ClarityBotView, Serializable {
         // base but do exist in the older code base.
         List<String> deletedComponents = new ArrayList<String>();
         for (final Map.Entry<String, Component> entry : olderModel.getComponents().entrySet()) {
-            if (!newerModel.containsComponent(entry.getKey())) {
+            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !newerModel.containsComponent(entry.getKey())) {
                 deletedComponents.add(entry.getKey());
             }
         }

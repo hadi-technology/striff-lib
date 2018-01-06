@@ -6,6 +6,6 @@
 <dependency>
     <groupId>com.clarity</groupId>
     <artifactId>clarity-bot-binary</artifactId>
-    <version>2.5.2</version>
+    <version>2.5.3</version>
 </dependency>
 ```

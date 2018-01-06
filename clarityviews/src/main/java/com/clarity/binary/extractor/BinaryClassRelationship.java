@@ -1,12 +1,11 @@
 package com.clarity.binary.extractor;
 
-import java.io.Serializable;
-
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
 import com.clarity.sourcemodel.Component;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import java.io.Serializable;
 
 /**
  * Represents the relationship between two classes, implied context is a UML
@@ -128,8 +127,6 @@ public class BinaryClassRelationship implements Serializable {
      *            association type.
      * @param targetMultiplicity
      *            multiplicity type on the target/end side.
-     * @param code
-     *            relevant code for the overwriting relationship
      */
     private void overwriteSideRelationship(final boolean forwardDir, final BinaryClassAssociation association,
             final BinaryClassMultiplicity targetMultiplicity) {
@@ -175,13 +172,10 @@ public class BinaryClassRelationship implements Serializable {
                 && testRelationship.aSideAssociation.equals(this.aSideAssociation)
                 && testRelationship.bSideAssociation.equals(this.bSideAssociation)) {
             return true;
-        } else if (testRelationship.classA.uniqueName().equals(this.classB.uniqueName())
+        } else return testRelationship.classA.uniqueName().equals(this.classB.uniqueName())
                 && testRelationship.classB.uniqueName().equals(this.classA.uniqueName())
                 && testRelationship.aSideAssociation.equals(this.bSideAssociation)
-                && testRelationship.bSideAssociation.equals(this.aSideAssociation)) {
-            return true;
-        }
-        return false;
+                && testRelationship.bSideAssociation.equals(this.aSideAssociation);
     }
 
     @Override

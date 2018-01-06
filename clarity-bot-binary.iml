@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/clarityviews/bin/target/classes" />
-    <output-test url="file://$MODULE_DIR$/clarityviews/bin/target/test-classes" />
-    <content url="file://$MODULE_DIR$/clarityviews/bin">
-      <sourceFolder url="file://$MODULE_DIR$/clarityviews/bin/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/clarityviews/bin/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/clarityviews/bin/src/test/java" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/clarityviews/bin/target" />
+    <output url="file://$MODULE_DIR$/clarityviews/target/classes" />
+    <output-test url="file://$MODULE_DIR$/clarityviews/target/test-classes" />
+    <content url="file://$MODULE_DIR$/clarityviews">
+      <sourceFolder url="file://$MODULE_DIR$/clarityviews/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/clarityviews/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/clarityviews/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/clarityviews/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.4" level="project" />
-    <orderEntry type="library" name="Maven: com.github.javaparser:javaparser-core:2.5.1" level="project" />
     <orderEntry type="library" name="Maven: net.sf.oval:oval:1.86" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.htmlcompressor:htmlcompressor:1.5.2" level="project" />
     <orderEntry type="library" name="Maven: net.sourceforge.plantuml:plantuml:8059" level="project" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.10.2" level="project" />
-    <orderEntry type="library" name="Maven: com.clarityviews:clarpse:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.clarityviews:clarpse:3.7.4" level="project" />
     <orderEntry type="library" name="Maven: com.google.javascript:closure-compiler:v20170626" level="project" />
     <orderEntry type="library" name="Maven: com.google.javascript:closure-compiler-externs:v20170626" level="project" />
     <orderEntry type="library" name="Maven: args4j:args4j:2.33" level="project" />
@@ -27,6 +26,37 @@
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.7" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.jsinterop:jsinterop-annotations:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.tunnelvisionlabs:antlr4-runtime:4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.tunnelvisionlabs:antlr4-annotations:4.3" level="project" />
+    <orderEntry type="library" name="Maven: com.tunnelvisionlabs:antlr4-maven-plugin:4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:3.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-model:3.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-artifact:3.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.sonatype.sisu:sisu-inject-plexus:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-component-annotations:1.5.5" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-classworlds:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.sonatype.sisu:sisu-inject-bean:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: org.sonatype.sisu:sisu-guice:no_aop:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.sonatype.sisu:sisu-guava:0.9.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-project:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-settings:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-profile:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-artifact-manager:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-repository-metadata:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven.wagon:wagon-provider-api:1.0-beta-6" level="project" />
+    <orderEntry type="library" name="Maven: backport-util-concurrent:backport-util-concurrent:3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-registry:2.2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-interpolation:1.11" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-utils:1.5.15" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-container-default:1.0-alpha-9-stable-1" level="project" />
+    <orderEntry type="library" name="Maven: classworlds:classworlds:1.1-alpha-2" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-compiler-api:2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.sonatype.plexus:plexus-build-api:0.0.7" level="project" />
+    <orderEntry type="library" name="Maven: com.tunnelvisionlabs:antlr4:4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.5.2" level="project" />
+    <orderEntry type="library" name="Maven: org.antlr:ST4:4.0.8" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:javaparser-core:3.5.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />

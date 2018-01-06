@@ -7,7 +7,6 @@ import com.clarity.binary.LineBreakedText;
 import com.clarity.binary.SimplifiedJavaDocText;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
-import com.clarity.binary.diagram.display.DiagramMethodDisplayName;
 import com.clarity.binary.diagram.scheme.DiagramColorScheme;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.ColoredBinaryClassAssociation;
@@ -73,8 +72,8 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 // add the actual component short name
                 cmpPUMLStr += (component.uniqueName() + " ");
                 // add class generics if exist
-                if (component.declarationTypeSnippet() != null) {
-                    cmpPUMLStr += (component.declarationTypeSnippet());
+                if (component.codeFragment() != null) {
+                    cmpPUMLStr += (component.codeFragment());
                 }
                 // use special blue color for class stereotype
                 if (component.componentType() == ComponentType.CLASS && !component.modifiers().contains("abstract")) {
@@ -119,28 +118,11 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                                 childCmpPUMLStr += ("} ");
                             }
 
-                            if (childCmp.componentType().isMethodComponent()) {
-                                childCmpPUMLStr += new DiagramMethodDisplayName(childCmp, allComponents).value() + " ";
-                            } else {
-                                childCmpPUMLStr += childCmp.name() + " ";
+                            if (childCmp.componentType().isMethodComponent() || childCmp.componentType().isVariableComponent()) {
+                                childCmpPUMLStr += childCmp.codeFragment() + " ";
                             }
                             if (childCmp.componentType() == ComponentType.ENUM) {
-                                break;
-                            } else if (childCmp.componentType() != ComponentType.ENUM_CONSTANT) {
-                                // add the return/ field type
-                                if (childCmp.value() != null) {
-                                    childCmpPUMLStr += (" : ");
-                                    if (!childCmp.value().contains(".")) {
-                                        childCmpPUMLStr += (childCmp.value());
-                                    } else {
-                                        if (childCmp.value().contains(".")) {
-                                            childCmpPUMLStr += (childCmp.value()
-                                                    .substring(childCmp.value().lastIndexOf(".") + 1));
-                                        } else {
-                                            childCmpPUMLStr += childCmp.value();
-                                        }
-                                    }
-                                }
+                                childCmpPUMLStr += childCmp.name() + " ";
                             }
                         }
                     }
@@ -167,7 +149,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                         longestLine = finalPUMLText.length();
                     }
                 }
-                // if abstract class or interface, add java doc
+                // if interface, add doc
                 if (longestLine < 80) {
                     longestLine = 80;
                 }
@@ -215,7 +197,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION).isEmpty()) {
             for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
                 Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
-                if (invkCmp != null) {
+                if (invkCmp != null && !component.equals(invkCmp)) {
                     findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
                 }
             }
@@ -223,7 +205,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION).isEmpty()) {
             for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION)) {
                 Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
-                if (invkCmp != null) {
+                if (invkCmp != null && !component.equals(invkCmp)) {
                     findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
                 }
             }

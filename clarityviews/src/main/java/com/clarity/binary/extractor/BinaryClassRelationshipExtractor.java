@@ -4,13 +4,6 @@
 
 package com.clarity.binary.extractor;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.clarity.ClarpseUtil;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
@@ -22,35 +15,36 @@ import com.clarity.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.clarity.sourcemodel.OOPSourceModelConstants.ComponentInvocations;
 import com.clarity.sourcemodel.OOPSourceModelConstants.ComponentType;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Returns a list of binary class relationships from a given source code model.
  */
 public class BinaryClassRelationshipExtractor<T> implements Serializable {
-
-    public enum InvocationSiteProperty {
-
-        FIELD, LOCAL, NONE, METHOD_PARAMETER, CONSTRUCTOR_PARAMETER;
-    }
-
-    private static final long serialVersionUID = -8777271960106904851L;
 
     /**
      * Finds external class links from all the field, method and method params
      * in the given component.
      */
     private void genAssociations(final Component currentComponent, final Map<String, Component> components,
-            final Map<String, BinaryClassRelationship> binaryRelationships) {
+                                 final Map<String, BinaryClassRelationship> binaryRelationships) {
 
         // only consider non-base components (eg: methods, fields, etc ..)
         if (!currentComponent.componentType().isBaseComponent()) {
-            // get the class the current component we are analyzing represents
-            final Component currentClass = ClarpseUtil.getParentBaseComponent(currentComponent, components);
-            if (currentClass != null) {
+            // get the class the current component's parent base component
+            final Component currentBaseComponent = ClarpseUtil.getParentBaseComponent(currentComponent, components);
+            if (currentBaseComponent != null) {
                 // get a list of all the external class references this current
                 // component has..
                 final Set<ComponentInvocation> componentInvocations = currentComponent.componentInvocations();
                 // remove redundant invocations..
-                filterComponentInvocations(componentInvocations, components, currentClass, currentClass);
+                filterComponentInvocations(componentInvocations, components, currentBaseComponent, currentBaseComponent);
+                // loop through list of invocations and create binary class relationships as appropriate..
                 for (final ComponentInvocation externalClassTypeRef : componentInvocations) {
                     if (!externalClassTypeRef.empty()) {
                         final String externalClassType = externalClassTypeRef.invokedComponent();
@@ -68,45 +62,36 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
 
                             }
                             // create external class link based on calling
-                            // component
-                            // type
+                            // component type
                             // --> IF INVOCATION SITE IS CLASS FIELD:
                             if (currentComponent.componentType() == ComponentType.FIELD) {
-
                                 if (currentComponent.modifiers().contains(
                                         OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))
                                         || currentComponent.modifiers().contains(OOPSourceModelConstants
-                                                .getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
+                                        .getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
                                     bCA = BinaryClassAssociation.COMPOSITION;
                                 } else {
                                     bCA = BinaryClassAssociation.AGGREGATION;
                                 }
-                                externalClassLink = new ExternalClassLink(currentClass, targetClass, bCM,
-                                        com.clarity.binary.ClarityUtil.InvocationSiteProperty.FIELD,
+                                externalClassLink = new ExternalClassLink(currentBaseComponent, targetClass, bCM,
                                         currentComponent.modifiers(), bCA);
-
                                 // --> IF INVOCATION SITE IS METHOD
                             } else if ((currentComponent.componentType() == ComponentType.METHOD)
-                                    && !currentClass.uniqueName().equals(targetClass.uniqueName())) {
-
+                                    && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
                                 bCA = BinaryClassAssociation.ASSOCIATION;
-                                externalClassLink = new ExternalClassLink(currentClass, targetClass, bCM,
-                                        com.clarity.binary.ClarityUtil.InvocationSiteProperty.METHOD_PARAMETER,
+                                externalClassLink = new ExternalClassLink(currentBaseComponent, targetClass, bCM,
                                         currentComponent.modifiers(), bCA);
                                 // --> IF INVOCATION SITE IS CONSTRUCTOR
                             } else if ((currentComponent.componentType() == ComponentType.CONSTRUCTOR)
-                                    && !currentClass.uniqueName().equals(targetClass.uniqueName())) {
-
+                                    && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
                                 bCA = BinaryClassAssociation.ASSOCIATION;
-                                externalClassLink = new ExternalClassLink(currentClass, targetClass, bCM,
-                                        com.clarity.binary.ClarityUtil.InvocationSiteProperty.CONSTRUCTOR_PARAMETER,
+                                externalClassLink = new ExternalClassLink(currentBaseComponent, targetClass, bCM,
                                         currentComponent.modifiers(), bCA);
+                                // --> IF INVOCATION SITE IS LOCAL VAR
                             } else if ((currentComponent.componentType() == ComponentType.LOCAL)
-                                    && !currentClass.uniqueName().equals(targetClass.uniqueName())) {
-
+                                    && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
                                 bCA = BinaryClassAssociation.WEAK_ASSOCIATION;
-                                externalClassLink = new ExternalClassLink(currentClass, targetClass, bCM,
-                                        com.clarity.binary.ClarityUtil.InvocationSiteProperty.LOCAL,
+                                externalClassLink = new ExternalClassLink(currentBaseComponent, targetClass, bCM,
                                         currentComponent.modifiers(), bCA);
                             } else {
                                 continue;
@@ -119,13 +104,15 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
         }
     }
 
+    private static final long serialVersionUID = -8777271960106904851L;
+
     private void filterComponentInvocations(Set<ComponentInvocation> componentInvocations,
-            Map<String, Component> components, Component filterComponent, Component originalComponent) {
+                                            Map<String, Component> components, Component filterComponent, Component originalComponent) {
 
         if (!filterComponent.componentInvocations(ComponentInvocations.IMPLEMENTATION).isEmpty()) {
             for (ComponentInvocation inv : filterComponent.componentInvocations(ComponentInvocations.IMPLEMENTATION)) {
                 Component invokedComponent = components.get(inv.invokedComponent());
-                if (invokedComponent != null) {
+                if (invokedComponent != null && !filterComponent.equals(invokedComponent)) {
                     filterComponentInvocations(componentInvocations, components, invokedComponent, originalComponent);
                 }
             }
@@ -134,7 +121,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
         if (!filterComponent.componentInvocations(ComponentInvocations.EXTENSION).isEmpty()) {
             for (ComponentInvocation inv : filterComponent.componentInvocations(ComponentInvocations.EXTENSION)) {
                 Component invokedComponent = components.get(inv.invokedComponent());
-                if (invokedComponent != null) {
+                if (invokedComponent != null && !filterComponent.equals(invokedComponent)) {
                     filterComponentInvocations(componentInvocations, components, invokedComponent, originalComponent);
                 }
             }
@@ -149,7 +136,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
      * invocations.
      */
     private void removeMatchingInvocations(Set<ComponentInvocation> invokedComponentsToBeRemoved,
-            Set<ComponentInvocation> externalClassTypeReferences) {
+                                           Set<ComponentInvocation> externalClassTypeReferences) {
 
         List<ComponentInvocation> invocationsCopy = new ArrayList<ComponentInvocation>(externalClassTypeReferences);
         for (ComponentInvocation tmpInvocation : invocationsCopy) {
@@ -164,12 +151,11 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
     /**
      * Generates binary class relationships from the given external class link.
      *
-     * @param externalClassLink
-     *            external class link from which to generate binary class
-     *            relationships
+     * @param externalClassLink external class link from which to generate binary class
+     *                          relationships
      */
     private void generateBinaryClassRelationship(final ExternalClassLink externalClassLink,
-            final Map<String, BinaryClassRelationship> binaryRelationships) {
+                                                 final Map<String, BinaryClassRelationship> binaryRelationships) {
 
         // determine if we need to merge the incoming External Class Link with
         // an existing binary class relationship
@@ -187,7 +173,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
             // there is no existing binary class relationship b/w the two
             // classes, create a new one
             binaryRelationships.put(BinaryClassRelationship
-                    .generateRelationshipName(externalClassLink.getOrignalClass(), externalClassLink.getTargetClass()),
+                            .generateRelationshipName(externalClassLink.getOrignalClass(), externalClassLink.getTargetClass()),
                     new BinaryClassRelationship(externalClassLink));
         }
     }
@@ -196,7 +182,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
      * Analyzes the generalization relationships for the given class.
      */
     private void genClassGeneralizations(final Component sourceClass, final Map<String, Component> classes,
-            final Map<String, BinaryClassRelationship> binaryRelationships) {
+                                         final Map<String, BinaryClassRelationship> binaryRelationships) {
 
         final List<ComponentInvocation> superClasses = sourceClass.componentInvocations(ComponentInvocations.EXTENSION);
         if (!superClasses.isEmpty()) {
@@ -205,7 +191,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
                     final Component targetClass = classes.get(superClass.invokedComponent());
                     final ExternalClassLink generalizationExternalClassLink = new ExternalClassLink(sourceClass,
                             targetClass, new BinaryClassMultiplicity(DefaultClassMultiplicities.NONE),
-                            com.clarity.binary.ClarityUtil.InvocationSiteProperty.NONE, sourceClass.modifiers(),
+                            sourceClass.modifiers(),
                             BinaryClassAssociation.GENERALISATION);
 
                     generateBinaryClassRelationship(generalizationExternalClassLink, binaryRelationships);
@@ -215,13 +201,11 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
     }
 
     /**
-     * @param starClass
-     *            class to be analyzed for relationships.
-     * @param codeBaseComponents
-     *            list of all classes in the code base.
+     * @param starClass          class to be analyzed for relationships.
+     * @param codeBaseComponents list of all classes in the code base.
      */
     private void genClassifierRelationships(final Component starClass, final Map<String, Component> codeBaseComponents,
-            final Map<String, BinaryClassRelationship> binaryRelationships) {
+                                            final Map<String, BinaryClassRelationship> binaryRelationships) {
 
         // Scan class signature for any classes that have been extended
         genClassGeneralizations(starClass, codeBaseComponents, binaryRelationships);
@@ -235,7 +219,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
      * Analyzes the realization relationships for the given class.
      */
     private void genClassRealizations(final Component sourceClass, final Map<String, Component> classes,
-            final Map<String, BinaryClassRelationship> binaryRelationships) {
+                                      final Map<String, BinaryClassRelationship> binaryRelationships) {
 
         final List<ComponentInvocation> implementedClasses = sourceClass
                 .componentInvocations(ComponentInvocations.IMPLEMENTATION);
@@ -245,7 +229,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
                     final Component targetClass = classes.get(implementedClass.invokedComponent());
                     final ExternalClassLink realizationExternalClassLink = new ExternalClassLink(sourceClass,
                             targetClass, new BinaryClassMultiplicity(DefaultClassMultiplicities.NONE),
-                            com.clarity.binary.ClarityUtil.InvocationSiteProperty.NONE, sourceClass.modifiers(),
+                            sourceClass.modifiers(),
                             BinaryClassAssociation.REALIZATION);
                     generateBinaryClassRelationship(realizationExternalClassLink, binaryRelationships);
                 }
@@ -254,7 +238,7 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
     }
 
     public final Map<String, BinaryClassRelationship> generateBinaryClassRelationships(
-            final OOPSourceCodeModel sourceCodeModel) throws Exception {
+            final OOPSourceCodeModel sourceCodeModel) {
 
         final Map<String, BinaryClassRelationship> binaryRelationships = new ConcurrentHashMap<String, BinaryClassRelationship>();
         final Map<String, com.clarity.sourcemodel.Component> components = sourceCodeModel.getComponents();
@@ -267,5 +251,10 @@ public class BinaryClassRelationshipExtractor<T> implements Serializable {
             }
         }
         return binaryRelationships;
+    }
+
+    public enum InvocationSiteProperty {
+
+        FIELD, LOCAL, NONE, METHOD_PARAMETER, CONSTRUCTOR_PARAMETER
     }
 }
