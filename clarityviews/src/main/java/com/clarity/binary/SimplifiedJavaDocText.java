@@ -1,10 +1,10 @@
 package com.clarity.binary;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 public class SimplifiedJavaDocText implements Text {
 
@@ -31,19 +31,6 @@ public class SimplifiedJavaDocText implements Text {
                 }
                 i--;
                 continue;
-            } else if (docLines.get(i).contains("{@link ")) {
-                docLines.set(i, docLines.get(i).replaceAll("\\{\\@link ", ""));
-                while (i < docLines.size() && !docLines.get(i).contains("}")) {
-                    i++;
-                }
-                docLines.set(i, docLines.get(i).replaceAll("}", ""));
-            } else if (docLines.get(i).contains("{@linkplain")) {
-                docLines.set(i, docLines.get(i).replaceAll("\\{\\@linkplain ", ""));
-                while (i < docLines.size() && !docLines.get(i).contains("}")) {
-                    i++;
-                }
-                docLines.set(i, docLines.get(i).replaceAll("}", ""));
-
             } else if (docLines.get(i).contains("@see")) {
                 docLines.set(i, docLines.get(i).replaceAll("@see ", "See "));
             }

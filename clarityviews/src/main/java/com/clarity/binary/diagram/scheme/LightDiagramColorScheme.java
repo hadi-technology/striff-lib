@@ -64,7 +64,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classAttributeFontSize() {
-        return "18";
+        return "20";
     }
 
     @Override

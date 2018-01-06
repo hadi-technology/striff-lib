@@ -171,8 +171,10 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             // splits the comment into equal sized lines..
                             String[] lines = commentStr.split("\n");
                             for (int i = 0; i < lines.length; i++) {
+                                // replace curly brackets. If there is code in the comment, PlantUML will
+                                // throw an error unless we do so.
                                 lines[i] = colorTextBackground(component, addedComponents, deletedComponents,
-                                        lines[i].trim());
+                                        lines[i].trim().replaceAll("\\{", "❴").replaceAll("\\}", "❵"));
                             }
                             // adds the doc right after the component
                             // declaration (after the first element)
