@@ -10,13 +10,12 @@ import java.io.Serializable;
 /**
  * Represents the relationship between two classes, implied context is a UML
  * Class Diagram.
- *
+ * <p>
  * We maintain two arbitrary sides that exists on the ends of the relationship,
  * sides A and B. At each side in a binary class relationship, there exits a
  * class, association, multiplicity, etc.. - these are tracked and updated as
  * external link objects are received, see
  * resolveExtClassLinkWithBinaryRelationship().
- *
  */
 public class BinaryClassRelationship implements Serializable {
 
@@ -25,15 +24,20 @@ public class BinaryClassRelationship implements Serializable {
     private static String classNameSplitter = "<<-->>";
 
     /**
-     * @param originaClass
-     *            original class
-     * @param targetClass
-     *            target class.
-     * @return relationship name.
+     * @param externalClassLink the external class link object from which to create the binary
+     *                          class relationship.
      */
-    public static String generateRelationshipName(final Component originaClass, final Component targetClass) {
+    public BinaryClassRelationship(final ExternalClassLink externalClassLink) {
 
-        return originaClass.name() + classNameSplitter + targetClass.name();
+        classA = externalClassLink.getOrignalClass();
+        classB = externalClassLink.getTargetClass();
+        aSideMultiplicity = new BinaryClassMultiplicity(DefaultClassMultiplicities.NONE);
+        bSideMultiplicity = externalClassLink.getTargetClassMultiplicity();
+        aSideAssociation = externalClassLink.getAssociationType();
+        bSideAssociation = BinaryClassAssociation.NONE;
+        aSideAction = aSideAssociation.getAssociationLabel();
+        bSideAction = "";
+        name = (generateRelationshipName(classA, classB));
     }
 
     public static String getClassNameSplitter() {
@@ -51,21 +55,13 @@ public class BinaryClassRelationship implements Serializable {
     private String bSideAction;
 
     /**
-     * @param externalClassLink
-     *            the external class link object from which to create the binary
-     *            class relationship.
+     * @param originaClass original class
+     * @param targetClass  target class.
+     * @return relationship name.
      */
-    public BinaryClassRelationship(final ExternalClassLink externalClassLink) {
+    public static String generateRelationshipName(final Component originaClass, final Component targetClass) {
 
-        classA = externalClassLink.getOrignalClass();
-        classB = externalClassLink.getTargetClass();
-        aSideMultiplicity = new BinaryClassMultiplicity(DefaultClassMultiplicities.NONE);
-        bSideMultiplicity = externalClassLink.getTargetClassMultiplicity();
-        aSideAssociation = externalClassLink.getAssociationType();
-        bSideAssociation = BinaryClassAssociation.NONE;
-        aSideAction = aSideAssociation.getAssociationLabel();
-        bSideAction = "";
-        name = (generateRelationshipName(classA, classB));
+        return originaClass.name() + classNameSplitter + targetClass.name();
     }
 
     public final String getaSideAction() {
@@ -81,10 +77,9 @@ public class BinaryClassRelationship implements Serializable {
     }
 
     /**
-     * @param forwardDirection
-     *            true if association goes from A to B (represents direction of
-     *            arrow between to classes on a UML Class Diagram, false
-     *            otherwise.
+     * @param forwardDirection true if association goes from A to B (represents direction of
+     *                         arrow between to classes on a UML Class Diagram, false
+     *                         otherwise.
      * @return association type of the binary class relationship.
      */
     private BinaryClassAssociation getAssociation(final boolean forwardDirection) {
@@ -121,15 +116,12 @@ public class BinaryClassRelationship implements Serializable {
     }
 
     /**
-     * @param forwardDir
-     *            true if relationship association A -> B, false otherwise.
-     * @param association
-     *            association type.
-     * @param targetMultiplicity
-     *            multiplicity type on the target/end side.
+     * @param forwardDir         true if relationship association A -> B, false otherwise.
+     * @param association        association type.
+     * @param targetMultiplicity multiplicity type on the target/end side.
      */
     private void overwriteSideRelationship(final boolean forwardDir, final BinaryClassAssociation association,
-            final BinaryClassMultiplicity targetMultiplicity) {
+                                           final BinaryClassMultiplicity targetMultiplicity) {
         if (forwardDir) {
             aSideAssociation = association;
             bSideMultiplicity = targetMultiplicity;
@@ -145,13 +137,10 @@ public class BinaryClassRelationship implements Serializable {
      * Updates the existing binary relationship b/w two classes to reflect the
      * newly found external class link.
      *
-     * @param isDirForward
-     *            The direction of the external class link
-     * @param existingRelationship
-     *            The existing binary class relationship
-     * @param incomingLink
-     *            the incoming external class link we need to incorporate into
-     *            the binary class relationship
+     * @param isDirForward         The direction of the external class link
+     * @param existingRelationship The existing binary class relationship
+     * @param incomingLink         the incoming external class link we need to incorporate into
+     *                             the binary class relationship
      * @return
      */
     public final void resolveExtClassLink(final boolean isDirForward, final ExternalClassLink incomingLink) {
@@ -172,10 +161,12 @@ public class BinaryClassRelationship implements Serializable {
                 && testRelationship.aSideAssociation.equals(this.aSideAssociation)
                 && testRelationship.bSideAssociation.equals(this.bSideAssociation)) {
             return true;
-        } else return testRelationship.classA.uniqueName().equals(this.classB.uniqueName())
-                && testRelationship.classB.uniqueName().equals(this.classA.uniqueName())
-                && testRelationship.aSideAssociation.equals(this.bSideAssociation)
-                && testRelationship.bSideAssociation.equals(this.aSideAssociation);
+        } else {
+            return testRelationship.classA.uniqueName().equals(this.classB.uniqueName())
+                    && testRelationship.classB.uniqueName().equals(this.classA.uniqueName())
+                    && testRelationship.aSideAssociation.equals(this.bSideAssociation)
+                    && testRelationship.bSideAssociation.equals(this.aSideAssociation);
+        }
     }
 
     @Override
@@ -184,6 +175,6 @@ public class BinaryClassRelationship implements Serializable {
                 + new HashCodeBuilder().append(this.classB.uniqueName()).toHashCode()
                 + new HashCodeBuilder().append(this.bSideAction).toHashCode()
                 + new HashCodeBuilder().append(this.aSideAction).toHashCode() + new HashCodeBuilder()
-                        .append(this.classB.uniqueName().length() + this.classA.uniqueName().length()).toHashCode();
+                .append(this.classB.uniqueName().length() + this.classA.uniqueName().length()).toHashCode();
     }
 }
