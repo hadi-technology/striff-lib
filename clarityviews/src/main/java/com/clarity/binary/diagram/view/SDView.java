@@ -123,6 +123,7 @@ public class SDView implements ClarityBotView, Serializable {
         if (mainComponents.size() == 0) {
             Log.info("Source models are basically equivalent, returning empty diagram");
             this.diagram = new PUMLDiagram(new EmptyStructureDiffDiagramDesciption(), new LightDiagramColorScheme(), 0);
+            return;
         }
 
         // generate a list of binary relationships needed to draw the entire

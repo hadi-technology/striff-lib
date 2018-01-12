@@ -207,7 +207,7 @@ public class RelatedComponentGroupTest {
     }
 
     @Test
-    public void testI() throws Exception {
+    public void componentsMentionedThroughDocsArePlacedOnDiagram() throws Exception {
         final RawFile file = new RawFile("ClassA.java", "package com.sample;" + "\n /**\n {@link ClassB classB  } \n */ \n public class ClassA { }");
         final RawFile file2 = new RawFile("ClassB.java", "package com.sample; public class ClassB {}");
         final SourceFiles reqCon = new SourceFiles(Lang.JAVA);

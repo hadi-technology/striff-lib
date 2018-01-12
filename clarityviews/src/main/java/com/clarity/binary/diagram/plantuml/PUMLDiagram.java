@@ -17,23 +17,30 @@ public class PUMLDiagram implements Diagram {
     private PUMLDiagramDescription plantUMLClassDiagramDescription;
     private DiagramColorScheme colorScheme;
     private int size;
-
+    private String svgText;
     public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, DiagramColorScheme colorScheme, int size) {
         this.plantUMLClassDiagramDescription = plantUMLClassDescription;
         this.colorScheme = colorScheme;
         this.size = size;
+        generateSVGText();
     }
 
+    private void generateSVGText() {
+        if (plantUMLClassDiagramDescription.description().isEmpty()) {
+            this.svgText = "";
+        } else {
+            final long startTime = new Date().getTime();
+            final String plantUMLString = genPlantUMLString();
+            final byte[] diagram = generateDiagram(plantUMLString);
+            final String diagramStr = new String(diagram);
+            System.out.println(
+                    " Clarity View diagram SVG text generated in " + (new Date().getTime() - startTime) + " milliseconds.");
+            this.svgText = diagramStr;
+        }
+    }
     @Override
     public final String svgText() {
-
-        final long startTime = new Date().getTime();
-        final String plantUMLString = genPlantUMLString();
-        final byte[] diagram = generateDiagram(plantUMLString);
-        final String diagramStr = new String(diagram);
-        System.out.println(
-                " Clarity View diagram SVG text generated in " + (new Date().getTime() - startTime) + " milliseconds.");
-        return diagramStr;
+        return this.svgText;
     }
 
     @Override
