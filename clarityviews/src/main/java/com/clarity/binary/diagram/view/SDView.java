@@ -97,7 +97,7 @@ public class SDView implements ClarityBotView, Serializable {
                 addedRelationships.add(relation);
                 int relationAStr = relation.getaSideAssociation().getStrength();
                 int relationBStr = relation.getbSideAssociation().getStrength();
-                if ((relationAStr + relationBStr) >= BinaryClassAssociation.ASSOCIATION.getStrength()) {
+                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
                     mainComponents.add(relation.getClassA().uniqueName());
                     mainComponents.add(relation.getClassB().uniqueName());
                 }
@@ -113,7 +113,7 @@ public class SDView implements ClarityBotView, Serializable {
                 deletedRelationships.add(relation);
                 int relationAStr = relation.getaSideAssociation().getStrength();
                 int relationBStr = relation.getbSideAssociation().getStrength();
-                if ((relationAStr + relationBStr) >= BinaryClassAssociation.ASSOCIATION.getStrength()) {
+                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
                     mainComponents.add(relation.getClassA().uniqueName());
                     mainComponents.add(relation.getClassB().uniqueName());
                 }
