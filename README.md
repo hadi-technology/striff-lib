@@ -1,5 +1,5 @@
 # clarity-bot-binary
-
+ 
 ```
 <dependency>
     <groupId>com.clarity</groupId>
