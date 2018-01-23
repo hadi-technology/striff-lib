@@ -18,14 +18,15 @@ public class PUMLDiagram implements Diagram {
     private DiagramColorScheme colorScheme;
     private int size;
     private String svgText;
-    public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, DiagramColorScheme colorScheme, int size) {
+
+    public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, DiagramColorScheme colorScheme, int size) throws Exception {
         this.plantUMLClassDiagramDescription = plantUMLClassDescription;
         this.colorScheme = colorScheme;
         this.size = size;
         generateSVGText();
     }
 
-    private void generateSVGText() {
+    private void generateSVGText() throws Exception {
         if (plantUMLClassDiagramDescription.description().isEmpty()) {
             this.svgText = "";
         } else {
@@ -36,6 +37,9 @@ public class PUMLDiagram implements Diagram {
             System.out.println(
                     " Clarity View diagram SVG text generated in " + (new Date().getTime() - startTime) + " milliseconds.");
             this.svgText = diagramStr;
+            if (svgText.contains("Syntax Error")) {
+                throw new Exception("A PUML syntax error occurred while generating this diagram!");
+            }
         }
     }
     @Override

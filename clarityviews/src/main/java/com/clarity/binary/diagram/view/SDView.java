@@ -4,18 +4,15 @@ import com.clarity.binary.MergedSourceCodeModel;
 import com.clarity.binary.diagram.Diagram;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.RelatedBaseComponentsGroup;
-import com.clarity.binary.diagram.plantuml.EmptyStructureDiffDiagramDesciption;
 import com.clarity.binary.diagram.plantuml.PUMLDiagram;
 import com.clarity.binary.diagram.plantuml.PUMLDiagramDescription;
 import com.clarity.binary.diagram.plantuml.StructureDiffPUMLDiagramDesciption;
 import com.clarity.binary.diagram.scheme.DiagramColorScheme;
-import com.clarity.binary.diagram.scheme.LightDiagramColorScheme;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.BinaryClassRelationshipExtractor;
 import com.clarity.sourcemodel.Component;
 import com.clarity.sourcemodel.OOPSourceCodeModel;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
-import net.sourceforge.plantuml.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -121,9 +118,7 @@ public class SDView implements ClarityBotView, Serializable {
         }
 
         if (mainComponents.size() == 0) {
-            Log.info("Source models are basically equivalent, returning empty diagram");
-            this.diagram = new PUMLDiagram(new EmptyStructureDiffDiagramDesciption(), new LightDiagramColorScheme(), 0);
-            return;
+            throw new EmptySDException("No major structural differences found!");
         }
 
         // generate a list of binary relationships needed to draw the entire
@@ -139,13 +134,14 @@ public class SDView implements ClarityBotView, Serializable {
         Set<Component> keyComponents = new RelatedBaseComponentsGroup(mergedCodeBase, allBinaryRelationships, mainComponents).components();
 
         if (keyComponents.size() > maxSDSize) {
-            throw new Exception("Clarity-bot could not draw this diagram because it is too large!");
+            throw new SDTooLargeException("Diagram could not be drawn because it is too large!");
         }
 
         PUMLDiagramDescription diffClarityView = new StructureDiffPUMLDiagramDesciption(keyComponents,
                 new HashSet<>(allBinaryRelationships.values()), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme);
         this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
+
     }
 
     @Override
