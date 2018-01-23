@@ -70,7 +70,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 // add component type name (eg: class, interface, etc...)
                 cmpPUMLStr += component.componentType().getValue() + " ";
                 // add the actual component short name
-                cmpPUMLStr += (component.uniqueName() + " ");
+                cmpPUMLStr += (component.uniqueName().replaceAll("-", "") + " ");
                 // add class generics if exist
                 if (component.codeFragment() != null) {
                     cmpPUMLStr += (component.codeFragment());
@@ -193,17 +193,10 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
 
     /**
      * Returns a list in the ignoreMethods variable of all the original component's methods that correspond to an
-     * implemented/extended method specification. (We want to remove these because they make diagrams verbose).
+     * implemented method specification. (We want to remove these because they make diagrams verbose).
      */
     private void findMethodsToIgnoreInDiagram(Component component, String originalComponent, Map<String, Component> allComponents, List<String> methodsToIgnore) {
-        if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION).isEmpty()) {
-            for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
-                Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
-                if (invkCmp != null && !component.equals(invkCmp)) {
-                    findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
-                }
-            }
-        }
+
         if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION).isEmpty()) {
             for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION)) {
                 Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
@@ -240,7 +233,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 final BinaryClassAssociation classBAssociation = relationship.getbSideAssociation();
                 // start building our string for side class A
                 // insert class A short name
-                tempStrBuilder.append(relationship.getClassA().uniqueName() + " ");
+                tempStrBuilder.append(relationship.getClassA().uniqueName().replace("-", "") + " ");
                 // insert class B multiplicity if its not a zero to one
                 // multiplicity..
                 if (!relationship.getbSideMultiplicity().getValue().isEmpty() && !relationship.getbSideMultiplicity()
@@ -266,7 +259,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     tempStrBuilder.append(" \"" + relationship.getaSideMultiplicity().getValue() + "\" ");
                 }
                 // insert class B name
-                tempStrBuilder.append(" " + relationship.getClassB().uniqueName());
+                tempStrBuilder.append(" " + relationship.getClassB().uniqueName().replaceAll("-", ""));
                 tempStrBuilder.append("\n");
             }
         }
