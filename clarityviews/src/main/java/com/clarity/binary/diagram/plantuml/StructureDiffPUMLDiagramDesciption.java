@@ -95,10 +95,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     if ((childCmp.componentType() == ComponentType.METHOD
                             && !ignoreMethods.contains(childCmp.name()))
                             || childCmp.componentType().isVariableComponent()) {
-                        if (childCmp.componentType().isMethodComponent()
-                                && (childCmp.name().startsWith("get") || childCmp.name().startsWith("set"))) {
-                            continue;
-                        }
                         // start entering the fields and methods...
                         if ((childCmp != null) && !childCmp.componentType().isBaseComponent()) {
                             // if the field/method is abstract or static, add
@@ -186,7 +182,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 }
                 tempStrBuilder.append(org.apache.commons.lang.StringUtils.join(componentPUMLStrings, " ") + "}\n");
             }
-
         }
         return tempStrBuilder.toString();
     }
