@@ -114,10 +114,10 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                                 childCmpPUMLStr += ("} ");
                             }
 
-                            if (childCmp.componentType().isMethodComponent() || childCmp.componentType().isVariableComponent()) {
+                            if (childCmp.componentType().isMethodComponent() || (childCmp.componentType().isVariableComponent() && childCmp.componentType() != ComponentType.ENUM_CONSTANT)) {
                                 childCmpPUMLStr += childCmp.codeFragment() + " ";
                             }
-                            if (childCmp.componentType() == ComponentType.ENUM) {
+                            if (childCmp.componentType() == ComponentType.ENUM_CONSTANT) {
                                 childCmpPUMLStr += childCmp.name() + " ";
                             }
                         }
