@@ -1,6 +1,6 @@
 package com.clarity.binary;
 
-import com.clarity.sourcemodel.Component;
+import com.clarity.binary.diagram.DiagramComponent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,19 +10,19 @@ import java.util.Map;
  */
 public class MergedSourceCodeModel {
 
-    private Map<String, Component> componentSet;
+    private Map<String, DiagramComponent> componentSet;
 
     /**
      * Merges two source code models, gives preference to the newer model.
      */
-    public MergedSourceCodeModel(Map<String, Component> olderModel, Map<String, Component> newerModel) {
+    public MergedSourceCodeModel(Map<String, DiagramComponent> olderModel, Map<String, DiagramComponent> newerModel) {
 
-        Map<String, Component> newModelClone = new HashMap<>(newerModel);
+        Map<String, DiagramComponent> newModelClone = new HashMap<>(newerModel);
         // inefficient way to merge the given sets of components..
-        for (Component oldCmp : olderModel.values()) {
+        for (DiagramComponent oldCmp : olderModel.values()) {
             boolean existsInNewerSet = false;
             if (newerModel.containsKey(oldCmp.uniqueName())) {
-                Component newCmp = newerModel.get(oldCmp.uniqueName());
+                DiagramComponent newCmp = newerModel.get(oldCmp.uniqueName());
                     existsInNewerSet = true;
                     // merge the old components children into the newer set
                     for (String olderCmpChild : oldCmp.children()) {
@@ -30,7 +30,6 @@ public class MergedSourceCodeModel {
                             newCmp.children().add(olderCmpChild);
                         }
                     }
-
             }
             if (!existsInNewerSet) {
                 newModelClone.put(oldCmp.uniqueName(), oldCmp);
@@ -39,7 +38,7 @@ public class MergedSourceCodeModel {
         this.componentSet = newModelClone;
     }
 
-    public Map<String, Component> set() {
+    public Map<String, DiagramComponent> set() {
         return this.componentSet;
     }
 }

@@ -1,8 +1,8 @@
 package com.clarity.binary.extractor;
 
+import com.clarity.binary.diagram.DiagramComponent;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
-import com.clarity.sourcemodel.Component;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.io.Serializable;
@@ -21,8 +21,6 @@ public class BinaryClassRelationship implements Serializable {
 
     private static final long serialVersionUID = -9031833990867424972L;
 
-    private static String classNameSplitter = "<<-->>";
-
     /**
      * @param externalClassLink the external class link object from which to create the binary
      *                          class relationship.
@@ -37,36 +35,16 @@ public class BinaryClassRelationship implements Serializable {
         bSideAssociation = BinaryClassAssociation.NONE;
         aSideAction = aSideAssociation.getAssociationLabel();
         bSideAction = "";
-        name = (generateRelationshipName(classA, classB));
     }
 
-    public static String getClassNameSplitter() {
-        return classNameSplitter;
-    }
-
-    private final Component classA;
-    private final Component classB;
+    private final DiagramComponent classA;
+    private final DiagramComponent classB;
     private BinaryClassMultiplicity aSideMultiplicity;
     private BinaryClassMultiplicity bSideMultiplicity;
     private BinaryClassAssociation aSideAssociation;
     private BinaryClassAssociation bSideAssociation;
-    private final String name;
     private String aSideAction;
     private String bSideAction;
-
-    /**
-     * @param originaClass original class
-     * @param targetClass  target class.
-     * @return relationship name.
-     */
-    public static String generateRelationshipName(final Component originaClass, final Component targetClass) {
-
-        return originaClass.name() + classNameSplitter + targetClass.name();
-    }
-
-    public final String getaSideAction() {
-        return aSideAction;
-    }
 
     public final BinaryClassAssociation getaSideAssociation() {
         return aSideAssociation;
@@ -91,10 +69,6 @@ public class BinaryClassRelationship implements Serializable {
         }
     }
 
-    public final String getbSideAction() {
-        return bSideAction;
-    }
-
     public final BinaryClassAssociation getbSideAssociation() {
         return bSideAssociation;
     }
@@ -103,16 +77,12 @@ public class BinaryClassRelationship implements Serializable {
         return bSideMultiplicity;
     }
 
-    public final Component getClassA() {
+    public final DiagramComponent getClassA() {
         return classA;
     }
 
-    public final Component getClassB() {
+    public final DiagramComponent getClassB() {
         return classB;
-    }
-
-    public final String getName() {
-        return name;
     }
 
     /**
@@ -138,10 +108,8 @@ public class BinaryClassRelationship implements Serializable {
      * newly found external class link.
      *
      * @param isDirForward         The direction of the external class link
-     * @param existingRelationship The existing binary class relationship
      * @param incomingLink         the incoming external class link we need to incorporate into
      *                             the binary class relationship
-     * @return
      */
     public final void resolveExtClassLink(final boolean isDirForward, final ExternalClassLink incomingLink) {
 

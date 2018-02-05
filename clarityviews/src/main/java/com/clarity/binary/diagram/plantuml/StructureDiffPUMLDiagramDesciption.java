@@ -5,13 +5,13 @@ import com.clarity.binary.HtmlTagsStrippedText;
 import com.clarity.binary.JavaDocSymbolStrippedText;
 import com.clarity.binary.LineBreakedText;
 import com.clarity.binary.SimplifiedJavaDocText;
+import com.clarity.binary.diagram.DiagramComponent;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
 import com.clarity.binary.diagram.scheme.DiagramColorScheme;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.ColoredBinaryClassAssociation;
 import com.clarity.invocation.ComponentInvocation;
-import com.clarity.sourcemodel.Component;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
 import com.clarity.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.clarity.sourcemodel.OOPSourceModelConstants.ComponentType;
@@ -23,8 +23,8 @@ import java.util.Set;
 
 public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescription {
 
-    private Set<Component> diagramComponents;
-    private Map<String, Component> allComponents;
+    private Set<DiagramComponent> diagramComponents;
+    private Map<String, DiagramComponent> allComponents;
     private Set<BinaryClassRelationship> binaryRelationships;
     private List<String> deletedComponents;
     private List<String> addedComponents;
@@ -32,10 +32,10 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     private List<BinaryClassRelationship> addedRelationships;
     private DiagramColorScheme colorScheme;
 
-    public StructureDiffPUMLDiagramDesciption(Set<Component> diagramComponents,
+    public StructureDiffPUMLDiagramDesciption(Set<DiagramComponent> diagramComponents,
                                               Set<BinaryClassRelationship> allRelationships, List<BinaryClassRelationship> deletedRelationships,
                                               List<BinaryClassRelationship> addedRelationships, List<String> deletedComponents,
-                                              List<String> addedComponents, Map<String, Component> allComponents, DiagramColorScheme colorScheme) {
+                                              List<String> addedComponents, Map<String, DiagramComponent> allComponents, DiagramColorScheme colorScheme) {
         this.diagramComponents = diagramComponents;
         this.allComponents = allComponents;
         this.addedComponents = addedComponents;
@@ -53,7 +53,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
 
     public String classDesciptionString() {
         final StringBuilder tempStrBuilder = new StringBuilder();
-        for (final Component component : diagramComponents) {
+        for (final DiagramComponent component : diagramComponents) {
             String cmpPUMLStr = "";
             List<String> componentPUMLStrings = new ArrayList<String>();
             // determine if we have base component type and it is not a child of a method component type...
@@ -70,7 +70,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 // add component type name (eg: class, interface, etc...)
                 cmpPUMLStr += component.componentType().getValue() + " ";
                 // add the actual component short name
-                cmpPUMLStr += (component.uniqueName().replaceAll("-", "") + " ");
+                cmpPUMLStr += (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
                 // add class generics if exist
                 if (component.codeFragment() != null) {
                     cmpPUMLStr += (component.codeFragment());
@@ -90,7 +90,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 int longestLine = 0;
 
                 for (final String classChildCmpName : component.children()) {
-                    final Component childCmp = allComponents.get(classChildCmpName);
+                    final DiagramComponent childCmp = allComponents.get(classChildCmpName);
                     String childCmpPUMLStr = "";
                     if ((childCmp.componentType() == ComponentType.METHOD
                             && !ignoreMethods.contains(childCmp.name()))
@@ -190,11 +190,11 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
      * Returns a list in the ignoreMethods variable of all the original component's methods that correspond to an
      * implemented method specification. (We want to remove these because they make diagrams verbose).
      */
-    private void findMethodsToIgnoreInDiagram(Component component, String originalComponent, Map<String, Component> allComponents, List<String> methodsToIgnore) {
+    private void findMethodsToIgnoreInDiagram(DiagramComponent component, String originalComponent, Map<String, DiagramComponent> allComponents, List<String> methodsToIgnore) {
 
         if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION).isEmpty()) {
             for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION)) {
-                Component invkCmp = allComponents.get(cmpInvc.invokedComponent());
+                DiagramComponent invkCmp = allComponents.get(cmpInvc.invokedComponent());
                 if (invkCmp != null && !component.equals(invkCmp)) {
                     findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
                 }
@@ -202,7 +202,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         }
         if (component != null && !component.uniqueName().equals(originalComponent)) {
             for (String child : component.children()) {
-                Component childCmp = allComponents.get(child);
+                DiagramComponent childCmp = allComponents.get(child);
                 if (childCmp != null && childCmp.componentType().isMethodComponent()) {
                     methodsToIgnore.add(childCmp.name());
                 }
@@ -228,7 +228,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 final BinaryClassAssociation classBAssociation = relationship.getbSideAssociation();
                 // start building our string for side class A
                 // insert class A short name
-                tempStrBuilder.append(relationship.getClassA().uniqueName().replace("-", "") + " ");
+                tempStrBuilder.append(relationship.getClassA().uniqueName().replace("-", "").replaceAll("\\.\\.+", ".") + " ");
                 // insert class B multiplicity if its not a zero to one
                 // multiplicity..
                 if (!relationship.getbSideMultiplicity().getValue().isEmpty() && !relationship.getbSideMultiplicity()
@@ -254,14 +254,14 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     tempStrBuilder.append(" \"" + relationship.getaSideMultiplicity().getValue() + "\" ");
                 }
                 // insert class B name
-                tempStrBuilder.append(" " + relationship.getClassB().uniqueName().replaceAll("-", ""));
+                tempStrBuilder.append(" " + relationship.getClassB().uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", "."));
                 tempStrBuilder.append("\n");
             }
         }
         return tempStrBuilder.toString();
     }
 
-    private String colorTextBackground(Component cmp, List<String> addedComponents2, List<String> deletedComponents2,
+    private String colorTextBackground(DiagramComponent cmp, List<String> addedComponents2, List<String> deletedComponents2,
                                        String text) {
         if (text.trim().isEmpty()) {
             return text;
@@ -274,7 +274,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         }
     }
 
-    private String colorClassBackground(Component cmp, List<String> addedComponents2, List<String> deletedComponents2,
+    private String colorClassBackground(DiagramComponent cmp, List<String> addedComponents2, List<String> deletedComponents2,
                                         String text) {
         if (addedComponents2.contains(cmp.uniqueName())) {
             return text + " " + colorScheme.addedComponentColor();

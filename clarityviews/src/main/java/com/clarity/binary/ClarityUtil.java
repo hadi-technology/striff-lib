@@ -1,5 +1,7 @@
 package com.clarity.binary;
 
+import com.clarity.binary.diagram.DiagramComponent;
+
 import java.util.Iterator;
 import java.util.Map;
 
@@ -12,9 +14,15 @@ public final class ClarityUtil {
 
     }
 
-    public enum InvocationSiteProperty {
+    public static DiagramComponent getParentBaseComponent(DiagramComponent cmp, Map<String, DiagramComponent> map) {
+        String currParentClassName = cmp.parentUniqueName();
 
-        FIELD, LOCAL, NONE, METHOD_PARAMETER, CONSTRUCTOR_PARAMETER;
+        DiagramComponent parent;
+        for (parent = map.get(currParentClassName); parent != null && !parent.componentType().isBaseComponent(); parent = map.get(currParentClassName)) {
+            currParentClassName = parent.parentUniqueName();
+        }
+
+        return parent;
     }
 
     public static Object getObjectFromStringObjectKeyValueMap(String value, Map<?, ?> hashMap) {
@@ -26,5 +34,10 @@ public final class ClarityUtil {
             }
         }
         return null;
+    }
+
+    public enum InvocationSiteProperty {
+
+        FIELD, LOCAL, NONE, METHOD_PARAMETER, CONSTRUCTOR_PARAMETER
     }
 }
