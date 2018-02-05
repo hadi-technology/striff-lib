@@ -40,4 +40,5 @@ public final class ClarityUtil {
 
         FIELD, LOCAL, NONE, METHOD_PARAMETER, CONSTRUCTOR_PARAMETER
     }
+
 }

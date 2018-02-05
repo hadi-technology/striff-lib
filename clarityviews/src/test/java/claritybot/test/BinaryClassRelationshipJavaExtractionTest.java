@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class BinaryClassRelationshipJavaExtractionTest {
 
-    private BinaryClassRelationship getRelationship(List<BinaryClassRelationship> relations, String classAUniqueName, String classB) throws Exception {
+    private BinaryClassRelationship getRelationship(List<BinaryClassRelationship> relations, String classAUniqueName, String classB) {
         for (BinaryClassRelationship br : relations) {
             if (br.getClassA().uniqueName().equals(classAUniqueName) && br.getClassB().uniqueName().equals(classB)) {
                 return br;
@@ -31,7 +31,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
                 return br;
             }
         }
-        throw new Exception("Binary Relationship does not exist!");
+        return null;
     }
     @Test
     public void testFieldVarLevelRelationExists() throws Exception {
