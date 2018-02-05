@@ -12,7 +12,7 @@ import com.clarity.sourcemodel.OOPSourceCodeModel;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
@@ -40,7 +40,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         assertTrue(new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components()
@@ -62,7 +62,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -84,7 +84,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -106,7 +106,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -129,7 +129,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -153,7 +153,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -176,7 +176,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -198,7 +198,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();
@@ -217,7 +217,7 @@ public class RelatedComponentGroupTest {
         reqCons.add(reqCon);
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<Object>();
-        final Map<String, BinaryClassRelationship> binaryRelationships = bCAS
+        final List<BinaryClassRelationship> binaryRelationships = bCAS
                 .generateBinaryClassRelationships(codeModel);
         Set<Component> cmps = new RelatedBaseComponentsGroup(codeModel.getComponents(), binaryRelationships,
                 codeModel.getComponent("com.sample.ClassA")).components();

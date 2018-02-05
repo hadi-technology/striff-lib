@@ -16,7 +16,6 @@ import com.clarity.sourcemodel.OOPSourceModelConstants;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +32,14 @@ public class SDView implements ClarityBotView, Serializable {
 
     public SDView(DiagramColorScheme colorScheme, OOPSourceCodeModel olderModel, OOPSourceCodeModel newerModel, int maxSDSize) throws Exception {
 
-        Map<String, BinaryClassRelationship> oldBinaryRelationships = new BinaryClassRelationshipExtractor<Object>()
+        List<BinaryClassRelationship> oldBinaryRelationships = new BinaryClassRelationshipExtractor<>()
                 .generateBinaryClassRelationships(olderModel);
-        Map<String, BinaryClassRelationship> newBinaryRelationships = new BinaryClassRelationshipExtractor<Object>()
+        List<BinaryClassRelationship> newBinaryRelationships = new BinaryClassRelationshipExtractor<>()
                 .generateBinaryClassRelationships(newerModel);
 
         // form a list of all components that exist in the newer code base but
         // not in the older code base.
-        List<String> addedComponents = new ArrayList<String>();
+        List<String> addedComponents = new ArrayList<>();
         for (final Map.Entry<String, Component> entry : newerModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !olderModel.containsComponent(entry.getKey())) {
                 addedComponents.add(entry.getKey());
@@ -49,7 +48,7 @@ public class SDView implements ClarityBotView, Serializable {
 
         // form a list of all base components that exist in the newer code base
         // but not in the older code base.
-        Set<String> mainComponents = new HashSet<String>();
+        Set<String> mainComponents = new HashSet<>();
         addedComponents.forEach(s -> {
             Component cmp = newerModel.getComponent(s);
             if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
@@ -64,7 +63,7 @@ public class SDView implements ClarityBotView, Serializable {
 
         // form a list of all components that do not exist in the newer code
         // base but do exist in the older code base.
-        List<String> deletedComponents = new ArrayList<String>();
+        List<String> deletedComponents = new ArrayList<>();
         for (final Map.Entry<String, Component> entry : olderModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !newerModel.containsComponent(entry.getKey())) {
                 deletedComponents.add(entry.getKey());
@@ -87,32 +86,30 @@ public class SDView implements ClarityBotView, Serializable {
 
         // form a list of all binary relationships that exist in the newer code
         // base but not in the older code base.
-        List<BinaryClassRelationship> addedRelationships = new ArrayList<BinaryClassRelationship>();
-        for (final Map.Entry<String, BinaryClassRelationship> entry : newBinaryRelationships.entrySet()) {
-            if (!oldBinaryRelationships.containsValue(entry.getValue())) {
-                BinaryClassRelationship relation = entry.getValue();
-                addedRelationships.add(relation);
-                int relationAStr = relation.getaSideAssociation().getStrength();
-                int relationBStr = relation.getbSideAssociation().getStrength();
+        List<BinaryClassRelationship> addedRelationships = new ArrayList<>();
+        for (BinaryClassRelationship entry : newBinaryRelationships) {
+            if (!oldBinaryRelationships.contains(entry)) {
+                addedRelationships.add(entry);
+                int relationAStr = entry.getaSideAssociation().getStrength();
+                int relationBStr = entry.getbSideAssociation().getStrength();
                 if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
-                    mainComponents.add(relation.getClassA().uniqueName());
-                    mainComponents.add(relation.getClassB().uniqueName());
+                    mainComponents.add(entry.getClassA().uniqueName());
+                    mainComponents.add(entry.getClassB().uniqueName());
                 }
             }
         }
 
         // form a list of all binary relationships that do not exist in the
         // newer code base but do exist in the older code base.
-        List<BinaryClassRelationship> deletedRelationships = new ArrayList<BinaryClassRelationship>();
-        for (final Map.Entry<String, BinaryClassRelationship> entry : oldBinaryRelationships.entrySet()) {
-            if (!(newBinaryRelationships.containsValue(entry.getValue()))) {
-                BinaryClassRelationship relation = entry.getValue();
-                deletedRelationships.add(relation);
-                int relationAStr = relation.getaSideAssociation().getStrength();
-                int relationBStr = relation.getbSideAssociation().getStrength();
+        List<BinaryClassRelationship> deletedRelationships = new ArrayList<>();
+        for (BinaryClassRelationship entry : oldBinaryRelationships) {
+            if (!(newBinaryRelationships.contains(entry))) {
+                deletedRelationships.add(entry);
+                int relationAStr = entry.getaSideAssociation().getStrength();
+                int relationBStr = entry.getbSideAssociation().getStrength();
                 if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
-                    mainComponents.add(relation.getClassA().uniqueName());
-                    mainComponents.add(relation.getClassB().uniqueName());
+                    mainComponents.add(entry.getClassA().uniqueName());
+                    mainComponents.add(entry.getClassB().uniqueName());
                 }
             }
         }
@@ -123,9 +120,9 @@ public class SDView implements ClarityBotView, Serializable {
 
         // generate a list of binary relationships needed to draw the entire
         // diff diagram
-        Map<String, BinaryClassRelationship> allBinaryRelationships = new HashMap<>();
-        allBinaryRelationships.putAll(newBinaryRelationships);
-        allBinaryRelationships.putAll(oldBinaryRelationships);
+        List<BinaryClassRelationship> allBinaryRelationships = new ArrayList<>();
+        allBinaryRelationships.addAll(newBinaryRelationships);
+        allBinaryRelationships.addAll(oldBinaryRelationships);
 
         // form the merged code base
         Map<String, Component> mergedCodeBase = new MergedSourceCodeModel(olderModel.getComponents(),
@@ -138,7 +135,7 @@ public class SDView implements ClarityBotView, Serializable {
         }
 
         PUMLDiagramDescription diffClarityView = new StructureDiffPUMLDiagramDesciption(keyComponents,
-                new HashSet<>(allBinaryRelationships.values()), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
+                new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme);
         this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
 
@@ -147,17 +144,5 @@ public class SDView implements ClarityBotView, Serializable {
     @Override
     public Diagram view() {
         return this.diagram;
-    }
-
-    private int noStrongRelations(List<BinaryClassRelationship> relations) {
-        int count = 0;
-        for (BinaryClassRelationship relation : relations) {
-            if (relation.getaSideAssociation().getStrength() >= BinaryClassAssociation.ASSOCIATION.getStrength()) {
-                count++;
-            } else if (relation.getbSideAssociation().getStrength() >= BinaryClassAssociation.ASSOCIATION.getStrength()) {
-                count++;
-            }
-        }
-        return count;
     }
 }

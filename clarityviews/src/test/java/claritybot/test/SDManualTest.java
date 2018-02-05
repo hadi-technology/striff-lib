@@ -17,10 +17,10 @@ public class SDManualTest {
 
     @Test
     public void structureDiffManualTest() throws Exception {
-        OOPSourceCodeModel oldModel = ClarityTestUtil.getGitHubRepoModel("iluwatar",
-                "java-design-patterns", "master", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
+        OOPSourceCodeModel oldModel = ClarityTestUtil.getGitHubRepoModel("exercism",
+                "go", "887a32f66b666b5f15fe9122319a2931fbd83185", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.GOLANG);
         OOPSourceCodeModel newModel = ClarityTestUtil.getGitHubRepoModel(
-                "maxtmn", "java-design-patterns", "master", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
+                "ferhatelmas", "go", "rectangles", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.GOLANG);
         Diagram view = new SDView(new LightDiagramColorScheme(), oldModel, newModel, 400).view();
         PrintWriter writer = new PrintWriter("/home/zir0/Desktop/sdTest.svg", "UTF-8");
         writer.println(view.svgText());

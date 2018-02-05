@@ -55,13 +55,12 @@ public class BinaryClassRelationship implements Serializable {
     private String bSideAction;
 
     /**
-     * @param originaClass original class
+     * @param originalClass original class
      * @param targetClass  target class.
      * @return relationship name.
      */
-    public static String generateRelationshipName(final Component originaClass, final Component targetClass) {
-
-        return originaClass.name() + classNameSplitter + targetClass.name();
+    public static String generateRelationshipName(final Component originalClass, final Component targetClass) {
+        return originalClass.uniqueName() + classNameSplitter + targetClass.uniqueName();
     }
 
     public final String getaSideAction() {
@@ -138,7 +137,6 @@ public class BinaryClassRelationship implements Serializable {
      * newly found external class link.
      *
      * @param isDirForward         The direction of the external class link
-     * @param existingRelationship The existing binary class relationship
      * @param incomingLink         the incoming external class link we need to incorporate into
      *                             the binary class relationship
      * @return
