@@ -242,5 +242,4 @@ public class BinaryClassRelationshipJavaExtractionTest {
         assertTrue(getRelationship(binaryRelationships, "test.ClassA", "test.ClassD") != null);
         assertTrue(getRelationship(binaryRelationships, "test.ClassE", "test.ClassD") == null);
     }
-
 }
