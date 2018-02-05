@@ -25,7 +25,8 @@ public class DiagramComponent {
             for (String child : cmp.children()) {
                 Component childCmp = srcModel.getComponent(child);
                 if (childCmp != null) {
-                    if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD) {
+                    if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD
+                            || childCmp.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT) {
                         children.add(new DiagramComponent(childCmp, srcModel).uniqueName());
                     } else {
                         children.add(child);
@@ -40,7 +41,8 @@ public class DiagramComponent {
     }
 
     public String uniqueName() {
-        if (this.cmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD) {
+        if (this.cmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD
+                || this.cmp.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT) {
             return cmp.uniqueName() + "." + cmp.codeFragment();
         } else {
             return cmp.uniqueName();
