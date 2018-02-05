@@ -5,7 +5,6 @@ import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.invocation.ComponentInvocation;
 import com.clarity.invocation.TypeExtension;
 import com.clarity.invocation.TypeImplementation;
-import com.clarity.sourcemodel.Component;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
@@ -32,7 +31,7 @@ public class RelatedBaseComponentsGroup {
     private double desiredSize;
 
     @NotNull
-    private Map<String, Component> allComponents;
+    private Map<String, DiagramComponent> allComponents;
 
     @NotNull
     private List<BinaryClassRelationship> allRelationships;
@@ -45,10 +44,9 @@ public class RelatedBaseComponentsGroup {
      * @param allComponents    All the components to be considered.
      * @param allRelationships All the binary relationships between the components.
      * @param mainComponent    The component all other components in the group must have a
-     *                         relation with.
      */
-    public RelatedBaseComponentsGroup(final Map<String, Component> allComponents,
-                                      final List<BinaryClassRelationship> allRelationships, final Component mainComponent) {
+    public RelatedBaseComponentsGroup(final Map<String, DiagramComponent> allComponents,
+                                      final List<BinaryClassRelationship> allRelationships, DiagramComponent mainComponent) {
         this.allComponents = allComponents;
         this.allRelationships = allRelationships;
         this.mainComponents = new HashSet<>();
@@ -63,7 +61,7 @@ public class RelatedBaseComponentsGroup {
      * @param addedBaseComponents A list of components that are basis of and must be included in
      *                            the result set.
      */
-    public RelatedBaseComponentsGroup(final Map<String, Component> allComponents,
+    public RelatedBaseComponentsGroup(final Map<String, DiagramComponent> allComponents,
                                       final List<BinaryClassRelationship> allRelationships, final Set<String> addedBaseComponents) {
         this.allComponents = allComponents;
         this.allRelationships = allRelationships;
@@ -101,7 +99,7 @@ public class RelatedBaseComponentsGroup {
      * Creates a list of components who are closely related to the given
      * components.
      */
-    public Set<Component> components() {
+    public Set<DiagramComponent> components() {
 
         Set<String> relatedComponentsSetNames = new HashSet(mainComponents);
 
@@ -114,7 +112,7 @@ public class RelatedBaseComponentsGroup {
             while (itr.hasNext() && relatedComponentsSetNames.size() <= desiredSize) {
 
                 String cmpName = itr.next();
-                Component cmp = allComponents.get(cmpName);
+                DiagramComponent cmp = allComponents.get(cmpName);
                 // create a filtered map for all relationships relevant to the
                 // current loop Component.
                 List<BinaryClassRelationship> relevantBinaryRelationships = allRelationships.stream()
@@ -126,7 +124,7 @@ public class RelatedBaseComponentsGroup {
                  * Filter stage 1: form a super class hierarchy chain of the key
                  * component.
                  */
-                final List<Component> tmpSuperComponentRelatedGroup = new ArrayList<>();
+                final List<DiagramComponent> tmpSuperComponentRelatedGroup = new ArrayList<>();
                 tmpSuperComponentRelatedGroup.add(cmp);
                 for (int j = 0; j < tmpSuperComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= desiredSize; j++) {
                     for (BinaryClassRelationship entry : relevantBinaryRelationships) {
@@ -159,7 +157,7 @@ public class RelatedBaseComponentsGroup {
                  * Filter stage 2: form a sub class hierarchy chain of the key
                  * component.
                  */
-                final List<Component> tmpSubComponentRelatedGroup = new ArrayList<>();
+                final List<DiagramComponent> tmpSubComponentRelatedGroup = new ArrayList<>();
                 tmpSubComponentRelatedGroup.add(cmp);
                 for (int j = 0; j < tmpSubComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= desiredSize; j++) {
                     for (BinaryClassRelationship entry : relevantBinaryRelationships) {
@@ -193,7 +191,7 @@ public class RelatedBaseComponentsGroup {
                 if (relatedComponentsSetNames.size() <= desiredSize) {
 
                     for (ComponentInvocation docMention : cmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.DOC_MENTION)) {
-                        Component mentionedComponent = allComponents.get(docMention.invokedComponent());
+                        DiagramComponent mentionedComponent = allComponents.get(docMention.invokedComponent());
                         if (mentionedComponent != null) {
                             relatedComponentsSetNames.add(mentionedComponent.uniqueName());
                         }
@@ -226,9 +224,9 @@ public class RelatedBaseComponentsGroup {
              * Filter stage 6: If there is space, add any remaining weak
              * relationships.
              */
-            final List<Component> componentRelatedGroup = new ArrayList<>();
+            final List<DiagramComponent> componentRelatedGroup = new ArrayList<>();
             relatedComponentsSetNames.forEach((k) -> componentRelatedGroup.add(allComponents.get(k)));
-            for (Component tmpCmp : componentRelatedGroup) {
+            for (DiagramComponent tmpCmp : componentRelatedGroup) {
                 for (BinaryClassRelationship entry : allRelationships) {
 
                     if (relatedComponentsSetNames.size() > desiredSize) {
@@ -256,7 +254,7 @@ public class RelatedBaseComponentsGroup {
         }
 
         // Return a list of components representing the collected component names
-        Set<Component> relatedComponents = new HashSet<>();
+        Set<DiagramComponent> relatedComponents = new HashSet<>();
         relatedComponentsSetNames.forEach((v) -> relatedComponents.add(allComponents.get(v)));
         return relatedComponents;
     }
@@ -264,14 +262,14 @@ public class RelatedBaseComponentsGroup {
     /**
      * Returns a list of components sorted by their popularity amongst each other in descending order.
      */
-    private Set<String> sortComponentsByPopularity(Set<String> componentNamesList, Map<String, Component> codebase) {
+    private Set<String> sortComponentsByPopularity(Set<String> componentNamesList, Map<String, DiagramComponent> codebase) {
 
         final Map<String, Integer> componentScorePairs = new HashMap<>();
         componentNamesList.forEach((currComponentName) -> {
-            Component currCmp = codebase.get(currComponentName);
+            DiagramComponent currCmp = codebase.get(currComponentName);
             int score = 0;
             for (String tmpCmpName : componentNamesList) {
-                Component tmpCmp = codebase.get(tmpCmpName);
+                DiagramComponent tmpCmp = codebase.get(tmpCmpName);
                 if (!currComponentName.equals(tmpCmpName)) {
                     for (ComponentInvocation invocation : tmpCmp.invocations()) {
                         if (invocation.invokedComponent().equals(currCmp.uniqueName())) {

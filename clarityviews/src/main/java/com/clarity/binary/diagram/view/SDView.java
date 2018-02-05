@@ -2,7 +2,9 @@ package com.clarity.binary.diagram.view;
 
 import com.clarity.binary.MergedSourceCodeModel;
 import com.clarity.binary.diagram.Diagram;
+import com.clarity.binary.diagram.DiagramComponent;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
+import com.clarity.binary.diagram.DiagramSourceCodeModel;
 import com.clarity.binary.diagram.RelatedBaseComponentsGroup;
 import com.clarity.binary.diagram.plantuml.PUMLDiagram;
 import com.clarity.binary.diagram.plantuml.PUMLDiagramDescription;
@@ -10,8 +12,6 @@ import com.clarity.binary.diagram.plantuml.StructureDiffPUMLDiagramDesciption;
 import com.clarity.binary.diagram.scheme.DiagramColorScheme;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.BinaryClassRelationshipExtractor;
-import com.clarity.sourcemodel.Component;
-import com.clarity.sourcemodel.OOPSourceCodeModel;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
 
 import java.io.Serializable;
@@ -30,7 +30,7 @@ public class SDView implements ClarityBotView, Serializable {
     private static final long serialVersionUID = -3125810981280395679L;
     private Diagram diagram;
 
-    public SDView(DiagramColorScheme colorScheme, OOPSourceCodeModel olderModel, OOPSourceCodeModel newerModel, int maxSDSize) throws Exception {
+    public SDView(DiagramColorScheme colorScheme, DiagramSourceCodeModel olderModel, DiagramSourceCodeModel newerModel, int maxSDSize) throws Exception {
 
         List<BinaryClassRelationship> oldBinaryRelationships = new BinaryClassRelationshipExtractor<>()
                 .generateBinaryClassRelationships(olderModel);
@@ -40,7 +40,7 @@ public class SDView implements ClarityBotView, Serializable {
         // form a list of all components that exist in the newer code base but
         // not in the older code base.
         List<String> addedComponents = new ArrayList<>();
-        for (final Map.Entry<String, Component> entry : newerModel.getComponents().entrySet()) {
+        for (final Map.Entry<String, DiagramComponent> entry : newerModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !olderModel.containsComponent(entry.getKey())) {
                 addedComponents.add(entry.getKey());
             }
@@ -50,7 +50,7 @@ public class SDView implements ClarityBotView, Serializable {
         // but not in the older code base.
         Set<String> mainComponents = new HashSet<>();
         addedComponents.forEach(s -> {
-            Component cmp = newerModel.getComponent(s);
+            DiagramComponent cmp = newerModel.getComponent(s);
             if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
                 while (cmp != null && !cmp.componentType().isBaseComponent()) {
                     cmp = newerModel.getComponent(cmp.parentUniqueName());
@@ -64,7 +64,7 @@ public class SDView implements ClarityBotView, Serializable {
         // form a list of all components that do not exist in the newer code
         // base but do exist in the older code base.
         List<String> deletedComponents = new ArrayList<>();
-        for (final Map.Entry<String, Component> entry : olderModel.getComponents().entrySet()) {
+        for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !newerModel.containsComponent(entry.getKey())) {
                 deletedComponents.add(entry.getKey());
             }
@@ -73,7 +73,7 @@ public class SDView implements ClarityBotView, Serializable {
         // form a list of all base components that do not exist in the newer
         // code base but do exist in the older code base.
         deletedComponents.forEach(s -> {
-            Component cmp = olderModel.getComponent(s);
+            DiagramComponent cmp = olderModel.getComponent(s);
             if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
                 while (cmp != null && !cmp.componentType().isBaseComponent()) {
                     cmp = olderModel.getComponent(cmp.parentUniqueName());
@@ -125,10 +125,10 @@ public class SDView implements ClarityBotView, Serializable {
         allBinaryRelationships.addAll(oldBinaryRelationships);
 
         // form the merged code base
-        Map<String, Component> mergedCodeBase = new MergedSourceCodeModel(olderModel.getComponents(),
+        Map<String, DiagramComponent> mergedCodeBase = new MergedSourceCodeModel(olderModel.getComponents(),
                 newerModel.getComponents()).set();
         // generate a list of components that are needed to draw the structure-diff
-        Set<Component> keyComponents = new RelatedBaseComponentsGroup(mergedCodeBase, allBinaryRelationships, mainComponents).components();
+        Set<DiagramComponent> keyComponents = new RelatedBaseComponentsGroup(mergedCodeBase, allBinaryRelationships, mainComponents).components();
 
         if (keyComponents.size() > maxSDSize) {
             throw new SDTooLargeException("Diagram could not be drawn because it is too large!");
@@ -138,7 +138,6 @@ public class SDView implements ClarityBotView, Serializable {
                 new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme);
         this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
-
     }
 
     @Override

@@ -2,6 +2,7 @@ package claritybot.test;
 
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities;
+import com.clarity.binary.diagram.DiagramSourceCodeModel;
 import com.clarity.binary.extractor.BinaryClassRelationship;
 import com.clarity.binary.extractor.BinaryClassRelationshipExtractor;
 import com.clarity.binary.parse.ParsedProject;
@@ -30,7 +31,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
                 return br;
             }
         }
-        throw new Exception("BinaryRelationship does not exist!");
+        throw new Exception("Binary Relationship does not exist!");
     }
     @Test
     public void testFieldVarLevelRelationExists() throws Exception {
@@ -45,7 +46,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         Assert.assertTrue("Relationship between ClassA and ClassB does not exist!", getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassB") != null);
     }
 
@@ -62,7 +63,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_B = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassB");
         Assert.assertTrue("Relationship from ClassA to ClassB should be 'Composition'!",
                 A_B.getaSideAssociation() == BinaryClassAssociation.COMPOSITION);
@@ -83,7 +84,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_C = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassC");
         Assert.assertTrue("Relationship from ClassA to interfaceC should be 'Realization'",
                 A_C.getaSideAssociation() == BinaryClassAssociation.REALIZATION);
@@ -104,7 +105,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_C = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassC");
         Assert.assertTrue("Multiciplicity from ClassA to InterfaceC should be '0..0'!",
                 A_C.getaSideMultiplicity().getValue().equals(DefaultClassMultiplicities.NONE.getValue()));
@@ -125,7 +126,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_D = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassD");
         Assert.assertTrue("Relationship between ClassA and ClassD does not exist!", A_D != null);
     }
@@ -142,7 +143,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_D = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassD");
         Assert.assertTrue("Relationship from ClassA to ClassD should be 'Generalization'!",
                 A_D.getaSideAssociation() == BinaryClassAssociation.GENERALISATION);
@@ -164,7 +165,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_D = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassD");
         Assert.assertTrue("Multiciplicity from ClassA to ClassD should be 'None'!",
                 A_D.getaSideMultiplicity().getValue().equals(DefaultClassMultiplicities.NONE.getValue()));
@@ -186,7 +187,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_E = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassE");
         Assert.assertTrue(A_E.getaSideMultiplicity().getValue()
                 .equals(com.clarity.binary.diagram.DiagramConstants.DefaultClassMultiplicities.NONE.getValue()));
@@ -208,7 +209,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject(reqCon).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         final BinaryClassRelationship A_E = getRelationship(binaryRelationships, "com.sample.ClassA", "com.sample.ClassE");
         Assert.assertTrue("Multiciplicity from ClassA to ClassE should be 'None'!",
                 A_E.getaSideAssociation() == BinaryClassAssociation.ASSOCIATION);
@@ -235,7 +236,7 @@ public class BinaryClassRelationshipJavaExtractionTest {
         final OOPSourceCodeModel codeModel = new ParsedProject((reqCon)).model();
         final BinaryClassRelationshipExtractor<?> bCAS = new BinaryClassRelationshipExtractor<>();
         final List<BinaryClassRelationship> binaryRelationships = bCAS
-                .generateBinaryClassRelationships(codeModel);
+                .generateBinaryClassRelationships(new DiagramSourceCodeModel(codeModel));
         // relationship from class E to class D should not be shown because
         // class E implements class A which already has that relationship
         assertTrue(getRelationship(binaryRelationships, "test.ClassA", "test.ClassD") != null);

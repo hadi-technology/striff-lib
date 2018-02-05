@@ -1,5 +1,6 @@
 package claritybot.test;
 
+import com.clarity.binary.diagram.DiagramSourceCodeModel;
 import com.clarity.binary.parse.ParsedProject;
 import com.clarity.compiler.Lang;
 import com.clarity.compiler.RawFile;
@@ -25,7 +26,7 @@ import java.util.zip.ZipInputStream;
 
 public class ClarityTestUtil {
 
-    public static OOPSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref, String token, Lang lang)
+    public static DiagramSourceCodeModel getGitHubRepoModel(String repoOwner, String repoName, String ref, String token, Lang lang)
             throws Exception {
 
         String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/zipball/" + URLEncoder.encode(ref.trim(), "UTF-8") + "?access_token=" + token;
@@ -36,7 +37,7 @@ public class ClarityTestUtil {
         final SourceFiles sourceFiles = extractProjectFromArchive(new ByteArrayInputStream(baos.toByteArray()),
                 null, lang);
         OOPSourceCodeModel model = new ParsedProject(sourceFiles).model();
-        return model;
+        return new DiagramSourceCodeModel(model);
     }
 
     private static List<String> getResourceFiles(String path) throws IOException {

@@ -1,7 +1,7 @@
 package com.clarity.binary.extractor;
 
+import com.clarity.binary.diagram.DiagramComponent;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
-import com.clarity.sourcemodel.Component;
 
 import java.util.Set;
 
@@ -15,8 +15,8 @@ import java.util.Set;
  */
 public class ExternalClassLink {
 
-    private final Component               orignalClass;
-    private final Component               targetClass;
+    private final DiagramComponent orignalClass;
+    private final DiagramComponent targetClass;
     // linkTargetMultiplicity of the link..
     private final BinaryClassMultiplicity targetClassMultiplicity;
     private final Set<String>             modifierContexts;
@@ -32,10 +32,8 @@ public class ExternalClassLink {
      * @param set
      *            modifiers
      * @param associationType
-     *            association type
-     * @param set
      */
-    public ExternalClassLink(final Component originalClass, final Component linkTargetClass,
+    public ExternalClassLink(final DiagramComponent originalClass, final DiagramComponent linkTargetClass,
                              final BinaryClassMultiplicity linkTargetClassMultiplicity,
                              final Set<String> set, final BinaryClassAssociation associationType) {
 
@@ -55,11 +53,11 @@ public class ExternalClassLink {
     }
 
 
-    public Component getTargetClass() {
+    public DiagramComponent getTargetClass() {
         return targetClass;
     }
 
-    public Component getOrignalClass() {
+    public DiagramComponent getOrignalClass() {
         return orignalClass;
     }
 
