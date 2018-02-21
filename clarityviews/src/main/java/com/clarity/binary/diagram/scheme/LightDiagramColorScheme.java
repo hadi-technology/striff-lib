@@ -133,6 +133,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
+    public String modifiedComponentColor() {
+        return "#d9bef5";
+    }
+
+    @Override
     public String addedRelationColor() {
         return "#00cc00";
     }

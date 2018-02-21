@@ -4,7 +4,7 @@
 <dependency>
     <groupId>com.clarity</groupId>
     <artifactId>clarity-bot-binary</artifactId>
-    <version>2.8.2</version>
+    <version>2.8.3</version>
 </dependency>
 ```
  

@@ -77,6 +77,10 @@ public class DiagramComponent {
         return cmp.name();
     }
 
+    public String code() {
+        return this.cmp.code();
+    }
+
     public String codeFragment() {
         return cmp.codeFragment();
     }

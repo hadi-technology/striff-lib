@@ -84,6 +84,30 @@ public class SDView implements ClarityBotView, Serializable {
             }
         });
 
+        // form a list of all components that exist in both the old and new codebase,
+        // but it's implementation differs between them.
+        List<String> modifiedComponents = new ArrayList<>();
+        for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
+            if (entry.getValue().componentType().isMethodComponent() && newerModel.containsComponent(entry.getKey())
+                    && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())) {
+                modifiedComponents.add(entry.getKey());
+            }
+        }
+
+        // form a list of all base components that do not exist in the newer
+        // code base but do exist in the older code base.
+        modifiedComponents.forEach(s -> {
+            DiagramComponent cmp = olderModel.getComponent(s);
+            if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
+                while (cmp != null && !cmp.componentType().isBaseComponent()) {
+                    cmp = olderModel.getComponent(cmp.parentUniqueName());
+                }
+                if (cmp != null && cmp.componentType().isBaseComponent()) {
+                    mainComponents.add(cmp.uniqueName());
+                }
+            }
+        });
+
         // form a list of all binary relationships that exist in the newer code
         // base but not in the older code base.
         List<BinaryClassRelationship> addedRelationships = new ArrayList<>();
@@ -136,7 +160,7 @@ public class SDView implements ClarityBotView, Serializable {
 
         PUMLDiagramDescription diffClarityView = new StructureDiffPUMLDiagramDesciption(keyComponents,
                 new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
-                mergedCodeBase, colorScheme);
+                mergedCodeBase, colorScheme, modifiedComponents);
         this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
     }
 

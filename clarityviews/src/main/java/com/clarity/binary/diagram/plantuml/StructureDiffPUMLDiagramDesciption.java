@@ -31,11 +31,13 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     private List<BinaryClassRelationship> deletedRelationships;
     private List<BinaryClassRelationship> addedRelationships;
     private DiagramColorScheme colorScheme;
+    private List<String> modifiedComponents;
 
     public StructureDiffPUMLDiagramDesciption(Set<DiagramComponent> diagramComponents,
                                               Set<BinaryClassRelationship> allRelationships, List<BinaryClassRelationship> deletedRelationships,
                                               List<BinaryClassRelationship> addedRelationships, List<String> deletedComponents,
-                                              List<String> addedComponents, Map<String, DiagramComponent> allComponents, DiagramColorScheme colorScheme) {
+                                              List<String> addedComponents, Map<String, DiagramComponent> allComponents, DiagramColorScheme colorScheme,
+                                              List<String> modifiedComponents) {
         this.diagramComponents = diagramComponents;
         this.allComponents = allComponents;
         this.addedComponents = addedComponents;
@@ -43,6 +45,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         this.binaryRelationships = allRelationships;
         this.addedRelationships = addedRelationships;
         this.deletedRelationships = deletedRelationships;
+        this.modifiedComponents = modifiedComponents;
         this.colorScheme = colorScheme;
     }
 
@@ -139,7 +142,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                         }
                     }
                     String finalPUMLText = visibilitySymbol + " "
-                            + colorTextBackground(childCmp, addedComponents, deletedComponents, childCmpPUMLStr.trim());
+                            + colorTextBackground(childCmp, childCmpPUMLStr.trim());
                     componentPUMLStrings.add(finalPUMLText + "\n");
                     if (finalPUMLText.length() > longestLine) {
                         longestLine = finalPUMLText.length();
@@ -169,8 +172,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             for (int i = 0; i < lines.length; i++) {
                                 // replace curly brackets. If there is code in the comment, PlantUML will
                                 // throw an error unless we do so.
-                                lines[i] = colorTextBackground(component, addedComponents, deletedComponents,
-                                        lines[i].trim().replaceAll("\\{", "[").replaceAll("\\}", "]"));
+                                lines[i] = colorTextBackground(component, lines[i].trim().replaceAll("\\{", "[").replaceAll("\\}", "]"));
                             }
                             // adds the doc right after the component
                             // declaration (after the first element)
@@ -261,14 +263,15 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
         return tempStrBuilder.toString();
     }
 
-    private String colorTextBackground(DiagramComponent cmp, List<String> addedComponents2, List<String> deletedComponents2,
-                                       String text) {
+    private String colorTextBackground(DiagramComponent cmp, String text) {
         if (text.trim().isEmpty()) {
             return text;
-        } else if (addedComponents2.contains(cmp.uniqueName())) {
+        } else if (addedComponents.contains(cmp.uniqueName())) {
             return "<back:" + colorScheme.addedComponentColor() + ">" + text + "</back>         ";
-        } else if (deletedComponents2.contains(cmp.uniqueName())) {
+        } else if (deletedComponents.contains(cmp.uniqueName())) {
             return "<back:" + colorScheme.deletedComponentColor() + ">" + text + "</back>         ";
+        } else if (modifiedComponents.contains(cmp.uniqueName())) {
+            return "<back:" + colorScheme.modifiedComponentColor() + ">" + text + "</back>         ";
         } else {
             return text;
         }
