@@ -71,7 +71,7 @@ public class PUMLDiagram implements Diagram {
                 + colorScheme.classBackgroundColor() + "\n" + "skinparam classArrowFontColor "
                 + colorScheme.classArrowFontColor() + "\n" + "skinparam classArrowFontSize "
                 + colorScheme.classArrowFontSize() + "\n" + "skinparam classFontColor "
-                + colorScheme.classArrowFontColor() + "\n" + "skinparam classFontSize " + colorScheme.classFontSize()
+                + colorScheme.classFontColor() + "\n" + "skinparam classFontSize " + colorScheme.classFontSize()
                 + "\n" + "skinparam classStereotypeFontColor " + colorScheme.classStereotypeFontColor() + "\n"
                 + "skinparam classAttributeFontColor " + colorScheme.classAttributeFontColor() + "\n"
                 + "skinparam classAttributeFontSize " + colorScheme.classAttributeFontSize() + "\n"
@@ -82,7 +82,9 @@ public class PUMLDiagram implements Diagram {
                 + "\n" + "skinparam packageBorderColor " + colorScheme.packageBorderColor() + "\n"
                 + "skinparam packageFontColor " + colorScheme.packageFontColor() + "\n" + "skinparam packageFontName "
                 + colorScheme.packageFontName() + "\n" + "skinparam packageFontStyle " + colorScheme.packageFontStyle()
-                + "\n" + "skinparam packageFontSize " + colorScheme.packageFontSize() + "\n"
+                + "\n" + "skinparam packageFontSize " + colorScheme.packageFontSize()
+                + "\n" + "skinparam classBorderThickness " + colorScheme.classBorderThickness() + "\n"
+                + "skinparam classHeaderBackgroundColor " + colorScheme.classHeaderBackgroundColor() + "\n"
                 + "skinparam classBorderColor " + colorScheme.classBorderColor() + "\n";
     }
 

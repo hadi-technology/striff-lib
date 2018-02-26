@@ -70,14 +70,22 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     cmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT)
                             + " ");
                 }
+
                 // add component type name (eg: class, interface, etc...)
                 cmpPUMLStr += component.componentType().getValue() + " ";
-                // add the actual component short name
+
+                // add the actual unique name
                 cmpPUMLStr += (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
+
+                if (addedComponents.contains(component.uniqueName()) || deletedComponents.contains(component.uniqueName())) {
+                    cmpPUMLStr += "as \"<color:black>" + component.name() + "\" ";
+                }
+
                 // add class generics if exist
                 if (component.codeFragment() != null) {
                     cmpPUMLStr += (component.codeFragment());
                 }
+
                 // use special blue color for class stereotype
                 if (component.componentType() == ComponentType.CLASS && !component.modifiers().contains("abstract")) {
                     cmpPUMLStr += " << (C,5599ff) >> ";
@@ -85,6 +93,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     // use special orange color for struct stereotype
                     cmpPUMLStr += " << (S,ffbb55) >> ";
                 }
+
                 // open the brackets
                 componentPUMLStrings
                         .add(colorClassBackground(component, addedComponents, deletedComponents, cmpPUMLStr) + " {\n");

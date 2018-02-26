@@ -19,7 +19,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classArrowColor() {
-        return "#000";
+        return "#464646";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classArrowFontColor() {
-        return "#000";
+        return "#464646";
     }
 
     @Override
@@ -39,7 +39,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classFontColor() {
-        return "#000";
+        return "white";
     }
 
     @Override
@@ -54,13 +54,19 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classStereoTypeAttributeFontSize() {
-        return "#000";
+        return "20";
     }
 
     @Override
     public String classAttributeFontColor() {
-        return "#000";
+        return "#464646";
     }
+
+    @Override
+    public String classBorderThickness() {
+        return "1";
+    }
+
 
     @Override
     public String classAttributeFontSize() {
@@ -79,12 +85,17 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBackgroundColor() {
-        return "transparent";
+        return "#f1f1f1";
     }
 
     @Override
     public String titleFontName() {
         return "Copperplate Gothic Light";
+    }
+
+    @Override
+    public String classHeaderBackgroundColor() {
+        return "#343a40";
     }
 
     @Override
@@ -119,7 +130,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classStereotypeFontColor() {
-        return "black";
+        return "white";
     }
 
     @Override

@@ -30,6 +30,8 @@ public interface DiagramColorScheme {
 
     String classAttributeFontColor();
 
+    String classBorderThickness();
+
     String classAttributeFontSize();
 
     String classAttributeFontName();
@@ -39,6 +41,8 @@ public interface DiagramColorScheme {
     String packageBackgroundColor();
 
     String titleFontName();
+
+    String classHeaderBackgroundColor();
 
     String packageBorderColor();
 
