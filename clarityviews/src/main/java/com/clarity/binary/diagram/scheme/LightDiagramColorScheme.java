@@ -130,7 +130,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classStereotypeFontColor() {
-        return "white";
+        return "black";
     }
 
     @Override
