@@ -61,9 +61,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
             List<String> componentPUMLStrings = new ArrayList<String>();
             // determine if we have base component type and it is not a child of a method component type...
             if (component.componentType().isBaseComponent() && !component.uniqueName().contains("(")) {
-                // list of methods from this component we don't want to display in the diagram
-                List<String> ignoreMethods = new ArrayList<>();
-                findMethodsToIgnoreInDiagram(component, component.uniqueName(), allComponents, ignoreMethods);
                 if (component.modifiers().contains(
                         // if class is abstract...
                         OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT))) {
@@ -104,8 +101,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 for (final String classChildCmpName : component.children()) {
                     final DiagramComponent childCmp = allComponents.get(classChildCmpName);
                     String childCmpPUMLStr = "";
-                    if ((childCmp.componentType() == ComponentType.METHOD
-                            && !ignoreMethods.contains(childCmp.name()))
+                    if ((childCmp.componentType() == ComponentType.METHOD)
                             || childCmp.componentType().isVariableComponent()) {
                         // start entering the fields and methods...
                         if ((childCmp != null) && !childCmp.componentType().isBaseComponent()) {
@@ -195,31 +191,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
             }
         }
         return tempStrBuilder.toString();
-    }
-
-    /**
-     * Returns a list in the ignoreMethods variable of all the original component's methods that correspond to an
-     * implemented method specification. (We want to remove these because they make diagrams verbose).
-     */
-    private void findMethodsToIgnoreInDiagram(DiagramComponent component, String originalComponent, Map<String, DiagramComponent> allComponents, List<String> methodsToIgnore) {
-
-        if (!component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION).isEmpty()) {
-            for (ComponentInvocation cmpInvc : component.componentInvocations(OOPSourceModelConstants.ComponentInvocations.IMPLEMENTATION)) {
-                DiagramComponent invkCmp = allComponents.get(cmpInvc.invokedComponent());
-                if (invkCmp != null && !component.equals(invkCmp)) {
-                    findMethodsToIgnoreInDiagram(invkCmp, originalComponent, allComponents, methodsToIgnore);
-                }
-            }
-        }
-        if (component != null && !component.uniqueName().equals(originalComponent)) {
-            for (String child : component.children()) {
-                DiagramComponent childCmp = allComponents.get(child);
-                if (childCmp != null && childCmp.componentType().isMethodComponent()) {
-                    methodsToIgnore.add(childCmp.name());
-                }
-            }
-        }
-
     }
 
     public String relationsDesciptionString() {
