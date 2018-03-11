@@ -92,7 +92,7 @@ public class SDView implements ClarityBotView, Serializable {
         // but it's implementation differs between them.
         List<String> modifiedComponents = new ArrayList<>();
         for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
-            if (entry.getValue().componentType().isMethodComponent() 
+            if (entry.getValue().componentType().isMethodComponent()
                 && newerModel.containsComponent(entry.getKey())
                 && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
                 && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())) {
