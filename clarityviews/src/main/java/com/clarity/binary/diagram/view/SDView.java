@@ -121,10 +121,6 @@ public class SDView implements ClarityBotView, Serializable {
             throw new EmptySDException("No major structural differences found!");
         }
 
-        if (keyComponents.size() > maxSDSize) {
-            throw new SDTooLargeException("Diagram could not be drawn because it is too large!");
-        }
-
         PUMLDiagramDescription diffClarityView = new StructureDiffPUMLDiagramDesciption(keyComponents,
                 new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme, modifiedComponents);
