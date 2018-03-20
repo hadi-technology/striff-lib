@@ -32,7 +32,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     private List<BinaryClassRelationship> addedRelationships;
     private DiagramColorScheme colorScheme;
     private List<String> modifiedComponents;
-    private static int largeSize = 25;
 
     public StructureDiffPUMLDiagramDesciption(Set<DiagramComponent> diagramComponents,
                                               Set<BinaryClassRelationship> allRelationships, List<BinaryClassRelationship> deletedRelationships,
@@ -102,87 +101,68 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 // used for setting the length of the doc comments
                 int longestLine = 0;
 
-                // no children should be displayed for base components who have no changed children in them..
-                boolean hasChanged = isChanged(component);
-                if (hasChanged || component.children.size() <= largeSize) {
-                    for (final String classChildCmpName : component.children()) {
-                        // if the current base component has many children, only show the ones that have changed
-                        if (component.children.size() <= largeSize || addedComponents.contains(classChildCmpName)
-                                || deletedComponents.contains(classChildCmpName) || modifiedComponents.contains(classChildCmpName)) {
-                            final DiagramComponent childCmp = allComponents.get(classChildCmpName);
-                            String childCmpPUMLStr = "";
-                            if ((childCmp.componentType() == ComponentType.METHOD
-                                    && !ignoreMethods.contains(childCmp.name()))
-                                    || childCmp.componentType().isVariableComponent()) {
-                                // start entering the fields and methods...
-                                if ((childCmp != null) && !childCmp.componentType().isBaseComponent()) {
-                                    // if the field/method is abstract or static, add
-                                    // the {abstract}/{static} prefix..
-                                    if (childCmp.modifiers().contains(
-                                            OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT))) {
-                                        childCmpPUMLStr += ("{");
-                                        childCmpPUMLStr += OOPSourceModelConstants.getJavaAccessModifierMap()
-                                                .get(AccessModifiers.ABSTRACT);
-                                        childCmpPUMLStr += ("} ");
-                                    }
-                                    if (childCmp.modifiers().contains(
-                                            OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.STATIC))) {
-                                        childCmpPUMLStr += ("{");
-                                        childCmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
-                                                .get(AccessModifiers.STATIC));
-                                        childCmpPUMLStr += ("} ");
-                                    }
-
-                                    if (childCmp.componentType().isMethodComponent() || (childCmp.componentType().isVariableComponent() && childCmp.componentType() != ComponentType.ENUM_CONSTANT)) {
-                                        childCmpPUMLStr += childCmp.codeFragment() + " ";
-                                    }
-                                    if (childCmp.componentType() == ComponentType.ENUM_CONSTANT) {
-                                        childCmpPUMLStr += childCmp.name() + " ";
-                                    }
-                                }
+                for (final String classChildCmpName : component.children()) {
+                    final DiagramComponent childCmp = allComponents.get(classChildCmpName);
+                    String childCmpPUMLStr = "";
+                    if ((childCmp.componentType() == ComponentType.METHOD
+                            && !ignoreMethods.contains(childCmp.name()))
+                            || childCmp.componentType().isVariableComponent()) {
+                        // start entering the fields and methods...
+                        if ((childCmp != null) && !childCmp.componentType().isBaseComponent()) {
+                            // if the field/method is abstract or static, add
+                            // the {abstract}/{static} prefix..
+                            if (childCmp.modifiers().contains(
+                                    OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.ABSTRACT))) {
+                                childCmpPUMLStr += ("{");
+                                childCmpPUMLStr += OOPSourceModelConstants.getJavaAccessModifierMap()
+                                        .get(AccessModifiers.ABSTRACT);
+                                childCmpPUMLStr += ("} ");
                             }
-                            // handle modifiers...
-                            String visibilitySymbol = "";
-                            if (!childCmpPUMLStr.isEmpty()) {
-                                if (childCmp.modifiers().contains(
-                                        OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PUBLIC))) {
-                                    visibilitySymbol += AccessModifiers.PUBLIC.getUMLClassDigramSymbol() + " ";
-                                } else if (childCmp.modifiers().contains(
-                                        OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))) {
-                                    visibilitySymbol += AccessModifiers.PRIVATE.getUMLClassDigramSymbol() + " ";
-                                } else if (childCmp.modifiers().contains(
-                                        OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
-                                    visibilitySymbol += AccessModifiers.PROTECTED.getUMLClassDigramSymbol() + " ";
-                                } else {
-                                    visibilitySymbol += AccessModifiers.NONE.getUMLClassDigramSymbol() + " ";
-                                }
+                            if (childCmp.modifiers().contains(
+                                    OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.STATIC))) {
+                                childCmpPUMLStr += ("{");
+                                childCmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
+                                        .get(AccessModifiers.STATIC));
+                                childCmpPUMLStr += ("} ");
                             }
 
-                            String finalPUMLText = visibilitySymbol + " "
-                                    + colorTextBackground(childCmp, childCmpPUMLStr.trim());
-                            componentPUMLStrings.add(finalPUMLText + "\n");
-                            if (finalPUMLText.length() > longestLine) {
-                                longestLine = finalPUMLText.length();
+                            if (childCmp.componentType().isMethodComponent() || (childCmp.componentType().isVariableComponent() && childCmp.componentType() != ComponentType.ENUM_CONSTANT)) {
+                                childCmpPUMLStr += childCmp.codeFragment() + " ";
+                            }
+                            if (childCmp.componentType() == ComponentType.ENUM_CONSTANT) {
+                                childCmpPUMLStr += childCmp.name() + " ";
                             }
                         }
                     }
-                } else {
-                    componentPUMLStrings.add("\n");
-                    componentPUMLStrings.add("\n");
-                    componentPUMLStrings.add("\n");
-                    componentPUMLStrings.add("\n");
-                    componentPUMLStrings.add("\n");
-
-
-
-
+                    // handle modifiers...
+                    String visibilitySymbol = "";
+                    if (!childCmpPUMLStr.isEmpty()) {
+                        if (childCmp.modifiers().contains(
+                                OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PUBLIC))) {
+                            visibilitySymbol += AccessModifiers.PUBLIC.getUMLClassDigramSymbol() + " ";
+                        } else if (childCmp.modifiers().contains(
+                                OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))) {
+                            visibilitySymbol += AccessModifiers.PRIVATE.getUMLClassDigramSymbol() + " ";
+                        } else if (childCmp.modifiers().contains(
+                                OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
+                            visibilitySymbol += AccessModifiers.PROTECTED.getUMLClassDigramSymbol() + " ";
+                        } else {
+                            visibilitySymbol += AccessModifiers.NONE.getUMLClassDigramSymbol() + " ";
+                        }
+                    }
+                    String finalPUMLText = visibilitySymbol + " "
+                            + colorTextBackground(childCmp, childCmpPUMLStr.trim());
+                    componentPUMLStrings.add(finalPUMLText + "\n");
+                    if (finalPUMLText.length() > longestLine) {
+                        longestLine = finalPUMLText.length();
+                    }
                 }
                 // if interface, add doc
                 if (longestLine < 80) {
                     longestLine = 80;
                 }
                 if (component.componentType() == ComponentType.INTERFACE
-                        || component.modifiers().contains("abstract") || (!hasChanged && component.children.size() > largeSize)) {
+                        || component.modifiers().contains("abstract")) {
                     if (component.comment() != null && !component.comment().isEmpty()) {
                         String commentStr = new LineBreakedText(
                                 new JavaDocSymbolStrippedText(new HtmlTagsStrippedText(
@@ -215,22 +195,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
             }
         }
         return tempStrBuilder.toString();
-    }
-
-
-    private boolean isChanged(DiagramComponent cmp) {
-        if (addedComponents.contains(cmp.uniqueName()) || deletedComponents.contains(cmp.uniqueName())
-                || modifiedComponents.contains(cmp.uniqueName())) {
-            return true;
-        } else {
-            for (String childName : cmp.children()) {
-                if (addedComponents.contains(childName) || deletedComponents.contains(childName)
-                        || modifiedComponents.contains(childName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

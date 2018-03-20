@@ -41,7 +41,9 @@ public class SDView implements ClarityBotView, Serializable {
         // not in the older code base.
         List<String> addedComponents = new ArrayList<>();
         for (final Map.Entry<String, DiagramComponent> entry : newerModel.getComponents().entrySet()) {
-            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !olderModel.containsComponent(entry.getKey())) {
+            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL
+                && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
+                && !olderModel.containsComponent(entry.getKey())) {
                 addedComponents.add(entry.getKey());
             }
         }
@@ -65,7 +67,9 @@ public class SDView implements ClarityBotView, Serializable {
         // base but do exist in the older code base.
         List<String> deletedComponents = new ArrayList<>();
         for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
-            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL && !newerModel.containsComponent(entry.getKey())) {
+            if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL
+                && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
+                && !newerModel.containsComponent(entry.getKey())) {
                 deletedComponents.add(entry.getKey());
             }
         }
@@ -88,8 +92,10 @@ public class SDView implements ClarityBotView, Serializable {
         // but it's implementation differs between them.
         List<String> modifiedComponents = new ArrayList<>();
         for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
-            if (entry.getValue().componentType().isMethodComponent() && newerModel.containsComponent(entry.getKey())
-                    && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())) {
+            if (entry.getValue().componentType().isMethodComponent()
+                && newerModel.containsComponent(entry.getKey())
+                && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
+                && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())) {
                 modifiedComponents.add(entry.getKey());
             }
         }
