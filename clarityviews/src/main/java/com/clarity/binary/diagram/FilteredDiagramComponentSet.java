@@ -30,7 +30,7 @@ public class FilteredDiagramComponentSet {
     private final List<String> deletedComponents;
     private final List<String> modifiedComponents;
     private final List<String> modifiedRelationshipComponents;
-    private final double desiredSize = 15;
+    private double diagramSize;
     private final Set<String> mainComponents = new HashSet<>();
     private Map<String, DiagramComponent> allComponents;
     private List<BinaryClassRelationship> allRelationships;
@@ -91,6 +91,11 @@ public class FilteredDiagramComponentSet {
         });
 
         this.mainComponents.addAll(modifiedRelationshipComponents);
+        int diagramSize = (int) (5 * Math.pow(mainComponents.size(), 0.5));
+        if (diagramSize > 15) {
+            diagramSize = 15;
+        }
+        this.diagramSize = diagramSize;
     }
 
     private static Map<String, Integer> sortByComparator(Map<String, Integer> unsortMap, final boolean order) {
@@ -120,16 +125,16 @@ public class FilteredDiagramComponentSet {
 
         Set<String> relatedComponentsSetNames = new HashSet(mainComponents);
         relatedComponentsSetNames = sortComponentsByPopularity(relatedComponentsSetNames, allComponents);
-        if (relatedComponentsSetNames.size() > desiredSize) {
-            relatedComponentsSetNames = relatedComponentsSetNames.stream().limit((int) (desiredSize)).collect(Collectors.toSet());
+        if (relatedComponentsSetNames.size() > diagramSize) {
+            relatedComponentsSetNames = relatedComponentsSetNames.stream().limit((int) (diagramSize)).collect(Collectors.toSet());
         } else {
-            for (int i = 0; i < 3 && relatedComponentsSetNames.size() <= desiredSize; i++) {
+            for (int i = 0; i < 3 && relatedComponentsSetNames.size() <= diagramSize; i++) {
 
                 relatedComponentsSetNames = sortComponentsByPopularity(relatedComponentsSetNames, allComponents);
                 Set<String> relatedComponentsSetNamesCopy = new HashSet<>(relatedComponentsSetNames);
                 // loop in order of insertion order...
                 Iterator<String> itr = relatedComponentsSetNamesCopy.iterator();
-                while (itr.hasNext() && relatedComponentsSetNames.size() <= desiredSize) {
+                while (itr.hasNext() && relatedComponentsSetNames.size() <= diagramSize) {
 
                     String cmpName = itr.next();
                     DiagramComponent cmp = allComponents.get(cmpName);
@@ -146,10 +151,10 @@ public class FilteredDiagramComponentSet {
                      */
                     final List<DiagramComponent> tmpSuperComponentRelatedGroup = new ArrayList<>();
                     tmpSuperComponentRelatedGroup.add(cmp);
-                    for (int j = 0; j < tmpSuperComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= desiredSize; j++) {
+                    for (int j = 0; j < tmpSuperComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= diagramSize; j++) {
                         for (BinaryClassRelationship entry : relevantBinaryRelationships) {
 
-                            if (relatedComponentsSetNames.size() > desiredSize) {
+                            if (relatedComponentsSetNames.size() > diagramSize) {
                                 break;
                             }
                             if (entry.getClassA().uniqueName().equals(tmpSuperComponentRelatedGroup.get(j).uniqueName())
@@ -179,9 +184,9 @@ public class FilteredDiagramComponentSet {
                      */
                     final List<DiagramComponent> tmpSubComponentRelatedGroup = new ArrayList<>();
                     tmpSubComponentRelatedGroup.add(cmp);
-                    for (int j = 0; j < tmpSubComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= desiredSize; j++) {
+                    for (int j = 0; j < tmpSubComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= diagramSize; j++) {
                         for (BinaryClassRelationship entry : relevantBinaryRelationships) {
-                            if (relatedComponentsSetNames.size() > desiredSize) {
+                            if (relatedComponentsSetNames.size() > diagramSize) {
                                 break;
                             }
                             if (entry.getClassA().uniqueName().equals(tmpSubComponentRelatedGroup.get(j).uniqueName())
@@ -208,7 +213,7 @@ public class FilteredDiagramComponentSet {
                      * Filter stage 3: Any components mentioned by documentation should be included.
                      */
 
-                    if (relatedComponentsSetNames.size() <= desiredSize) {
+                    if (relatedComponentsSetNames.size() <= diagramSize) {
 
                         for (ComponentInvocation docMention : cmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.DOC_MENTION)) {
                             DiagramComponent mentionedComponent = allComponents.get(docMention.invokedComponent());
@@ -223,7 +228,7 @@ public class FilteredDiagramComponentSet {
                      */
 
                     for (BinaryClassRelationship entry : relevantBinaryRelationships) {
-                        if (relatedComponentsSetNames.size() > desiredSize) {
+                        if (relatedComponentsSetNames.size() > diagramSize) {
                             break;
                         }
                         if (entry.getClassA().uniqueName().equals(cmp.uniqueName())
@@ -249,7 +254,7 @@ public class FilteredDiagramComponentSet {
                 for (DiagramComponent tmpCmp : componentRelatedGroup) {
                     for (BinaryClassRelationship entry : allRelationships) {
 
-                        if (relatedComponentsSetNames.size() > desiredSize) {
+                        if (relatedComponentsSetNames.size() > diagramSize) {
                             break;
                         }
 
