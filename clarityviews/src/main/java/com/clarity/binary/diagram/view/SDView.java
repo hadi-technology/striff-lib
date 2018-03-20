@@ -103,7 +103,7 @@ public class SDView implements ClarityBotView, Serializable {
                     cmp = olderModel.getComponent(cmp.parentUniqueName());
                 }
                 if (cmp != null && cmp.componentType().isBaseComponent()) {
-                    mainComponents.add(cmp.uniqueName());
+                    //mainComponents.add(cmp.uniqueName());
                 }
             }
         });

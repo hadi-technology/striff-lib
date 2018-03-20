@@ -149,6 +149,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
+    public String minClassWidth() {
+        return "500";
+    }
+
+    @Override
     public String addedRelationColor() {
         return "#00cc00";
     }

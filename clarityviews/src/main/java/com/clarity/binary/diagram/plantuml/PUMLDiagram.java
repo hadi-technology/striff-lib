@@ -85,7 +85,8 @@ public class PUMLDiagram implements Diagram {
                 + "\n" + "skinparam packageFontSize " + colorScheme.packageFontSize()
                 + "\n" + "skinparam classBorderThickness " + colorScheme.classBorderThickness() + "\n"
                 + "skinparam classHeaderBackgroundColor " + colorScheme.classHeaderBackgroundColor() + "\n"
-                + "skinparam classBorderColor " + colorScheme.classBorderColor() + "\n";
+                + "skinparam classBorderColor " + colorScheme.classBorderColor() + "\nskinparam minClassWidth "
+                + colorScheme.minClassWidth() + "\n";
     }
 
     /**

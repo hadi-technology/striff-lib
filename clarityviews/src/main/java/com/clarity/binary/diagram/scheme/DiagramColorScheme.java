@@ -18,6 +18,8 @@ public interface DiagramColorScheme {
 
     String modifiedComponentColor();
 
+    String minClassWidth();
+
     String classFontColor();
 
     String classFontSize();
