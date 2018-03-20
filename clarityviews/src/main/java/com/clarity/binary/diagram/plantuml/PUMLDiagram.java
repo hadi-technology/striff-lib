@@ -67,7 +67,7 @@ public class PUMLDiagram implements Diagram {
     private String formPlantUMLSkinString(DiagramColorScheme colorScheme) {
         return "skinparam defaultFontName " + colorScheme.defaultFontName() + "\n" + "skinparam backgroundColor  "
                 + colorScheme.backgroundColor() + "\n" + "\n" + "skinparam classArrowColor "
-                + colorScheme.classArrowColor() + "\n" + "skinparam classBackgroundColor "
+                + colorScheme.classArrowColor() + "\nskinparam legendBackgroundColor " + colorScheme.legendBackgroundColor() + "\nskinparam classBackgroundColor "
                 + colorScheme.classBackgroundColor() + "\n" + "skinparam classArrowFontColor "
                 + colorScheme.classArrowFontColor() + "\n" + "skinparam classArrowFontSize "
                 + colorScheme.classArrowFontSize() + "\n" + "skinparam classFontColor "

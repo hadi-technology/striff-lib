@@ -16,6 +16,8 @@ public interface DiagramColorScheme {
 
     String classArrowFontSize();
 
+    String legendBackgroundColor();
+
     String modifiedComponentColor();
 
     String minClassWidth();

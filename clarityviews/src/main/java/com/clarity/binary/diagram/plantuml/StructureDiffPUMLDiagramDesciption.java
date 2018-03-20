@@ -70,14 +70,19 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                             + " ");
                 }
 
+                boolean hasChanged = isChanged(component);
+
                 // add component type name (eg: class, interface, etc...)
                 cmpPUMLStr += component.componentType().getValue() + " ";
 
                 // add the actual unique name
-                cmpPUMLStr += (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
+                String diagramCmpUniqueName = (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
+                cmpPUMLStr += diagramCmpUniqueName;
 
                 if (addedComponents.contains(component.uniqueName()) || deletedComponents.contains(component.uniqueName())) {
                     cmpPUMLStr += "as \"<color:black>" + component.name() + "\" ";
+                } else if (component.children.size() > largeSize) {
+                    cmpPUMLStr += "as \" <color:#ffe680><size:20><&zoom-out></size></color> " + component.name() + "\" ";
                 }
 
                 // add class generics if exist
@@ -101,7 +106,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 int longestLine = 0;
 
                 // no children should be displayed for base components who have no changed children in them..
-                boolean hasChanged = isChanged(component);
                 if (hasChanged || component.children.size() <= largeSize) {
                     for (final String classChildCmpName : component.children()) {
                         // if the current base component has many children, only show the ones that have changed

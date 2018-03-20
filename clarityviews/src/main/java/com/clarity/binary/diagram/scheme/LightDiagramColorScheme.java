@@ -162,4 +162,9 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     public String deletedRelationColor() {
         return "#cc0000";
     }
+
+    @Override
+    public String legendBackgroundColor() {
+        return "white";
+    }
 }

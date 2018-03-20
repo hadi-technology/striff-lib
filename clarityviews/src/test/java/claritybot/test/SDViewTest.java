@@ -18,10 +18,10 @@ public class SDViewTest {
 
     @Test
     public void manualTest() throws Exception {
-        DiagramSourceCodeModel oldModel = ClarityTestUtil.getGitHubRepoModel("canoo",
-                "dolphin-platform", "78ed6ae80178956a3c53186151b2b0e364f587bc", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
+        DiagramSourceCodeModel oldModel = ClarityTestUtil.getGitHubRepoModel("JabRef",
+                "jabref", "59b246953070b6c413c6cd1319b76da23499820b", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
         DiagramSourceCodeModel newModel = ClarityTestUtil.getGitHubRepoModel(
-                "canoo", "dolphin-platform", "0980884b637e0315f086116851145ae894d6a0b3", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
+                "JabRef", "jabref", "a98341b0c50181f66194f26330eb843fe21d208d", "01fe37630d630dfecbd504faed22688d6de0aab6", Lang.JAVA);
         Diagram view = new SDView(new LightDiagramColorScheme(), oldModel, newModel, 400).view();
         PrintWriter writer = new PrintWriter("/home/zir0/Desktop/sdTest.svg", "UTF-8");
         writer.println(view.svgText());
