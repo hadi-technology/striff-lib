@@ -5,7 +5,7 @@ import com.clarity.binary.diagram.Diagram;
 import com.clarity.binary.diagram.DiagramComponent;
 import com.clarity.binary.diagram.DiagramConstants.BinaryClassAssociation;
 import com.clarity.binary.diagram.DiagramSourceCodeModel;
-import com.clarity.binary.diagram.RelatedBaseComponentsGroup;
+import com.clarity.binary.diagram.FilteredDiagramComponentSet;
 import com.clarity.binary.diagram.plantuml.PUMLDiagram;
 import com.clarity.binary.diagram.plantuml.PUMLDiagramDescription;
 import com.clarity.binary.diagram.plantuml.StructureDiffPUMLDiagramDesciption;
@@ -48,21 +48,6 @@ public class SDView implements ClarityBotView, Serializable {
             }
         }
 
-        // form a list of all base components that exist in the newer code base
-        // but not in the older code base.
-        Set<String> mainComponents = new HashSet<>();
-        addedComponents.forEach(s -> {
-            DiagramComponent cmp = newerModel.getComponent(s);
-            if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
-                while (cmp != null && !cmp.componentType().isBaseComponent()) {
-                    cmp = newerModel.getComponent(cmp.parentUniqueName());
-                }
-                if (cmp != null && cmp.componentType().isBaseComponent()) {
-                    mainComponents.add(cmp.uniqueName());
-                }
-            }
-        });
-
         // form a list of all components that do not exist in the newer code
         // base but do exist in the older code base.
         List<String> deletedComponents = new ArrayList<>();
@@ -73,20 +58,6 @@ public class SDView implements ClarityBotView, Serializable {
                 deletedComponents.add(entry.getKey());
             }
         }
-
-        // form a list of all base components that do not exist in the newer
-        // code base but do exist in the older code base.
-        deletedComponents.forEach(s -> {
-            DiagramComponent cmp = olderModel.getComponent(s);
-            if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
-                while (cmp != null && !cmp.componentType().isBaseComponent()) {
-                    cmp = olderModel.getComponent(cmp.parentUniqueName());
-                }
-                if (cmp != null && cmp.componentType().isBaseComponent()) {
-                    mainComponents.add(cmp.uniqueName());
-                }
-            }
-        });
 
         // form a list of all components that exist in both the old and new codebase,
         // but it's implementation differs between them.
@@ -100,20 +71,8 @@ public class SDView implements ClarityBotView, Serializable {
             }
         }
 
-        // form a list of all base components that do not exist in the newer
-        // code base but do exist in the older code base.
-        modifiedComponents.forEach(s -> {
-            DiagramComponent cmp = olderModel.getComponent(s);
-            if (cmp.componentType() != OOPSourceModelConstants.ComponentType.LOCAL) {
-                while (cmp != null && !cmp.componentType().isBaseComponent()) {
-                    cmp = olderModel.getComponent(cmp.parentUniqueName());
-                }
-                if (cmp != null && cmp.componentType().isBaseComponent()) {
-                    //mainComponents.add(cmp.uniqueName());
-                }
-            }
-        });
 
+        List<String> modifiedRelationshipComponents = new ArrayList<>();
         // form a list of all binary relationships that exist in the newer code
         // base but not in the older code base.
         List<BinaryClassRelationship> addedRelationships = new ArrayList<>();
@@ -123,8 +82,8 @@ public class SDView implements ClarityBotView, Serializable {
                 int relationAStr = entry.getaSideAssociation().getStrength();
                 int relationBStr = entry.getbSideAssociation().getStrength();
                 if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
-                    mainComponents.add(entry.getClassA().uniqueName());
-                    mainComponents.add(entry.getClassB().uniqueName());
+                    modifiedRelationshipComponents.add(entry.getClassA().uniqueName());
+                    modifiedRelationshipComponents.add(entry.getClassB().uniqueName());
                 }
             }
         }
@@ -138,14 +97,10 @@ public class SDView implements ClarityBotView, Serializable {
                 int relationAStr = entry.getaSideAssociation().getStrength();
                 int relationBStr = entry.getbSideAssociation().getStrength();
                 if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
-                    mainComponents.add(entry.getClassA().uniqueName());
-                    mainComponents.add(entry.getClassB().uniqueName());
+                    modifiedRelationshipComponents.add(entry.getClassA().uniqueName());
+                    modifiedRelationshipComponents.add(entry.getClassB().uniqueName());
                 }
             }
-        }
-
-        if (mainComponents.size() == 0) {
-            throw new EmptySDException("No major structural differences found!");
         }
 
         // generate a list of binary relationships needed to draw the entire
@@ -157,8 +112,14 @@ public class SDView implements ClarityBotView, Serializable {
         // form the merged code base
         Map<String, DiagramComponent> mergedCodeBase = new MergedSourceCodeModel(olderModel.getComponents(),
                 newerModel.getComponents()).set();
+
         // generate a list of components that are needed to draw the structure-diff
-        Set<DiagramComponent> keyComponents = new RelatedBaseComponentsGroup(mergedCodeBase, allBinaryRelationships, mainComponents).components();
+        Set<DiagramComponent> keyComponents = new FilteredDiagramComponentSet(mergedCodeBase, allBinaryRelationships,
+                addedComponents, deletedComponents, modifiedComponents, modifiedRelationshipComponents).components();
+
+        if (keyComponents.size() < 2) {
+            throw new EmptySDException("No major structural differences found!");
+        }
 
         if (keyComponents.size() > maxSDSize) {
             throw new SDTooLargeException("Diagram could not be drawn because it is too large!");
