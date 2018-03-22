@@ -125,9 +125,6 @@ public class SDView implements ClarityBotView, Serializable {
                 new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme, modifiedComponents);
         this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
-        if (diagram.svgText().contains("An error has occured!")) {
-            throw new Exception("PlantUML threw an error!\n" + diagram.svgText());
-        }
     }
 
     @Override

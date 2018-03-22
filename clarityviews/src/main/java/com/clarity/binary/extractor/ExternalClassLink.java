@@ -8,9 +8,7 @@ import java.util.Set;
 /**
  * Within a source class, there are many references or 'links' to external
  * classes (uni-directional)- either through class fields declarations or method
- * invocations. This class represents such a type of link.
- *
- * @author Muntazir Fadhel
+ * invocations. This class represents such a link.
  *
  */
 public class ExternalClassLink {
@@ -22,17 +20,6 @@ public class ExternalClassLink {
     private final Set<String>             modifierContexts;
     private final BinaryClassAssociation  associationType;
 
-    /**
-     * @param originalClass
-     *            original class
-     * @param linkTargetClass
-     *            target class
-     * @param linkTargetClassMultiplicity
-     *            multiplicity from origin to target
-     * @param set
-     *            modifiers
-     * @param associationType
-     */
     public ExternalClassLink(final DiagramComponent originalClass, final DiagramComponent linkTargetClass,
                              final BinaryClassMultiplicity linkTargetClassMultiplicity,
                              final Set<String> set, final BinaryClassAssociation associationType) {
@@ -44,14 +31,9 @@ public class ExternalClassLink {
         this.associationType = (associationType);
     }
 
-    public Set<String> getModifierContexts() {
-        return modifierContexts;
-    }
-
     public BinaryClassMultiplicity getTargetClassMultiplicity() {
         return targetClassMultiplicity;
     }
-
 
     public DiagramComponent getTargetClass() {
         return targetClass;

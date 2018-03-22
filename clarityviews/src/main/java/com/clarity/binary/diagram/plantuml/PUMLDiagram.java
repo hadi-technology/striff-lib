@@ -38,7 +38,9 @@ public class PUMLDiagram implements Diagram {
                     " Clarity View diagram SVG text generated in " + (new Date().getTime() - startTime) + " milliseconds.");
             this.svgText = diagramStr;
             if (svgText.contains("Syntax Error")) {
-                throw new Exception("A PUML syntax error occurred while generating this diagram!\n" + svgText);
+                throw new Exception("A PUML syntax error occurred while generating this diagram!\n" + diagramStr);
+            } else if (svgText.contains("An error has occured!")) {
+                throw new Exception("A PUML diagram generation error occurred!\n" + diagramStr);
             }
         }
     }
