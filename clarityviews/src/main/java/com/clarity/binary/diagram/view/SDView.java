@@ -30,7 +30,8 @@ public class SDView implements ClarityBotView, Serializable {
     private static final long serialVersionUID = -3125810981280395679L;
     private Diagram diagram;
 
-    public SDView(DiagramColorScheme colorScheme, DiagramSourceCodeModel olderModel, DiagramSourceCodeModel newerModel, int maxSDSize) throws Exception {
+    public SDView(DiagramColorScheme colorScheme, DiagramSourceCodeModel olderModel, DiagramSourceCodeModel newerModel,
+                  int maxSDSize, List<String> changedFiles) throws Exception {
 
         List<BinaryClassRelationship> oldBinaryRelationships = new BinaryClassRelationshipExtractor<>()
                 .generateBinaryClassRelationships(olderModel);
@@ -43,7 +44,8 @@ public class SDView implements ClarityBotView, Serializable {
         for (final Map.Entry<String, DiagramComponent> entry : newerModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL
                 && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
-                && !olderModel.containsComponent(entry.getKey())) {
+                    && !olderModel.containsComponent(entry.getKey())
+                    && changedFiles.contains(entry.getValue().sourceFile())) {
                 addedComponents.add(entry.getKey());
             }
         }
@@ -54,7 +56,8 @@ public class SDView implements ClarityBotView, Serializable {
         for (final Map.Entry<String, DiagramComponent> entry : olderModel.getComponents().entrySet()) {
             if (entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.LOCAL
                 && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
-                && !newerModel.containsComponent(entry.getKey())) {
+                    && !newerModel.containsComponent(entry.getKey())
+                    && changedFiles.contains(entry.getValue().sourceFile())) {
                 deletedComponents.add(entry.getKey());
             }
         }
@@ -66,7 +69,8 @@ public class SDView implements ClarityBotView, Serializable {
             if (entry.getValue().componentType().isMethodComponent()
                 && newerModel.containsComponent(entry.getKey())
                 && entry.getValue().componentType() != OOPSourceModelConstants.ComponentType.CONSTRUCTOR
-                && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())) {
+                    && !entry.getValue().code().equalsIgnoreCase(newerModel.getComponent(entry.getKey()).code())
+                    && changedFiles.contains(entry.getValue().sourceFile())) {
                 modifiedComponents.add(entry.getKey());
             }
         }
@@ -81,7 +85,9 @@ public class SDView implements ClarityBotView, Serializable {
                 addedRelationships.add(entry);
                 int relationAStr = entry.getaSideAssociation().getStrength();
                 int relationBStr = entry.getbSideAssociation().getStrength();
-                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
+                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()
+                        && changedFiles.contains(entry.getClassA().sourceFile())
+                        && changedFiles.contains(entry.getClassB().sourceFile())) {
                     modifiedRelationshipComponents.add(entry.getClassA().uniqueName());
                     modifiedRelationshipComponents.add(entry.getClassB().uniqueName());
                 }
@@ -96,7 +102,9 @@ public class SDView implements ClarityBotView, Serializable {
                 deletedRelationships.add(entry);
                 int relationAStr = entry.getaSideAssociation().getStrength();
                 int relationBStr = entry.getbSideAssociation().getStrength();
-                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()) {
+                if ((relationAStr + relationBStr) >= BinaryClassAssociation.AGGREGATION.getStrength()
+                        && changedFiles.contains(entry.getClassA().sourceFile())
+                        && changedFiles.contains(entry.getClassB().sourceFile())) {
                     modifiedRelationshipComponents.add(entry.getClassA().uniqueName());
                     modifiedRelationshipComponents.add(entry.getClassB().uniqueName());
                 }

@@ -7,6 +7,12 @@ import com.clarity.compiler.RawFile;
 import com.clarity.compiler.SourceFiles;
 import com.clarity.sourcemodel.OOPSourceCodeModel;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -55,6 +61,24 @@ public class ClarityTestUtil {
         return filenames;
     }
 
+    public static List<String> pullRequestChangedFiles(String repoOwner, String repoName, String token, String prNumber) throws IOException {
+
+        List<String> changedFiles = new ArrayList<>();
+        String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/pulls/" + prNumber + "/files?access_token=" + token;
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet request = new HttpGet(url);
+        HttpResponse response = client.execute(request);
+
+        System.out.println("Response Code : "
+                + response.getStatusLine().getStatusCode());
+
+        JSONArray json = new JSONArray(EntityUtils.toString(response.getEntity()));
+        for (int i = 0; i < json.length(); i++) {
+            changedFiles.add(json.getJSONObject(i).getString("filename"));
+        }
+        return changedFiles;
+    }
+
     public static SourceFiles extractProjectFromArchive(final InputStream is, String project, Lang language)
             throws Exception {
 
@@ -70,7 +94,7 @@ public class ClarityTestUtil {
                 entry.getName().substring(entry.getName().lastIndexOf(".") + 1, entry.getName().length());
                 if (!entry.isDirectory() && (currentlyExtractingProject)
                         && entry.getName().endsWith(language.fileExt())) {
-                    sourceFiles.insertFile(new RawFile(entry.getName().replace(" ", "_"),
+                    sourceFiles.insertFile(new RawFile(entry.getName().replace(" ", "_").substring(entry.getName().indexOf("/") + 1),
                             new String(IOUtils.toByteArray(zis), StandardCharsets.UTF_8)));
                 } else {
                     // if the project name is specified then keep extracting all

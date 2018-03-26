@@ -49,6 +49,10 @@ public class DiagramComponent {
         }
     }
 
+    public String sourceFile() {
+        return cmp.sourceFile();
+    }
+
     public List<ComponentInvocation> componentInvocations(OOPSourceModelConstants.ComponentInvocations implementation) {
         return cmp.componentInvocations(implementation);
     }
