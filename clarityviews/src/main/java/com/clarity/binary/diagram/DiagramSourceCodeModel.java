@@ -1,6 +1,5 @@
 package com.clarity.binary.diagram;
 
-import com.clarity.sourcemodel.Component;
 import com.clarity.sourcemodel.OOPSourceCodeModel;
 
 import java.util.HashMap;
@@ -16,8 +15,7 @@ public class DiagramSourceCodeModel {
 
     public DiagramSourceCodeModel(OOPSourceCodeModel srcModel) {
         Map<String, DiagramComponent> newCmps = new HashMap<>();
-        Map<String, Component> originalCmps = srcModel.getComponents();
-        originalCmps.forEach((key, value) -> {
+        srcModel.components().forEach(value -> {
             DiagramComponent dCmp = new DiagramComponent(value, srcModel);
             newCmps.put(dCmp.uniqueName(), dCmp);
         });

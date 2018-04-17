@@ -77,13 +77,17 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
 
                 // add the actual unique name
                 String diagramCmpUniqueName = (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
-                cmpPUMLStr += diagramCmpUniqueName;
+                cmpPUMLStr += diagramCmpUniqueName + "as \" ";
+
+                if (component.children.size() > largeSize) {
+                    cmpPUMLStr += "<color:#ffe680><size:20><&zoom-out></size></color> ";
+                }
 
                 if (addedComponents.contains(component.uniqueName()) || deletedComponents.contains(component.uniqueName())) {
-                    cmpPUMLStr += "as \"<color:black>" + component.name() + "\" ";
-                } else if (component.children.size() > largeSize) {
-                    cmpPUMLStr += "as \" <color:#ffe680><size:20><&zoom-out></size></color> " + component.name() + "\" ";
+                    cmpPUMLStr += "<color:black>";
                 }
+
+                cmpPUMLStr += "<size:20><&caret-left></size>" + component.name() + "<size:20><&caret-right></size> \"";
 
                 // add class generics if exist
                 if (component.codeFragment() != null) {
@@ -98,7 +102,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                     cmpPUMLStr += " << (S,ffbb55) >> ";
                 }
 
-                // open the brackets
+                // add background color tag
                 componentPUMLStrings
                         .add(colorClassBackground(component, addedComponents, deletedComponents, cmpPUMLStr) + " {\n");
 
@@ -159,7 +163,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                                     visibilitySymbol += AccessModifiers.NONE.getUMLClassDigramSymbol() + " ";
                                 }
                             }
-
+                            // add background color tag
                             String finalPUMLText = visibilitySymbol + " "
                                     + colorTextBackground(childCmp, childCmpPUMLStr.trim());
                             componentPUMLStrings.add(finalPUMLText + "\n");
@@ -169,13 +173,12 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                         }
                     }
                 } else {
+                    // hack to add some depth to the empty class diagram box...
                     componentPUMLStrings.add("\n");
                     componentPUMLStrings.add("\n");
                     componentPUMLStrings.add("\n");
                     componentPUMLStrings.add("\n");
                     componentPUMLStrings.add("\n");
-
-
                 }
                 // if interface, add doc
                 if (longestLine < 80) {

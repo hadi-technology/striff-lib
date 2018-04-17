@@ -10,7 +10,7 @@ public final class DiagramConstants {
         /**
          * Weak Binary Association.
          */
-        COMPOSITION(6, "Contains", "-", "*", "*"), DEPENDANCY(1, "Depends On", "-.-", "", ""),
+        COMPOSITION(6, "Contains", "-", "*", "*"),
         /**
          * Generalization Association.
          */

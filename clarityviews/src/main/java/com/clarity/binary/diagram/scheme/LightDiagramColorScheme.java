@@ -53,6 +53,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
+    public String zoomOutIconColor() {
+        return "#93f3ff";
+    }
+
+    @Override
     public String classStereoTypeAttributeFontSize() {
         return "20";
     }
@@ -66,7 +71,6 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     public String classBorderThickness() {
         return "1";
     }
-
 
     @Override
     public String classAttributeFontSize() {

@@ -93,7 +93,7 @@ public class ClarityTestUtil {
             while ((entry != null) && !finishedExtracting) {
                 entry.getName().substring(entry.getName().lastIndexOf(".") + 1, entry.getName().length());
                 if (!entry.isDirectory() && (currentlyExtractingProject)
-                        && entry.getName().endsWith(language.fileExt())) {
+                        && entry.getName().endsWith(language.fileExt()) && !entry.getName().contains("/vendor/")) {
                     sourceFiles.insertFile(new RawFile(entry.getName().replace(" ", "_").substring(entry.getName().indexOf("/") + 1),
                             new String(IOUtils.toByteArray(zis), StandardCharsets.UTF_8)));
                 } else {

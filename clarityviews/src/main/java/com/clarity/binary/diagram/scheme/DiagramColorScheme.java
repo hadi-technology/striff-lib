@@ -28,6 +28,8 @@ public interface DiagramColorScheme {
 
     String classFontName();
 
+    String zoomOutIconColor();
+
     String classStereoTypeAttributeFontSize();
 
     String classStereotypeFontColor();
