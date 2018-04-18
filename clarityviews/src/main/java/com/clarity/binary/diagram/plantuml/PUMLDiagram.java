@@ -1,7 +1,6 @@
 package com.clarity.binary.diagram.plantuml;
 
 import com.clarity.binary.diagram.Diagram;
-import com.clarity.binary.diagram.scheme.DiagramColorScheme;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -12,16 +11,12 @@ import java.util.Date;
 
 public class PUMLDiagram implements Diagram {
 
-    private static final String PLANT_UML_BEGIN_STRING = "@startuml\nskinparam linetype ortho\n";
-    private static final String PLANT_UML_END_STRING = "\n@enduml";
     private PUMLDiagramDescription plantUMLClassDiagramDescription;
-    private DiagramColorScheme colorScheme;
     private int size;
     private String svgText;
 
-    public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, DiagramColorScheme colorScheme, int size) throws Exception {
+    public PUMLDiagram(final PUMLDiagramDescription plantUMLClassDescription, int size) throws Exception {
         this.plantUMLClassDiagramDescription = plantUMLClassDescription;
-        this.colorScheme = colorScheme;
         this.size = size;
         generateSVGText();
     }
@@ -55,40 +50,10 @@ public class PUMLDiagram implements Diagram {
     }
 
     /**
-     * Forms a PlantUML compliant String representing the class diagram.
+     * Returns a PlantUML compliant String representing the class diagram.
      */
     private String genPlantUMLString() {
-
-        final String diagramSkin = formPlantUMLSkinString(colorScheme);
-
-        final String source = PLANT_UML_BEGIN_STRING + diagramSkin + plantUMLClassDiagramDescription.description()
-                + PLANT_UML_END_STRING;
-        return source;
-    }
-
-    private String formPlantUMLSkinString(DiagramColorScheme colorScheme) {
-        return "skinparam defaultFontName " + colorScheme.defaultFontName() + "\n" + "skinparam backgroundColor  "
-                + colorScheme.backgroundColor() + "\n" + "\n" + "skinparam classArrowColor "
-                + colorScheme.classArrowColor() + "\nskinparam legendBackgroundColor " + colorScheme.legendBackgroundColor() + "\nskinparam classBackgroundColor "
-                + colorScheme.classBackgroundColor() + "\n" + "skinparam classArrowFontColor "
-                + colorScheme.classArrowFontColor() + "\n" + "skinparam classArrowFontSize "
-                + colorScheme.classArrowFontSize() + "\n" + "skinparam classFontColor "
-                + colorScheme.classFontColor() + "\n" + "skinparam classFontSize " + colorScheme.classFontSize()
-                + "\n" + "skinparam classStereotypeFontColor " + colorScheme.classStereotypeFontColor() + "\n"
-                + "skinparam classAttributeFontColor " + colorScheme.classAttributeFontColor() + "\n"
-                + "skinparam classAttributeFontSize " + colorScheme.classAttributeFontSize() + "\n"
-                + "skinparam classFontName " + colorScheme.classFontName() + "\n" + "skinparam classAttributeFontName "
-                + colorScheme.classAttributeFontName() + "\n" + "skinparam titleFontColor "
-                + colorScheme.titleFontColor() + "\n" + "skinparam packageBackgroundColor "
-                + colorScheme.packageBackgroundColor() + "\n" + "skinparam titleFontName " + colorScheme.titleFontName()
-                + "\n" + "skinparam packageBorderColor " + colorScheme.packageBorderColor() + "\n"
-                + "skinparam packageFontColor " + colorScheme.packageFontColor() + "\n" + "skinparam packageFontName "
-                + colorScheme.packageFontName() + "\n" + "skinparam packageFontStyle " + colorScheme.packageFontStyle()
-                + "\n" + "skinparam packageFontSize " + colorScheme.packageFontSize()
-                + "\n" + "skinparam classBorderThickness " + colorScheme.classBorderThickness() + "\n"
-                + "skinparam classHeaderBackgroundColor " + colorScheme.classHeaderBackgroundColor() + "\n"
-                + "skinparam classBorderColor " + colorScheme.classBorderColor() + "\nskinparam minClassWidth "
-                + colorScheme.minClassWidth() + "\n";
+        return plantUMLClassDiagramDescription.description();
     }
 
     /**
@@ -99,9 +64,7 @@ public class PUMLDiagram implements Diagram {
         final SourceStringReader reader = new SourceStringReader(source);
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
-
             reader.generateImage(os, new FileFormatOption(FileFormat.SVG));
-
         } catch (
 
         final IOException e1) {

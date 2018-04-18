@@ -129,10 +129,10 @@ public class SDView implements ClarityBotView, Serializable {
             throw new EmptySDException("No major structural differences found!");
         }
 
-        PUMLDiagramDescription diffClarityView = new StructureDiffPUMLDiagramDesciption(keyComponents,
+        PUMLDiagramDescription pumlStructureDiffDescription = new StructureDiffPUMLDiagramDesciption(keyComponents,
                 new HashSet<>(allBinaryRelationships), deletedRelationships, addedRelationships, deletedComponents, addedComponents,
                 mergedCodeBase, colorScheme, modifiedComponents);
-        this.diagram = new PUMLDiagram(diffClarityView, colorScheme, keyComponents.size());
+        this.diagram = new PUMLDiagram(pumlStructureDiffDescription, keyComponents.size());
     }
 
     @Override

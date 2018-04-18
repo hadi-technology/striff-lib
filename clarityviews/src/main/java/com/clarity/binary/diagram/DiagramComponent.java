@@ -38,7 +38,7 @@ public class DiagramComponent {
                 }
             }
         }
-        this.noc = calculateNoc();
+        this.noc = calculateNoc(this.cmp);
         this.dit = calculateDit(this.cmp);
     }
 
@@ -46,13 +46,13 @@ public class DiagramComponent {
      * Returns NOC of the current component, which is a measure of the the number of direct
      * subclasses of a class.
      */
-    private int calculateNoc() {
-        String currUniqueName = this.uniqueName();
+    private int calculateNoc(Component cmp) {
+        String currUniqueName = cmp.uniqueName();
         int noc = 0;
-        if (this.componentType().isBaseComponent()) {
-            for (Component cmp : srcModel.components().collect(Collectors.toList())) {
-                if (cmp.componentType().isBaseComponent()) {
-                    for (ComponentInvocation cmpInv : cmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
+        if (cmp.componentType().isBaseComponent()) {
+            for (Component tempCmp : srcModel.components().collect(Collectors.toList())) {
+                if (tempCmp.componentType().isBaseComponent()) {
+                    for (ComponentInvocation cmpInv : tempCmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
                         if (cmpInv.invokedComponent().equals(currUniqueName)) {
                             noc += 1;
                         }
