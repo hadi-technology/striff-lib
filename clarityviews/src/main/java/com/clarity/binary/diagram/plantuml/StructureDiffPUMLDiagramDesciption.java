@@ -43,10 +43,10 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     public String description() {
         return PLANT_UML_BEGIN_STRING + formPlantUMLSkinString(colorScheme) + new StructureDiffPUMLClassDescription(diagramComponents,
                 deletedComponents, addedComponents, allComponents, colorScheme, modifiedComponents).value()
-                + "\n" +
-                new StructureDiffPUMLRelationsDescription(diagramComponents, allRelationships, deletedRelationships,
-                        addedRelationships, colorScheme, modifiedComponents).value() +
-                PLANT_UML_END_STRING;
+                + "\n"
+                + new StructureDiffPUMLRelationsDescription(diagramComponents, allRelationships, deletedRelationships,
+                addedRelationships, colorScheme, modifiedComponents).value()
+                + PLANT_UML_END_STRING;
     }
 
     private String formPlantUMLSkinString(DiagramColorScheme colorScheme) {
