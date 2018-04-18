@@ -32,7 +32,7 @@ public class ColoredBinaryClassAssociation {
             case NONE:
                 return "--[" + hexColor + "]--";
             case REALIZATION:
-                return "--.[" + hexColor + ",bold]--";
+                return "--.-[" + hexColor + "]-";
             case WEAK_ASSOCIATION:
                 return "--[" + hexColor + "]";
             case ASSOCIATION:
