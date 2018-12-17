@@ -20,7 +20,7 @@ public class SDViewTest {
         String baseRepoOwner = "canoo";
         String repoName = "dolphin-platform";
         String prNumber = "900";
-        String token = "01fe37630d630dfecbd504faed22688d6de0aab6";
+        String token = "cb9d67bb5599db05ad0a387d3b3051e1f9900b9b";
         Lang language = Lang.JAVA;
 
         List<String> changedFiles = ClarityTestUtil.pullRequestChangedFiles(baseRepoOwner, repoName, token, prNumber);

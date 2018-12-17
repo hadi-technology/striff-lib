@@ -28,7 +28,7 @@ public class ColoredBinaryClassAssociation {
             case COMPOSITION:
                 return "--[" + hexColor + "]--";
             case GENERALISATION:
-                return "--[" + hexColor + ",bold]--";
+                return "--[" + hexColor + "]--";
             case NONE:
                 return "--[" + hexColor + "]--";
             case REALIZATION:

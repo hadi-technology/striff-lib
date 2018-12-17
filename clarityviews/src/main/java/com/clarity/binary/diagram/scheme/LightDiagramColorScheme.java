@@ -34,7 +34,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classArrowFontSize() {
-        return "12";
+        return "18";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classFontSize() {
-        return "20";
+        return "18";
     }
 
     @Override
@@ -58,8 +58,8 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
-    public String classStereoTypeAttributeFontSize() {
-        return "20";
+    public String classAttributeIconSize() {
+        return "16";
     }
 
     @Override
@@ -69,12 +69,12 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classBorderThickness() {
-        return "1";
+        return "0.2";
     }
 
     @Override
     public String classAttributeFontSize() {
-        return "20";
+        return "18";
     }
 
     @Override
@@ -89,7 +89,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBackgroundColor() {
-        return "#f1f1f1";
+        return "#E0E0E0";
     }
 
     @Override
@@ -104,12 +104,27 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBorderColor() {
-        return "#000";
+        return "#E0E0E0";
+    }
+
+    @Override
+    public String packageBorderThickness() {
+        return "0";
+    }
+
+    @Override
+    public String dropShadows() {
+        return "true";
     }
 
     @Override
     public String packageFontColor() {
         return "#000";
+    }
+
+    @Override
+    public String arrowThickness() {
+        return "1";
     }
 
     @Override
@@ -129,12 +144,12 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classBorderColor() {
-        return "#000";
+        return "#202020";
     }
 
     @Override
     public String classStereotypeFontColor() {
-        return "black";
+        return "white";
     }
 
     @Override
@@ -154,7 +169,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String minClassWidth() {
-        return "500";
+        return "400";
     }
 
     @Override

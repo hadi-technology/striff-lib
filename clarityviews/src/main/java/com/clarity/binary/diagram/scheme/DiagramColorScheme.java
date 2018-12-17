@@ -30,7 +30,7 @@ public interface DiagramColorScheme {
 
     String zoomOutIconColor();
 
-    String classStereoTypeAttributeFontSize();
+    String classAttributeIconSize();
 
     String classStereotypeFontColor();
 
@@ -52,7 +52,13 @@ public interface DiagramColorScheme {
 
     String packageBorderColor();
 
+    String packageBorderThickness();
+
+    String dropShadows();
+
     String packageFontColor();
+
+    String arrowThickness();
 
     String packageFontName();
 

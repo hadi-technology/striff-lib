@@ -24,10 +24,10 @@ public class StructureDiffPUMLClassDescription {
     private DiagramColorScheme colorScheme;
     private List<String> modifiedComponents;
 
-    public StructureDiffPUMLClassDescription(Set<DiagramComponent> diagramComponents,
-                                             List<String> deletedComponents,
-                                             List<String> addedComponents, Map<String, DiagramComponent> allComponents, DiagramColorScheme colorScheme,
-                                             List<String> modifiedComponents) {
+    StructureDiffPUMLClassDescription(Set<DiagramComponent> diagramComponents,
+                                      List<String> deletedComponents,
+                                      List<String> addedComponents, Map<String, DiagramComponent> allComponents, DiagramColorScheme colorScheme,
+                                      List<String> modifiedComponents) {
         this.diagramComponents = diagramComponents;
         this.allComponents = allComponents;
         this.addedComponents = addedComponents;
@@ -40,7 +40,7 @@ public class StructureDiffPUMLClassDescription {
         final StringBuilder tempStrBuilder = new StringBuilder();
         for (final DiagramComponent component : diagramComponents) {
             String cmpPUMLStr = "";
-            List<String> componentPUMLStrings = new ArrayList<String>();
+            List<String> componentPUMLStrings = new ArrayList<>();
             // determine if we have base component type and it is not a child of a method component type...
             if (component.componentType().isBaseComponent() && !component.uniqueName().contains("(")) {
                 // list of methods from this component we don't want to display in the diagram
@@ -69,7 +69,8 @@ public class StructureDiffPUMLClassDescription {
                     cmpPUMLStr += "<color:black>";
                 }
 
-                cmpPUMLStr += "<size:20><&caret-left></size>" + component.name() + "<size:20><&caret-right></size> \"";
+                cmpPUMLStr += "<size:" + colorScheme.classFontSize() + "><&caret-left></size>" + component.name() +
+                        "<size:" + colorScheme.classFontSize() + "><&caret-right></size> \"";
 
                 // add class generics if exist
                 if (component.codeFragment() != null) {
@@ -103,7 +104,7 @@ public class StructureDiffPUMLClassDescription {
                                     && !ignoreMethods.contains(childCmp.name()))
                                     || childCmp.componentType().isVariableComponent()) {
                                 // start entering the fields and methods...
-                                if ((childCmp != null) && !childCmp.componentType().isBaseComponent()) {
+                                if (!childCmp.componentType().isBaseComponent()) {
                                     // if the field/method is abstract or static, add
                                     // the {abstract}/{static} prefix..
                                     if (childCmp.modifiers().contains(
@@ -159,7 +160,7 @@ public class StructureDiffPUMLClassDescription {
                         drawComponentComment(longestLine, component, componentPUMLStrings);
                     }
                 }
-                tempStrBuilder.append(org.apache.commons.lang.StringUtils.join(componentPUMLStrings, " ") + "}\n");
+                tempStrBuilder.append(org.apache.commons.lang.StringUtils.join(componentPUMLStrings, " ")).append("}\n");
             }
         }
         return tempStrBuilder.toString();
@@ -201,7 +202,7 @@ public class StructureDiffPUMLClassDescription {
             for (int i = 0; i < lines.length; i++) {
                 // replace curly brackets. If there is code in the comment, PlantUML will
                 // throw an error unless we do so.
-                lines[i] = colorTextBackground(component, lines[i].trim().replaceAll("\\{", "[").replaceAll("\\}", "]"));
+                lines[i] = colorTextBackground(component, lines[i].trim().replaceAll("\\{", "[").replaceAll("}", "]"));
             }
             // adds the doc right after the component
             // declaration (after the first element)

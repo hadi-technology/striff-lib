@@ -9,7 +9,6 @@ import com.clarity.invocation.TypeImplementation;
 import com.clarity.sourcemodel.OOPSourceModelConstants;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,8 +39,7 @@ public class FilteredDiagramComponentSet {
                                        final List<String> addedComponents,
                                        final List<String> deletedComponents,
                                        final List<String> modifiedComponents,
-                                       final List<String> modifiedRelationshipComponents
-    ) {
+                                       final List<String> modifiedRelationshipComponents) {
         this.allComponents = allComponents;
         this.allRelationships = allRelationships;
         this.addedComponents = addedComponents;
@@ -101,7 +99,7 @@ public class FilteredDiagramComponentSet {
     private static Map<String, Integer> sortByComparator(Map<String, Integer> unsortMap, final boolean order) {
         List<Map.Entry<String, Integer>> list = new LinkedList<>(unsortMap.entrySet());
         // Sorting the list based on values
-        Collections.sort(list, (o1, o2) -> {
+        list.sort((o1, o2) -> {
             if (order) {
                 return o1.getValue().compareTo(o2.getValue());
             } else {
@@ -111,7 +109,7 @@ public class FilteredDiagramComponentSet {
         });
 
         // Maintaining insertion order with the help of LinkedList
-        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
         for (Map.Entry<String, Integer> entry : list) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
@@ -129,13 +127,11 @@ public class FilteredDiagramComponentSet {
             relatedComponentsSetNames = relatedComponentsSetNames.stream().limit((int) (diagramSize)).collect(Collectors.toSet());
         } else {
             for (int i = 0; i < 3 && relatedComponentsSetNames.size() <= diagramSize; i++) {
-
                 relatedComponentsSetNames = sortComponentsByPopularity(relatedComponentsSetNames, allComponents);
                 Set<String> relatedComponentsSetNamesCopy = new HashSet<>(relatedComponentsSetNames);
                 // loop in order of insertion order...
                 Iterator<String> itr = relatedComponentsSetNamesCopy.iterator();
                 while (itr.hasNext() && relatedComponentsSetNames.size() <= diagramSize) {
-
                     String cmpName = itr.next();
                     DiagramComponent cmp = allComponents.get(cmpName);
                     // create a filtered map for all relationships relevant to the
@@ -153,7 +149,6 @@ public class FilteredDiagramComponentSet {
                     tmpSuperComponentRelatedGroup.add(cmp);
                     for (int j = 0; j < tmpSuperComponentRelatedGroup.size() && relatedComponentsSetNames.size() <= diagramSize; j++) {
                         for (BinaryClassRelationship entry : relevantBinaryRelationships) {
-
                             if (relatedComponentsSetNames.size() > diagramSize) {
                                 break;
                             }
@@ -334,5 +329,4 @@ public class FilteredDiagramComponentSet {
         }
         return sortedComponents;
     }
-
 }
