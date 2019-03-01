@@ -50,7 +50,7 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
     }
 
     private String formPlantUMLSkinString(DiagramColorScheme colorScheme) {
-        return "scale max 1024 width\nskinparam defaultFontName " + colorScheme.defaultFontName() + "\n" + "skinparam backgroundColor  "
+        return "hide empty methods\nhide empty attributes\nscale max 3000 width\n skinparam defaultFontName " + colorScheme.defaultFontName() + "\n" + "skinparam backgroundColor  "
                 + colorScheme.backgroundColor() + "\n" + "\n" + "skinparam classArrowColor "
                 + colorScheme.classArrowColor() + "\nskinparam legendBackgroundColor " + colorScheme.legendBackgroundColor() + "\nskinparam classBackgroundColor "
                 + colorScheme.classBackgroundColor() + "\n" + "skinparam classArrowFontColor "
@@ -60,11 +60,6 @@ public class StructureDiffPUMLDiagramDesciption implements PUMLDiagramDescriptio
                 + "\n" + "skinparam classStereotypeFontColor " + colorScheme.classStereotypeFontColor() + "\n"
                 + "skinparam classAttributeFontColor " + colorScheme.classAttributeFontColor() + "\n"
                 + "skinparam classAttributeFontSize " + colorScheme.classAttributeFontSize() + "\n"
-
-                + "skinparam classAttributeFontSize " + colorScheme.classAttributeFontSize() + "\n"
-
-                + "skinparam classAttributeFontSize " + colorScheme.classAttributeFontSize() + "\n"
-
                 + "skinparam classFontName " + colorScheme.classFontName() + "\n" + "skinparam classAttributeFontName "
                 + colorScheme.classAttributeFontName() + "\n" + "skinparam titleFontColor "
                 + colorScheme.titleFontColor() + "\n" + "skinparam packageBackgroundColor "

@@ -289,7 +289,7 @@ public class FilteredDiagramComponentSet {
         componentNamesList.forEach((currComponentName) -> {
             DiagramComponent currCmp = codebase.get(currComponentName);
             int score = 0;
-            for (String child : currCmp.children) {
+            for (String child : currCmp.children()) {
                 DiagramComponent childCmp = allComponents.get(child);
                 if (addedComponents.contains(childCmp.uniqueName()) || deletedComponents.contains(childCmp.uniqueName())) {
                     score += 100;

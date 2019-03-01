@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Enhances Clarpse's {@link Component} to facilitate generation of {@link com.clarity.binary.diagram.view.SDView}'s.
@@ -18,9 +17,7 @@ public class DiagramComponent {
 
     private final Component cmp;
     private final OOPSourceCodeModel srcModel;
-    private final int dit;
-    public List<String> children = new ArrayList<>();
-    public int noc;
+    private List<String> children = new ArrayList<>();
 
     public DiagramComponent(Component cmp, OOPSourceCodeModel srcModel) {
         this.cmp = cmp;
@@ -38,64 +35,10 @@ public class DiagramComponent {
                 }
             }
         }
-        this.noc = calculateNoc(this.cmp);
-        this.dit = calculateDit(this.cmp);
-    }
-
-    /**
-     * Returns NOC of the current component, which is a measure of the the number of direct
-     * subclasses of a class.
-     */
-    private int calculateNoc(Component cmp) {
-        String currUniqueName = cmp.uniqueName();
-        int noc = 0;
-        if (cmp.componentType().isBaseComponent()) {
-            for (Component tempCmp : srcModel.components().collect(Collectors.toList())) {
-                if (tempCmp.componentType().isBaseComponent()) {
-                    for (ComponentInvocation cmpInv : tempCmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
-                        if (cmpInv.invokedComponent().equals(currUniqueName)) {
-                            noc += 1;
-                        }
-                    }
-                }
-            }
-        }
-        return noc;
-    }
-
-    /**
-     * Returns DIT of the current component, which is a measure of how far down a class is declared in
-     * the inheritance hierarchy.
-     */
-    private int calculateDit(Component cmp) {
-        if (cmp.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE) {
-            return 1;
-        }
-
-        int currentHighestScore = 1;
-
-        for (ComponentInvocation cmpInv : cmp.componentInvocations(OOPSourceModelConstants.ComponentInvocations.EXTENSION)) {
-            Optional<Component> invkCmp = srcModel.getComponent(cmpInv.invokedComponent());
-            if (invkCmp.isPresent()) {
-                int hierarchyScore = 1 + calculateDit(invkCmp.get());
-                if (hierarchyScore > currentHighestScore) {
-                    currentHighestScore = hierarchyScore;
-                }
-            }
-        }
-        return currentHighestScore;
     }
 
     public List<String> children() {
         return this.children;
-    }
-
-    public int noc() {
-        return this.noc;
-    }
-
-    public int dit() {
-        return this.dit;
     }
 
     public String uniqueName() {

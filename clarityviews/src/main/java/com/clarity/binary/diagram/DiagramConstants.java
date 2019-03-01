@@ -14,7 +14,7 @@ public final class DiagramConstants {
         /**
          * Generalization Association.
          */
-        GENERALISATION(7, "Extends", "-", "|>", "<|"),
+        GENERALISATION(7, "Extends", "--", "|>", "<|"),
         /**
          * Dependency association.
          */

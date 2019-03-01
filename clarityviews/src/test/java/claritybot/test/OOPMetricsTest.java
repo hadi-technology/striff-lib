@@ -1,11 +1,12 @@
 package claritybot.test;
 
-import com.clarity.binary.diagram.DiagramSourceCodeModel;
+import com.clarity.binary.metrics.OOPMetricsProfile;
 import com.clarity.binary.parse.ParsedProject;
 import com.clarity.compiler.ClarpseProject;
 import com.clarity.compiler.Lang;
 import com.clarity.compiler.RawFile;
 import com.clarity.compiler.SourceFiles;
+import com.clarity.sourcemodel.OOPSourceCodeModel;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
@@ -24,8 +25,8 @@ public class OOPMetricsTest {
         reqCon.insertFile(file2);
         reqCon.insertFile(file3);
 
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(new ParsedProject((reqCon)).model());
-        assertTrue(codeModel.getComponent("test.ClassC").dit() == 3);
+        final OOPSourceCodeModel codeModel = new ParsedProject((reqCon)).model();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("test.ClassC").get(), codeModel).dit() == 3);
     }
 
     @Test
@@ -43,10 +44,9 @@ public class OOPMetricsTest {
         reqCon.insertFile(file3);
         reqCon.insertFile(file4);
 
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(new ParsedProject((reqCon)).model());
-        assertTrue(codeModel.getComponent("test.ClassD").dit() == 1);
+        final OOPSourceCodeModel codeModel = new ParsedProject((reqCon)).model();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("test.ClassD").get(), codeModel).dit() == 1);
     }
-
 
     @Test
     public void complexDitTest() throws Exception {
@@ -64,8 +64,9 @@ public class OOPMetricsTest {
         rawData.insertFile(new RawFile("/src/main/C.go", codeC));
         rawData.insertFile(new RawFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("main.ClassD").dit() == 4);
+        final OOPSourceCodeModel codeModel = parseService.result();
+
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(), codeModel).dit() == 4);
     }
 
     @Test
@@ -82,8 +83,8 @@ public class OOPMetricsTest {
         rawData.insertFile(new RawFile("/src/main/C.go", codeC));
         rawData.insertFile(new RawFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("main.ClassD").dit() == 3);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(), codeModel).dit() == 3);
     }
 
     @Test
@@ -100,8 +101,8 @@ public class OOPMetricsTest {
         rawData.insertFile(new RawFile("/src/main/C.go", codeC));
         rawData.insertFile(new RawFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("main.ClassA").noc() == 3);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).noc() == 3);
     }
 
     @Test
@@ -112,8 +113,8 @@ public class OOPMetricsTest {
         rawData.insertFile(new RawFile("/src/main/A.go", code));
         rawData.insertFile(new RawFile("/src/main/B.go", codeB));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("interfaceA").noc() == 1);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("interfaceA").get(), codeModel).noc() == 1);
     }
 
     @Test
@@ -122,8 +123,8 @@ public class OOPMetricsTest {
         final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
         rawData.insertFile(new RawFile("/src/main/A.go", code));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("main.ClassA").dit() == 1);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).dit() == 1);
     }
 
     @Test
@@ -132,7 +133,18 @@ public class OOPMetricsTest {
         final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
         rawData.insertFile(new RawFile("/src/main/A.go", code));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final DiagramSourceCodeModel codeModel = new DiagramSourceCodeModel(parseService.result());
-        assertTrue(codeModel.getComponent("main.ClassA").noc() == 0);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).noc() == 0);
+    }
+
+
+    @Test
+    public void simpleFanOutTest() throws Exception {
+        final String code = "package main\nimport \"test/math\"\ntype person struct {mathObj math.Person}";
+        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
+        rawData.insertFile(new RawFile("person.go", code));
+        final ClarpseProject parseService = new ClarpseProject(rawData);
+        final OOPSourceCodeModel codeModel = parseService.result();
+        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.person").get(), codeModel).fanout() == 1);
     }
 }

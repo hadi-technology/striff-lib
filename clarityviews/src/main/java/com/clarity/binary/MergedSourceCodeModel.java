@@ -6,14 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A set of components.
+ * Represents the product of two merged source code models.
  */
 public class MergedSourceCodeModel {
 
     private Map<String, DiagramComponent> componentSet;
 
     /**
-     * Merges two source code models, gives preference to the newer model.
+     * Merges the newer source code model onto the older source code model.
      */
     public MergedSourceCodeModel(Map<String, DiagramComponent> olderModel, Map<String, DiagramComponent> newerModel) {
 

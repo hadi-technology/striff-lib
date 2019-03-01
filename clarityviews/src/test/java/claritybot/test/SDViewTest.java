@@ -17,19 +17,19 @@ public class SDViewTest {
 
     @Test
     public void manualTest() throws Exception {
-        String baseRepoOwner = "canoo";
-        String repoName = "dolphin-platform";
-        String prNumber = "900";
+        String baseRepoOwner = "clarity-org";
+        String repoName = "clarityviews-binary";
+        String prNumber = "28";
         String token = "cb9d67bb5599db05ad0a387d3b3051e1f9900b9b";
         Lang language = Lang.JAVA;
 
         List<String> changedFiles = ClarityTestUtil.pullRequestChangedFiles(baseRepoOwner, repoName, token, prNumber);
 
         DiagramSourceCodeModel oldModel = ClarityTestUtil.getGitHubRepoModel(baseRepoOwner,
-                repoName, "5fd5b9c6ad9aa31d22dd9923758eb53ddd71c484", token, language);
+                repoName, "master", token, language);
 
         DiagramSourceCodeModel newModel = ClarityTestUtil.getGitHubRepoModel(
-                "canoo", repoName, "f0df41407c6cf504c0a77d86439801559ef47203", token, language);
+                "clarity-org", repoName, "diagram_improvements", token, language);
 
 
         Diagram view = new SDView(new LightDiagramColorScheme(), oldModel, newModel, 400, changedFiles).view();

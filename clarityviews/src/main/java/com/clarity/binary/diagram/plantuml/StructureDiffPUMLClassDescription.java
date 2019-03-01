@@ -61,8 +61,8 @@ public class StructureDiffPUMLClassDescription {
                 String diagramCmpUniqueName = (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
                 cmpPUMLStr += diagramCmpUniqueName + "as \" ";
 
-                if (component.children.size() > largeSize) {
-                    cmpPUMLStr += "<color:#ffe680><size:20><&zoom-out></size></color> ";
+                if (component.children().size() > largeSize) {
+                    cmpPUMLStr += "<color:#ffe680><size:18><&magnifying-glass></size></color> ";
                 }
 
                 if (addedComponents.contains(component.uniqueName()) || deletedComponents.contains(component.uniqueName())) {
@@ -92,11 +92,11 @@ public class StructureDiffPUMLClassDescription {
                 // used for setting the length of the doc comments
                 int longestLine = 0;
 
-                // no children should be displayed for base components who have no changed children in them..
-                if (hasChanged || component.children.size() <= largeSize) {
+                // children are only displayed for base components that have changed or contain few children in them.
+                if (hasChanged || component.children().size() <= largeSize) {
                     for (final String classChildCmpName : component.children()) {
                         // if the current base component has many children, only show the ones that have changed
-                        if (component.children.size() <= largeSize || addedComponents.contains(classChildCmpName)
+                        if (component.children().size() <= largeSize || addedComponents.contains(classChildCmpName)
                                 || deletedComponents.contains(classChildCmpName) || modifiedComponents.contains(classChildCmpName)) {
                             final DiagramComponent childCmp = allComponents.get(classChildCmpName);
                             String childCmpPUMLStr = "";
@@ -155,7 +155,7 @@ public class StructureDiffPUMLClassDescription {
                     longestLine = 80;
                 }
                 if (component.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE
-                        || component.modifiers().contains("abstract") || (!hasChanged && component.children.size() > largeSize)) {
+                        || component.modifiers().contains("abstract") || (!hasChanged && component.children().size() > largeSize)) {
                     if (component.comment() != null && !component.comment().isEmpty()) {
                         drawComponentComment(longestLine, component, componentPUMLStrings);
                     }
@@ -204,10 +204,12 @@ public class StructureDiffPUMLClassDescription {
                 // throw an error unless we do so.
                 lines[i] = colorTextBackground(component, lines[i].trim().replaceAll("\\{", "[").replaceAll("}", "]"));
             }
-            // adds the doc right after the component
-            // declaration (after the first element)
-            componentPUMLStrings.add(1,
-                    org.apache.commons.lang.StringUtils.join(lines, "\n") + "\n==\n");
+            // adds the doc right after the class declaration (after the first element)
+            componentPUMLStrings.add(1,org.apache.commons.lang.StringUtils.join(lines, "\n"));
+            // add double line underneath the comment only if the class has methods and fields
+            if (component.children().size() > 0 && component.children().size() < largeSize) {
+                componentPUMLStrings.set(1, componentPUMLStrings.get(1) + "\n--\n");
+            }
             componentPUMLStrings.add("\n");
         }
     }

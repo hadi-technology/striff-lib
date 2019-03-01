@@ -69,7 +69,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classBorderThickness() {
-        return "0.2";
+        return "0.4";
     }
 
     @Override
@@ -139,7 +139,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageFontSize() {
-        return "18";
+        return "16";
     }
 
     @Override
