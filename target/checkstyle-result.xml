@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.19">
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/MergedSourceCodeModel.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/ClarityUtil.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/JavaDocSymbolStrippedText.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/parse/CodeBase.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/parse/ParsedProject.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/view/ClarityBotView.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/view/EmptySDException.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/view/SDView.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/view/SDTooLargeException.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/DiagramSourceCodeModel.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/scheme/DiagramColorScheme.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/scheme/LightDiagramColorScheme.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/DiagramComponent.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/plantuml/PUMLDiagram.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/plantuml/PUMLDiagramDescription.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/plantuml/StructureDiffPUMLDiagramDesciption.java">
+<error line="266" column="61" severity="warning" message="&apos;,&apos; is not followed by whitespace." source="com.puppycrawl.tools.checkstyle.checks.whitespace.WhitespaceAfterCheck"/>
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/RelatedBaseComponentsGroup.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/Diagram.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/diagram/DiagramConstants.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/LineBreakedText.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/HtmlTagsStrippedText.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/Text.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/SimplifiedJavaDocText.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/DefaultText.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/ColoredBinaryClassAssociation.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/ExternalClassLink.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/BinaryClassMultiplicity.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/ZeroToManyTypes.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/BinaryClassRelationship.java">
+</file>
+<file name="/home/zir0/git/clarityviews-binary/clarityviews/src/main/java/com/clarity/binary/extractor/BinaryClassRelationshipExtractor.java">
+</file>
+</checkstyle>
