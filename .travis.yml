@@ -1,10 +1,11 @@
 language: java
-cache:
-  directories:
-  - .autoconf
-  - $HOME/.m2
+dist: trusty
 jdk:
   - oraclejdk8
-script: 
-         - cd clarityviews
-         - mvn clean package assembly:single deploy --settings settings.xml -Dmaven.test.skip=true 
+cache:
+  directories:
+    - "$HOME/.cache"
+script:
+  - mvn clean package assembly:single
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

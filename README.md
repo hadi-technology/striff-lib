@@ -1,10 +1,11 @@
-# clarity-bot-binary
+# stiff-lib
  
-```
-<dependency>
-    <groupId>com.clarity</groupId>
-    <artifactId>clarity-bot-binary</artifactId>
-    <version>2.14.2</version>
-</dependency>
-```
- 
+A java library for generating stiff (shortened from "structural diff") diagrams. 
+
+
+
+
+
+
+
+
