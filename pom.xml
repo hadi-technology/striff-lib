@@ -2,18 +2,40 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.hadii-tech</groupId>
-	<artifactId>striff</artifactId>
-	<name>striff</name>
+	<artifactId>stiff</artifactId>
 	<packaging>jar</packaging>
-	<version>2.14.3</version>
+	<version>1.0.0</version>
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>stiff-lib is a java library for generating stiff diagrams.</description>
+	<url>https://github.com/hadii-tech/stiff-lib</url>
 	<properties>
 		<java-version>1.8</java-version>
 	</properties>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Muntazir Fadhel</name>
+			<email>muntazirfadhel@gmail.com</email>
+			<organization>hadii-tech</organization>
+			<organizationUrl>http://hadii.ca</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/hadii-tech/stiff.git</connection>
+		<developerConnection>scm:git:ssh://github.com/hadii-tech/stiff.git</developerConnection>
+		<url>https://github.com/hadii-tech/stiff.git</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>com.github.hadii-tech</groupId>
 			<artifactId>clarpse</artifactId>
-			<version>6.0.0</version>
+			<version>6.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -21,31 +43,15 @@
 			<version>20180130</version>
 		</dependency>
 		<dependency>
-			<!-- APACHE COMMONS -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
 		<dependency>
 			<groupId>org.gephi</groupId>
 			<artifactId>gephi-toolkit</artifactId>
 			<version>0.9.2</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/net.sf.oval/oval -->
-		<dependency>
-			<groupId>net.sf.oval</groupId>
-			<artifactId>oval</artifactId>
-			<version>1.86</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.googlecode.htmlcompressor/htmlcompressor -->
-		<dependency>
-			<groupId>com.googlecode.htmlcompressor</groupId>
-			<artifactId>htmlcompressor</artifactId>
-			<version>1.5.2</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/net.sourceforge.plantuml/plantuml -->
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
 			<artifactId>plantuml</artifactId>
@@ -66,14 +72,6 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-
-		<!-- JSON -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-afterburner</artifactId>
-			<version>2.7.1</version>
-		</dependency>
-		<!-- Testing -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -85,12 +83,20 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
 		</dependency>
-	</dependencies>
-
+    </dependencies>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -138,9 +144,9 @@
 							<goal>check</goal>
 						</goals>
 						<configuration>
-							<excludes>com/zir0/clarity/core/tests</excludes>
+							<excludes>stiff/test</excludes>
 							<failOnViolation>true</failOnViolation>
-							<configLocation>${project.basedir}/src/main/resources/clarity-botcheckstyleconfig.xml</configLocation>
+							<configLocation>src/main/resources/stiffcheckstyleconfig.xml</configLocation>
 							<violationSeverity>warning</violationSeverity>
 							<consoleOutput>true</consoleOutput>
 						</configuration>
@@ -150,14 +156,14 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.0.4</version>
 				<configuration>
 					<!-- Enables analysis which takes more memory but finds more bugs. If 
 						you run out of memory, changes the value of the effort element to 'Low'. -->
 					<effort>Default</effort>
 					<!-- Reports all bugs (other values are medium and max) -->
 					<threshold>low</threshold>
-					<includeFilterFile>${project.basedir}/src/main/resources/findbugsexcludefilter.xml</includeFilterFile>
+					<includeFilterFile>/src/main/resources/findbugsexcludefilter.xml</includeFilterFile>
 				</configuration>
 				<executions>
 					<!-- Ensures that FindBugs inspects source code when project is compiled. -->
@@ -172,4 +178,64 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>false</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
