@@ -4,10 +4,10 @@
 	<groupId>com.github.hadii-tech</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
-	<url>https://github.com/hadii-tech/stiff-lib</url>
+	<url>https://github.com/hadii-tech/striff-lib</url>
 	<properties>
 		<java-version>1.8</java-version>
 	</properties>
@@ -38,6 +38,11 @@
 			<version>6.0.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.gephi</groupId>
+			<artifactId>gephi-toolkit</artifactId>
+			<version>0.9.3</version>
+		</dependency>
+		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20180130</version>
@@ -46,13 +51,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.gephi</groupId>
-			<artifactId>gephi-toolkit</artifactId>
-			<version>0.9.3</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/gephi-toolkit-0.9.3-20190806.043009-598-all.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
@@ -96,6 +94,12 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>repo</id>
+			<url>file://${project.basedir}/repo</url>
+		</repository>
+	</repositories>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
