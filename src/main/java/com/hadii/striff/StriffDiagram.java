@@ -12,12 +12,12 @@ import java.util.Set;
 /**
  * Represents a Striff diagram.
  */
-public class StiffDiagram {
+public class StriffDiagram {
 
     private final String svgCode;
     private final Set<DiagramComponent> diagramComponents;
 
-    public StiffDiagram(DiffCodeModel mergedModel, Set<DiagramComponent> diagramComponentSet) throws IOException, PUMLDrawException {
+    public StriffDiagram(DiffCodeModel mergedModel, Set<DiagramComponent> diagramComponentSet) throws IOException, PUMLDrawException {
         this.svgCode = new PUMLDiagram(mergedModel, new LightDiagramColorScheme(), diagramComponentSet).svgText();
         this.diagramComponents = diagramComponentSet;
     }

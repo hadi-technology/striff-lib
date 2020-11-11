@@ -1,7 +1,7 @@
 package com.hadii.striff.diagram;
 
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.StiffCodeModel;
+import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.extractor.ComponentRelations;
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -32,7 +32,7 @@ public final class StiffComponentPartitions {
     private final ComponentRelations allRelations;
     private final int contextLevel;
 
-    public StiffComponentPartitions(StiffCodeModel stiffModel, int softMaxSizeLimit, int contextLevel) {
+    public StiffComponentPartitions(StriffCodeModel stiffModel, int softMaxSizeLimit, int contextLevel) {
         stiffModel.allComponents().forEach(diagramComponent -> {
             if (!diagramComponent.componentType().isBaseComponent()) {
                 throw new IllegalArgumentException("Components that are being partitioned must be base components!");

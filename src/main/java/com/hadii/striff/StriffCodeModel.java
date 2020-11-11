@@ -15,14 +15,14 @@ import java.util.stream.Stream;
 /**
  * Represents the set of components and relations that are to be displayed in a Striff diagram.
  */
-public class StiffCodeModel {
+public class StriffCodeModel {
 
     private Set<DiagramComponent> contextComponents = new HashSet<>();
     private Set<DiagramComponent> coreComponents = new HashSet<>();
     private Set<ComponentRelation> coreRelations = new HashSet<>();
     private Set<ComponentRelation> contextRelations = new HashSet<>();
 
-    public StiffCodeModel(DiffCodeModel mergedModel) {
+    public StriffCodeModel(DiffCodeModel mergedModel) {
         // Select the relevant base components from the change set
         populateCoreComponentsList(mergedModel);
         populateContextComponentsList(mergedModel);
@@ -30,7 +30,7 @@ public class StiffCodeModel {
         populateContextRelationsList(mergedModel);
     }
 
-    public StiffCodeModel(DiffCodeModel mergedModel, List<String> sourceFilesFilter) {
+    public StriffCodeModel(DiffCodeModel mergedModel, List<String> sourceFilesFilter) {
         populateCoreComponentsList(mergedModel);
         this.coreComponents = this.coreComponents.stream().filter(diagramComponent -> sourceFilesFilter.contains(diagramComponent.sourceFile())).collect(Collectors.toSet());
         populateContextComponentsList(mergedModel);

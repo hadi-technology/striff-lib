@@ -12,7 +12,12 @@ public class ParsedProject {
         this.codebase = codebase;
     }
 
-    public OOPSourceCodeModel model() throws Exception {
-        return new ClarpseProject(codebase).result();
+    public OOPSourceCodeModel model() throws StriffParseException {
+        try {
+            return new ClarpseProject(codebase).result();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new StriffParseException("An error was encountered while parsing this " + codebase.getLanguage() + " code base!");
+        }
     }
 }

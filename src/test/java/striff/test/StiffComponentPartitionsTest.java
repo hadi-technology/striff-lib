@@ -3,7 +3,7 @@ package striff.test;
 import com.hadii.clarpse.compiler.File;
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.compiler.SourceFiles;
-import com.hadii.striff.StiffCodeModel;
+import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.DiagramCodeModel;
 import com.hadii.striff.diagram.StiffComponentPartitions;
@@ -68,7 +68,7 @@ public class StiffComponentPartitionsTest {
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-               new StiffCodeModel(new DiffCodeModel(new DiagramCodeModel(), codeModel)), 3, 2).partitions();
+               new StriffCodeModel(new DiffCodeModel(new DiagramCodeModel(), codeModel)), 3, 2).partitions();
         assertEquals(2, componentPartitions.size());
     }
 
@@ -79,7 +79,7 @@ public class StiffComponentPartitionsTest {
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-                new StiffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 4, 2).partitions();
+                new StriffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 4, 2).partitions();
         assertEquals(2, componentPartitions.size());
     }
 
@@ -91,7 +91,7 @@ public class StiffComponentPartitionsTest {
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-                new StiffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 4, 2).partitions();
+                new StriffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 4, 2).partitions();
         assertEquals(2, componentPartitions.size());
     }
 
@@ -109,7 +109,7 @@ public class StiffComponentPartitionsTest {
         files.insertFile(file2);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-                new StiffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 3, 2).partitions();
+                new StriffCodeModel(new DiffCodeModel(codeModel, new DiagramCodeModel())), 3, 2).partitions();
         assertEquals(1, componentPartitions.size());
     }
 }

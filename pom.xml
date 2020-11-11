@@ -4,7 +4,7 @@
 	<groupId>com.github.hadii-tech</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadii-tech/striff-lib</url>
@@ -37,10 +37,11 @@
 			<artifactId>clarpse</artifactId>
 			<version>6.0.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
 		<dependency>
 			<groupId>org.gephi</groupId>
 			<artifactId>gephi-toolkit</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -94,12 +95,6 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	<repositories>
-		<repository>
-			<id>repo</id>
-			<url>file://${project.basedir}/repo</url>
-		</repository>
-	</repositories>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>

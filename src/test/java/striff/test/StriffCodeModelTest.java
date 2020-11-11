@@ -3,7 +3,7 @@ package striff.test;
 import com.hadii.clarpse.reference.TypeExtensionReference;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.StiffCodeModel;
+import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.DiagramCodeModel;
 import com.hadii.striff.parse.DiffCodeModel;
@@ -14,9 +14,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * StiffCodeModel Object tests.
+ * StriffCodeModel Object tests.
  */
-public class StiffCodeModelTest {
+public class StriffCodeModelTest {
 
     @Test
     public void testSelectedComponentsIncludeAddedComponents() {
@@ -27,7 +27,7 @@ public class StiffCodeModelTest {
         DiagramCodeModel newModel = new DiagramCodeModel(
                 new DiagramComponent(newStrawBerryComponent, null)
         );
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel))
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
                 .coreComponents()
                 .contains(new DiagramComponent("Strawberry")));
     }
@@ -41,7 +41,7 @@ public class StiffCodeModelTest {
         DiagramCodeModel oldModel = new DiagramCodeModel(
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel))
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
                 .coreComponents()
                 .contains(new DiagramComponent("Strawberry")));
     }
@@ -55,7 +55,7 @@ public class StiffCodeModelTest {
         DiagramCodeModel oldModel = new DiagramCodeModel(
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel))
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
                 .coreComponents()
                 .contains(new DiagramComponent("Strawberry")));
     }
@@ -77,10 +77,10 @@ public class StiffCodeModelTest {
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
         DiagramCodeModel newModel = new DiagramCodeModel();
-        assertEquals(new StiffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().size(), 2);
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
+        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().size(), 2);
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
                 new DiagramComponent("Animal")));
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
                 new DiagramComponent("Strawberry")));
     }
 
@@ -122,8 +122,8 @@ public class StiffCodeModelTest {
 
         // Because the Strawberry component directly references the Animal class which is a core component, it should be
         // included as a context component.
-        assertEquals(new StiffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().size(), 1);
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().contains(
+        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().size(), 1);
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().contains(
                 new DiagramComponent("Strawberry")));
     }
 
@@ -142,9 +142,9 @@ public class StiffCodeModelTest {
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
         DiagramCodeModel newModel = new DiagramCodeModel();
-        assertEquals(new StiffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
+        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
                 .coreComponents().size(), 1);
-        assertTrue(new StiffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
+        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
                 .coreComponents()
                 .contains(new DiagramComponent("Animal")));
     }

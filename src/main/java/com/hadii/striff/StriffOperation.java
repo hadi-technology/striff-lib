@@ -19,7 +19,7 @@ public class StriffOperation {
     private final List<String> sourceFilesFilter;
     private final int contextLevel;
     private List<Set<DiagramComponent>> diagramComponents = new ArrayList<>();
-    private final List<StiffDiagram> stiffDiagrams = new ArrayList<>();
+    private final List<StriffDiagram> striffDiagrams = new ArrayList<>();
 
     public StriffOperation(DiffCodeModel diffedModel, int softMaxSizeLimit, List<String> sourceFilesFilter,
                            int contextLevel) throws NoStructuralChangesException, IOException, PUMLDrawException {
@@ -41,34 +41,34 @@ public class StriffOperation {
 
     private void partitionDiagramComponents(DiffCodeModel diffedModel) throws NoStructuralChangesException {
         // Generate a list of all the BASE components we want to include in the final diagram(s)
-        StiffCodeModel stiffCodeModel = null;
+        StriffCodeModel striffCodeModel = null;
         if (this.sourceFilesFilter.isEmpty()) {
-            stiffCodeModel = new StiffCodeModel(diffedModel);
+            striffCodeModel = new StriffCodeModel(diffedModel);
         } else {
-            stiffCodeModel = new StiffCodeModel(diffedModel, this.sourceFilesFilter);
+            striffCodeModel = new StriffCodeModel(diffedModel, this.sourceFilesFilter);
         }
         List<Set<DiagramComponent>> diagramComponentSets = new ArrayList<>();
-        if (stiffCodeModel.allComponents().size() < 1) {
+        if (striffCodeModel.allComponents().size() < 1) {
             throw new NoStructuralChangesException("No structural changes were found between the given code bases!");
-        } else if (stiffCodeModel.allComponents().size() > softMaxSizeLimit) {
+        } else if (striffCodeModel.allComponents().size() > softMaxSizeLimit) {
             // Current diagram would be too large, lets partition the current base component set into
             // smaller sets to produce multiple, more readable diagrams
             List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-                    stiffCodeModel, this.softMaxSizeLimit, this.contextLevel).partitions();
+                    striffCodeModel, this.softMaxSizeLimit, this.contextLevel).partitions();
             diagramComponentSets.addAll(componentPartitions);
         } else {
-            diagramComponentSets.add(stiffCodeModel.allComponents());
+            diagramComponentSets.add(striffCodeModel.allComponents());
         }
         this.diagramComponents = diagramComponentSets;
     }
 
     private void genDiagrams(DiffCodeModel mergedModel) throws IOException, PUMLDrawException {
         for (Set<DiagramComponent> diagramComponentSet : this.diagramComponents) {
-            this.stiffDiagrams.add(new StiffDiagram(mergedModel, diagramComponentSet));
+            this.striffDiagrams.add(new StriffDiagram(mergedModel, diagramComponentSet));
         }
     }
 
-    public List<StiffDiagram> result() {
-        return this.stiffDiagrams;
+    public List<StriffDiagram> result() {
+        return this.striffDiagrams;
     }
 }
