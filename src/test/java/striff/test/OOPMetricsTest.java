@@ -1,9 +1,9 @@
 package striff.test;
 
 import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.File;
 import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.SourceFiles;
+import com.hadii.clarpse.compiler.ProjectFile;
+import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.striff.metrics.OOPMetricsProfile;
 import com.hadii.striff.parse.ParsedProject;
@@ -15,11 +15,14 @@ public class OOPMetricsTest {
 
     @Test
     public void simpleDitTest() throws Exception {
-        final File file = new File("ClassA.java", "package test; public class ClassA { }");
-        final File file2 = new File("ClassB.java",
-                "package test; public class ClassB extends ClassA { }");
-        final File file3 = new File("ClassC.java", "package test; public class ClassC extends ClassB { }");
-        final SourceFiles reqCon = new SourceFiles(Lang.JAVA);
+        final ProjectFile file = new ProjectFile("ClassA.java", "package test; public class " +
+                "ClassA { }");
+        final ProjectFile file2 = new ProjectFile("ClassB.java",
+                                                  "package test; public class ClassB extends " +
+                                                          "ClassA { }");
+        final ProjectFile file3 = new ProjectFile("ClassC.java", "package test; public class " +
+                "ClassC extends ClassB { }");
+        final ProjectFiles reqCon = new ProjectFiles(Lang.JAVA);
 
         reqCon.insertFile(file);
         reqCon.insertFile(file2);
@@ -31,13 +34,17 @@ public class OOPMetricsTest {
 
     @Test
     public void interfaceDitShouldEqualOneTest() throws Exception {
-        final File file = new File("ClassA.java", "package test; public interface ClassA { }");
-        final File file2 = new File("ClassB.java",
-                "package test; public interface ClassB extends ClassA { }");
-        final File file3 = new File("ClassC.java", "package test; public interface ClassC extends ClassA { }");
-        final File file4 = new File("ClassD.java", "package test; public interface ClassD extends  ClassB, ClassC { }");
+        final ProjectFile file = new ProjectFile("ClassA.java", "package test; public interface " +
+                "ClassA { }");
+        final ProjectFile file2 = new ProjectFile("ClassB.java",
+                                                  "package test; public interface ClassB extends " +
+                                                          "ClassA { }");
+        final ProjectFile file3 = new ProjectFile("ClassC.java", "package test; public interface " +
+                "ClassC extends ClassA { }");
+        final ProjectFile file4 = new ProjectFile("ClassD.java", "package test; public interface " +
+                "ClassD extends  ClassB, ClassC { }");
 
-        final SourceFiles reqCon = new SourceFiles(Lang.JAVA);
+        final ProjectFiles reqCon = new ProjectFiles(Lang.JAVA);
 
         reqCon.insertFile(file);
         reqCon.insertFile(file2);
@@ -56,13 +63,13 @@ public class OOPMetricsTest {
         final String codeB = "package main\ntype ClassB struct {ClassE}";
         final String codeC = "package main\ntype ClassC struct {ClassA}";
         final String codeD = "package main\ntype ClassD struct {\n*ClassB\n*ClassC\n}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("/src/main/A.go", code));
-        rawData.insertFile(new File("/src/main/B.go", codeB));
-        rawData.insertFile(new File("/src/main/F.go", codeF));
-        rawData.insertFile(new File("/src/main/E.go", codeE));
-        rawData.insertFile(new File("/src/main/C.go", codeC));
-        rawData.insertFile(new File("/src/main/D.go", codeD));
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/main/B.go", codeB));
+        rawData.insertFile(new ProjectFile("/src/main/F.go", codeF));
+        rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
+        rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
+        rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
 
@@ -76,12 +83,12 @@ public class OOPMetricsTest {
         final String codeB = "package main\ntype ClassB struct {ClassA}";
         final String codeC = "package main\ntype ClassC struct {ClassE}";
         final String codeD = "package main\ntype ClassD struct {\n*ClassB\n*ClassC\n}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("/src/main/A.go", code));
-        rawData.insertFile(new File("/src/main/B.go", codeB));
-        rawData.insertFile(new File("/src/main/E.go", codeE));
-        rawData.insertFile(new File("/src/main/C.go", codeC));
-        rawData.insertFile(new File("/src/main/D.go", codeD));
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/main/B.go", codeB));
+        rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
+        rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
+        rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(), codeModel).dit() == 3);
@@ -94,34 +101,37 @@ public class OOPMetricsTest {
         final String codeB = "package main\ntype ClassB struct {ClassA}";
         final String codeC = "package main\ntype ClassC struct {ClassA}";
         final String codeD = "package main\ntype ClassD struct {\n*ClassA\n}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("/src/main/A.go", code));
-        rawData.insertFile(new File("/src/main/B.go", codeB));
-        rawData.insertFile(new File("/src/main/E.go", codeE));
-        rawData.insertFile(new File("/src/main/C.go", codeC));
-        rawData.insertFile(new File("/src/main/D.go", codeD));
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/main/B.go", codeB));
+        rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
+        rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
+        rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).noc() == 3);
+        assertTrue(new OOPMetricsProfile(
+                codeModel.getComponent("main.ClassA").get(),
+                codeModel).noc() == 3);
     }
 
     @Test
     public void simpleNocInterfaceTest() throws Exception {
         final String code = "public interface interfaceA { void test(); }";
         final String codeB = "public interface interfaceB extends interfaceA {}";
-        final SourceFiles rawData = new SourceFiles(Lang.JAVA);
-        rawData.insertFile(new File("/src/main/A.go", code));
-        rawData.insertFile(new File("/src/main/B.go", codeB));
+        final ProjectFiles rawData = new ProjectFiles(Lang.JAVA);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/main/B.go", codeB));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(codeModel.getComponent("interfaceA").get(), codeModel).noc() == 1);
+        assertTrue(new OOPMetricsProfile(
+                codeModel.getComponent("interfaceA").get(), codeModel).noc() == 0);
     }
 
     @Test
     public void simpleStructDitShouldBeOne() throws Exception {
         final String code = "package main\ntype ClassA struct {}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("/src/main/A.go", code));
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).dit() == 1);
@@ -130,8 +140,8 @@ public class OOPMetricsTest {
     @Test
     public void simpleStructNocShouldBeZero() throws Exception {
         final String code = "package main\ntype ClassA struct {}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("/src/main/A.go", code));
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("/src/main/A.go", code));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).noc() == 0);
@@ -140,9 +150,10 @@ public class OOPMetricsTest {
 
     @Test
     public void simpleFanOutTest() throws Exception {
-        final String code = "package main\nimport \"test/math\"\ntype person struct {mathObj math.Person}";
-        final SourceFiles rawData = new SourceFiles(Lang.GOLANG);
-        rawData.insertFile(new File("person.go", code));
+        final String code = "package main\nimport \"test/math\"\ntype person struct {mathObj math" +
+                ".Person}";
+        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
+        rawData.insertFile(new ProjectFile("person.go", code));
         final ClarpseProject parseService = new ClarpseProject(rawData);
         final OOPSourceCodeModel codeModel = parseService.result();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.person").get(), codeModel).fanout() == 1);

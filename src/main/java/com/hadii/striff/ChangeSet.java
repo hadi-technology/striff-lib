@@ -17,9 +17,10 @@ public final class ChangeSet {
 
     private final ComponentRelations deletedRelations = new ComponentRelations();
     private final ComponentRelations addedRelations = new ComponentRelations();
-    private final HashSet<DiagramComponent> addedComponents;
+    private final Set<DiagramComponent> addedComponents;
     private final Set<DiagramComponent> deletedComponents;
     private final List<DiagramComponent> keyRelationsComponents = new ArrayList<>();
+    private final Set<DiagramComponent> modifiedComponents;
 
     /**
      * A representation of the changes between an original and final code base.
@@ -56,6 +57,17 @@ public final class ChangeSet {
             }
         });
 
+        // Form a list of all components whose implementations have changed between the old and
+        // new code base.
+        this.modifiedComponents = new HashSet<>();
+        for (final Map.Entry<String, DiagramComponent> entry : newModel.components().entrySet()) {
+            if (oldModel.containsComponent(entry.getKey())) {
+                if (entry.getValue().componentHashCode() != oldModel.component(entry.getKey()).componentHashCode()) {
+                    this.modifiedComponents.add(entry.getValue());
+                }
+            }
+        }
+
         // Form a list of all component relationships that exist in the old code base but not in the new code base.
         oldComponentRelations.relations().forEach(relation -> {
         if (!newComponentRelations.hasRelation(relation)) {
@@ -90,5 +102,9 @@ public final class ChangeSet {
 
     public ComponentRelations deletedRelations() {
         return this.deletedRelations;
+    }
+
+    public Set<DiagramComponent> modifiedComponents() {
+        return this.modifiedComponents;
     }
 }

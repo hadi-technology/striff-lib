@@ -1,14 +1,14 @@
 package com.hadii.striff.parse;
 
 import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.SourceFiles;
+import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 
 public class ParsedProject {
 
-    private final SourceFiles codebase;
+    private final ProjectFiles codebase;
 
-    public ParsedProject(SourceFiles codebase) {
+    public ParsedProject(ProjectFiles codebase) {
         this.codebase = codebase;
     }
 
@@ -17,7 +17,8 @@ public class ParsedProject {
             return new ClarpseProject(codebase).result();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new StriffParseException("An error was encountered while parsing this " + codebase.getLanguage() + " code base!");
+            throw new StriffParseException("An error was encountered while parsing this "
+                                                   + codebase.getLanguage() + " code base!");
         }
     }
 }

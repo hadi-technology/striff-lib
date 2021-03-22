@@ -23,7 +23,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
-    public String classBackgroundColor() {
+    public String objectColorBackground() {
         return "#f8f8ff";
     }
 
@@ -39,7 +39,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classFontColor() {
-        return classBackgroundColor();
+        return objectColorBackground();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classCircledCharacterFontColor() {
-        return classBackgroundColor();
+        return objectColorBackground();
     }
 
     @Override
@@ -149,12 +149,12 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classCircledCharacterBackgroundColor() {
-        return "abd5ff";
+        return "#d4d4d4";
     }
 
     @Override
     public String structCircledCharacterBackgroundColor() {
-        return "ffbb55";
+        return "#d4d4d4";
     }
 
     @Override
@@ -164,7 +164,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String modifiedComponentColor() {
-        return "#d9bef5";
+        return "#bbe5f8";
     }
 
     @Override
@@ -184,6 +184,6 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String legendBackgroundColor() {
-        return classBackgroundColor();
+        return objectColorBackground();
     }
 }

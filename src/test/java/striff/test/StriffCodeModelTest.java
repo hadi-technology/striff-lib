@@ -7,8 +7,9 @@ import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.DiagramCodeModel;
 import com.hadii.striff.parse.DiffCodeModel;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

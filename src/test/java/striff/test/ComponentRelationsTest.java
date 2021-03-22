@@ -1,8 +1,8 @@
 package striff.test;
 
-import com.hadii.clarpse.compiler.File;
+import com.hadii.clarpse.compiler.ProjectFile;
 import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.SourceFiles;
+import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
@@ -29,13 +29,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testCompositionRelationExists() throws Exception {
-        final File fileA = new File("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
+        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
                 + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final File fileB = new File("ClassB.java", "package com.sample; public class ClassB {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(fileA);
-        sourceFiles.insertFile(fileB);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(fileA);
+        ProjectFiles.insertFile(fileB);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -47,13 +47,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testCompositionRelationMultiplicities() throws Exception {
-        final File fileA = new File("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
+        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
                 + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final File fileB = new File("ClassB.java", "package com.sample; public class ClassB {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(fileA);
-        sourceFiles.insertFile(fileB);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(fileA);
+        ProjectFiles.insertFile(fileB);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -62,13 +62,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testCompositionRelationTypes() throws Exception {
-        final File fileA = new File("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
+        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
                 + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final File fileB = new File("ClassB.java", "package com.sample; public class ClassB {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(fileA);
-        sourceFiles.insertFile(fileB);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(fileA);
+        ProjectFiles.insertFile(fileB);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
@@ -79,13 +79,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testRelationDoesNotExist() throws Exception {
-        final File fileA = new File("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
+        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import java.util.ArrayList;"
                 + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final File fileB = new File("ClassB.java", "package com.sample; public class ClassB {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(fileA);
-        sourceFiles.insertFile(fileB);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(fileA);
+        ProjectFiles.insertFile(fileB);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
         List<ComponentRelation> classBRelations = relations.componentRelations(componentB);
@@ -94,13 +94,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testRealizationRelationExists() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + " public class ClassA implements ClassC {}");
-        final File file2 = new File("ClassC.java", "package com.sample; public interface ClassC {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public interface ClassC {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -109,13 +109,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testRealizationRelationMultiplicities() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + " public class ClassA implements ClassC {}");
-        final File file2 = new File("ClassC.java", "package com.sample; public interface ClassC {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public interface ClassC {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -124,13 +124,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testRealizationRelationTypes() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + " public class ClassA implements ClassC {}");
-        final File file2 = new File("ClassC.java", "package com.sample; public interface ClassC {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public interface ClassC {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentC = codeModel.component("com.sample.ClassC");
@@ -141,13 +141,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testSpecializationRelationExists() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "public class ClassA extends ClassD {}");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -157,13 +157,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testSpecializationRelationMultiplicity() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "public class ClassA extends ClassD {}");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -172,13 +172,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testSpecializationRelationTypes() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "public class ClassA extends ClassD {}");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -189,14 +189,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testAssociationRelationExists() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + "import java.util.ArrayList;" + "public class ClassA { ClassE aMethod() {}}");
-        final File file2 = new File("ClassE.java", "package com.sample; public class ClassE {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        file.name("sample.java");
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassE.java", "package com.sample; public class ClassE {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -206,14 +205,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testAssociationRelationTypes() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + "import java.util.ArrayList;" + "public class ClassA { ClassE aMethod() {}}");
-        final File file2 = new File("ClassE.java", "package com.sample; public class ClassE {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        file.name("sample.java");
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassE.java", "package com.sample; public class ClassE {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentE = codeModel.component("com.sample.ClassE");
@@ -224,13 +222,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testLocalVarAssociationRelationExists() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "class ClassA { void test () { ClassD d; } }");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -240,13 +238,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testLocalVarAssociationRelationMultiplicity() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "class ClassA { void test () { ClassD d; } }");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);
@@ -255,13 +253,13 @@ public class ComponentRelationsTest {
 
     @Test
     public void testLocalVarAssociationRelationTypes() throws Exception {
-        final File file = new File("ClassA.java",
+        final ProjectFile file = new ProjectFile("ClassA.java",
                 "package com.sample;" + " import java.util.ArrayList;" + "class ClassA { void test () { ClassD d; } }");
-        final File file2 = new File("ClassD.java", "package com.sample; public class ClassD {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public class ClassD {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -334,12 +332,12 @@ public class ComponentRelationsTest {
     public void testRelationOverridingBetweenComponentPairs() throws Exception {
         // Class A uses Class B in two areas (Return type and method param). There however should only be ONE
         // ASSOCIATION relation from ClassA -> ClassE
-        final File file = new File("ClassA.java", "public class ClassA { ClassB classB1;\n void aMethod(ClassB classB2) {}}");
-        final File file2 = new File("ClassB.java", "public class ClassB {}");
-        final SourceFiles sourceFiles = new SourceFiles(Lang.JAVA);
-        sourceFiles.insertFile(file);
-        sourceFiles.insertFile(file2);
-        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(sourceFiles).model());
+        final ProjectFile file = new ProjectFile("ClassA.java", "public class ClassA { ClassB classB1;\n void aMethod(ClassB classB2) {}}");
+        final ProjectFile file2 = new ProjectFile("ClassB.java", "public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        ProjectFiles.insertFile(file);
+        ProjectFiles.insertFile(file2);
+        final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(ProjectFiles).model());
         final ComponentRelations relations = new ComponentRelations(codeModel);
         DiagramComponent componentA = codeModel.component("ClassA");
         List<ComponentRelation> classARelations = relations.componentRelations(componentA);

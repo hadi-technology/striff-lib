@@ -1,8 +1,8 @@
 package striff.test;
 
-import com.hadii.clarpse.compiler.File;
+import com.hadii.clarpse.compiler.ProjectFile;
 import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.SourceFiles;
+import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.DiagramCodeModel;
@@ -63,8 +63,8 @@ public class StiffComponentPartitionsTest {
 
     @Test
     public void testEvenABCDEFComponentsSetPartitionsCount() throws Exception {
-        final File file = new File("Class.java", CLASS_A + CLASS_B + CLASS_C + CLASS_D + CLASS_E + CLASS_F);
-        final SourceFiles files = new SourceFiles(Lang.JAVA);
+        final ProjectFile file = new ProjectFile("Class.java", CLASS_A + CLASS_B + CLASS_C + CLASS_D + CLASS_E + CLASS_F);
+        final ProjectFiles files = new ProjectFiles(Lang.JAVA);
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
@@ -74,8 +74,8 @@ public class StiffComponentPartitionsTest {
 
     @Test
     public void testEvenABCDEFGHEvenComponentsSetPartitionsCount() throws Exception {
-        final File file = new File("Class.java", CLASS_A + CLASS_B +  CLASS_C + CLASS_D + CLASS_E + CLASS_F + CLASS_G + CLASS_H);
-        final SourceFiles files = new SourceFiles(Lang.JAVA);
+        final ProjectFile file = new ProjectFile("Class.java", CLASS_A + CLASS_B +  CLASS_C + CLASS_D + CLASS_E + CLASS_F + CLASS_G + CLASS_H);
+        final ProjectFiles files = new ProjectFiles(Lang.JAVA);
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
@@ -86,8 +86,8 @@ public class StiffComponentPartitionsTest {
     @Test
     public void testOddABCDFGHComponentsSetPartitionsCount() throws Exception {
         // Don't include classE
-        final File file = new File("Class.java", CLASS_A + CLASS_B +  CLASS_C + CLASS_D + CLASS_F + CLASS_G + CLASS_H);
-        final SourceFiles files = new SourceFiles(Lang.JAVA);
+        final ProjectFile file = new ProjectFile("Class.java", CLASS_A + CLASS_B +  CLASS_C + CLASS_D + CLASS_F + CLASS_G + CLASS_H);
+        final ProjectFiles files = new ProjectFiles(Lang.JAVA);
         files.insertFile(file);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());
         List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
@@ -102,9 +102,9 @@ public class StiffComponentPartitionsTest {
      */
     @Test
     public void testNoAdditionalPartitionsWhenOriginalComponentSetSizeBelowSoftMaxSizeLimit() throws Exception {
-        final File file = new File("Class.java", CLASS_A);
-        final File file2 = new File("ClassB.java", CLASS_B);
-        final SourceFiles files = new SourceFiles(Lang.JAVA);
+        final ProjectFile file = new ProjectFile("Class.java", CLASS_A);
+        final ProjectFile file2 = new ProjectFile("ClassB.java", CLASS_B);
+        final ProjectFiles files = new ProjectFiles(Lang.JAVA);
         files.insertFile(file);
         files.insertFile(file2);
         final DiagramCodeModel codeModel = new DiagramCodeModel(new ParsedProject(files).model());

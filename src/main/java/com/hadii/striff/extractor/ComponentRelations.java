@@ -4,9 +4,12 @@ import com.hadii.clarpse.reference.ComponentReference;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
+import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.DiagramConstants;
 import com.hadii.striff.diagram.DiagramCodeModel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class ComponentRelations {
 
     private final Map<DiagramComponent, List<ComponentRelation>> relationMap = new HashMap<>();
+    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
 
     public ComponentRelations(final DiagramCodeModel sourceCodeModel) {
         final Map<String, DiagramComponent> components = sourceCodeModel.components();
@@ -104,7 +108,12 @@ public class ComponentRelations {
                         } else {
                             continue;
                         }
-                        addRelation(externalClassLink);
+                        try {
+                            addRelation(externalClassLink);
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.warn(e);
+                            continue;
+                        }
                     }
                 }
             }
@@ -159,10 +168,8 @@ public class ComponentRelations {
      */
     public void addRelation(final ComponentRelation cmpRelation) {
         if (!cmpRelation.originalComponent().componentType().isBaseComponent()
-                || !cmpRelation.targetComponent().componentType().isBaseComponent()) {
-            throw new IllegalArgumentException("Relations must exist between base components only!");
-        }
-        if (cmpRelation.originalComponent().equals(cmpRelation.targetComponent())) {
+            || !cmpRelation.targetComponent().componentType().isBaseComponent()
+            || cmpRelation.originalComponent().equals(cmpRelation.targetComponent())) {
             // skip
             return;
         }

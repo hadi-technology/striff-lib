@@ -32,7 +32,9 @@ public class StriffCodeModel {
 
     public StriffCodeModel(DiffCodeModel mergedModel, List<String> sourceFilesFilter) {
         populateCoreComponentsList(mergedModel);
-        this.coreComponents = this.coreComponents.stream().filter(diagramComponent -> sourceFilesFilter.contains(diagramComponent.sourceFile())).collect(Collectors.toSet());
+        this.coreComponents = this.coreComponents.stream().filter(
+            diagramComponent -> sourceFilesFilter.contains(diagramComponent.sourceFile()))
+                                                 .collect(Collectors.toSet());
         populateContextComponentsList(mergedModel);
         populateCoreRelationsList(mergedModel.changeSet());
         populateContextRelationsList(mergedModel);
@@ -40,12 +42,14 @@ public class StriffCodeModel {
 
     private void populateCoreComponentsList(DiffCodeModel mergedModel) {
         ChangeSet changeSet = mergedModel.changeSet();
-        Stream.of(changeSet.addedComponents(), changeSet.deletedComponents(), changeSet.keyRelationsComponents())
+        Stream.of(changeSet.addedComponents(), changeSet.deletedComponents(),
+                  changeSet.keyRelationsComponents(), changeSet.modifiedComponents())
                 .flatMap(Collection::stream).forEach(diagramComponent -> {
             if (diagramComponent.componentType().isBaseComponent()) {
                 this.coreComponents.add(diagramComponent);
             } else {
-                DiagramComponent parentComponent = diagramComponent.parentBaseComponent(mergedModel.mergedModel().components());
+                DiagramComponent parentComponent = diagramComponent.parentBaseComponent(
+                    mergedModel.mergedModel().components());
                 if (parentComponent != null) {
                     this.coreComponents.add(parentComponent);
                 }

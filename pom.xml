@@ -4,7 +4,7 @@
 	<groupId>com.github.hadii-tech</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.4</version>
+	<version>1.1.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadii-tech/striff-lib</url>
@@ -31,11 +31,18 @@
 		<developerConnection>scm:git:ssh://github.com/hadii-tech/striff.git</developerConnection>
 		<url>https://github.com/hadii-tech/striff.git</url>
 	</scm>
+	<repositories>
+		<repository>
+			<id>netbeans</id>
+			<name>NetBeans</name>
+			<url>http://netbeans.apidesign.org/maven2/</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>com.github.hadii-tech</groupId>
 			<artifactId>clarpse</artifactId>
-			<version>6.0.2</version>
+			<version>6.2.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
 		<dependency>
@@ -47,6 +54,16 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20180130</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.13.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.13.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

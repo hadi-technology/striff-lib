@@ -4,6 +4,8 @@ import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.StiffComponentPartitions;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import com.hadii.striff.parse.DiffCodeModel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.Set;
  */
 public class StriffOperation {
 
+    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
     private final int softMaxSizeLimit;
     private final List<String> sourceFilesFilter;
     private final int contextLevel;

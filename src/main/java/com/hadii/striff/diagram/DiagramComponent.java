@@ -82,6 +82,10 @@ public class DiagramComponent {
         return this.cmp.codeFragment();
     }
 
+    public int componentHashCode() {
+        return this.cmp.codeHash();
+    }
+
     public String comment() {
         return this.cmp.comment();
     }

@@ -17,8 +17,10 @@ public class StriffDiagram {
     private final String svgCode;
     private final Set<DiagramComponent> diagramComponents;
 
-    public StriffDiagram(DiffCodeModel mergedModel, Set<DiagramComponent> diagramComponentSet) throws IOException, PUMLDrawException {
-        this.svgCode = new PUMLDiagram(mergedModel, new LightDiagramColorScheme(), diagramComponentSet).svgText();
+    public StriffDiagram(DiffCodeModel mergedModel, Set<DiagramComponent> diagramComponentSet)
+            throws IOException, PUMLDrawException {
+        this.svgCode = new PUMLDiagram(mergedModel, new LightDiagramColorScheme(),
+                                       diagramComponentSet).svgText();
         this.diagramComponents = diagramComponentSet;
     }
 

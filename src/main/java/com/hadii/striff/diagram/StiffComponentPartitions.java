@@ -4,7 +4,6 @@ import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.StriffCodeModel;
 import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.extractor.ComponentRelations;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.gephi.graph.api.Column;
 import org.gephi.graph.api.DirectedGraph;
 import org.gephi.graph.api.GraphModel;
@@ -12,6 +11,7 @@ import org.gephi.graph.impl.GraphModelImpl;
 import org.gephi.statistics.plugin.Modularity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,19 +32,19 @@ public final class StiffComponentPartitions {
     private final ComponentRelations allRelations;
     private final int contextLevel;
 
-    public StiffComponentPartitions(StriffCodeModel stiffModel, int softMaxSizeLimit, int contextLevel) {
-        stiffModel.allComponents().forEach(diagramComponent -> {
+    public StiffComponentPartitions(StriffCodeModel striffModel, int softMaxSizeLimit, int contextLevel) {
+        striffModel.allComponents().forEach(diagramComponent -> {
             if (!diagramComponent.componentType().isBaseComponent()) {
                 throw new IllegalArgumentException("Components that are being partitioned must be base components!");
             }
             this.componentNameMap.put(diagramComponent.uniqueName(), diagramComponent);
         });
         this.softMaxSizeLimit = softMaxSizeLimit;
-        this.keyComponents = stiffModel.coreComponents();
+        this.keyComponents = striffModel.coreComponents();
         this.contextLevel = contextLevel;
-        this.keyRelations = stiffModel.coreRelations();
-        this.allRelations = new ComponentRelations(stiffModel.allRelations());
-        generatePartitions(stiffModel.allComponents());
+        this.keyRelations = striffModel.coreRelations();
+        this.allRelations = new ComponentRelations(striffModel.allRelations());
+        generatePartitions(striffModel.allComponents());
         // Final run to condense partitions in the overall partitions list
         mergeSmallerPartitions(this.partitions);
     }
@@ -102,17 +102,19 @@ public final class StiffComponentPartitions {
     }
 
     private void filterUnImportantPartitions(List<Set<DiagramComponent>> partitions) {
-        // Make sure partitions have at least one or more key components, and that the components in each partition are relevant
-        // to the key components present in that partition.
+        // Make sure partitions have at least one or more key components, and that the components
+        // in each partition are relevant to the key components present in that partition.
         // Step 1: If a partition has no core components, it's not important, delete it.
         partitions.removeIf(partition -> Collections.disjoint(partition, this.keyComponents));
-        // Step 2: Partitions should only consist of components that are related to the core components within that partition.
+        // Step 2: Partitions should only consist of components that are related to the core
+        // components within that partition.
         for (Set<DiagramComponent> partition : partitions) {
             Set<DiagramComponent> partitionKeyComponents = partition.stream()
                     .distinct()
                     .filter(this.keyComponents::contains)
                     .collect(Collectors.toSet());
-            // Key partition components consist of those components which are no more than contextLevel hops away from a key component.
+            // Key partition components consist of those components which are no more than
+            // contextLevel hops away from a key component.
             for (int i = 0; i < this.contextLevel; i++) {
                 Set<DiagramComponent> currPartitionKeyComponents = new HashSet<>(partitionKeyComponents);
                 for (DiagramComponent cmp : currPartitionKeyComponents) {

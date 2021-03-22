@@ -10,7 +10,7 @@ public interface DiagramColorScheme {
 
     String classArrowColor();
 
-    String classBackgroundColor();
+    String objectColorBackground();
 
     String classArrowFontColor();
 

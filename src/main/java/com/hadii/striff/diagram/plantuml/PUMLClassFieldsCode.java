@@ -22,6 +22,7 @@ final class PUMLClassFieldsCode {
     private final Set<DiagramComponent> deletedComponents;
     private final Set<DiagramComponent> addedComponents;
     private final DiagramColorScheme colorScheme;
+    private final Set<DiagramComponent> modifiedComponents;
 
     PUMLClassFieldsCode(Set<DiagramComponent> diagramComponents,
                         DiffCodeModel mergedModel, DiagramColorScheme colorScheme) {
@@ -29,6 +30,7 @@ final class PUMLClassFieldsCode {
         this.allComponents = mergedModel.mergedModel().components();
         this.addedComponents = mergedModel.changeSet().addedComponents();
         this.deletedComponents = mergedModel.changeSet().deletedComponents();
+        this.modifiedComponents = mergedModel.changeSet().modifiedComponents();
         this.colorScheme = colorScheme;
     }
 
@@ -47,7 +49,8 @@ final class PUMLClassFieldsCode {
             // Insert component type name (eg: class, interface, etc...)
             cmpPUMLStr += component.componentType().getValue() + " ";
             // Insert the actual component unique name
-            String diagramCmpUniqueName = (component.uniqueName().replaceAll("-", "").replaceAll("\\.\\.+", ".") + " ");
+            String diagramCmpUniqueName = (component.uniqueName().replaceAll("-", "")
+                                                    .replaceAll("\\.\\.+", ".") + " ");
             cmpPUMLStr += diagramCmpUniqueName + "as \"";
             // Insert component display name
             if (addedComponents.contains(component) || deletedComponents.contains(component)) {
@@ -64,10 +67,10 @@ final class PUMLClassFieldsCode {
                 cmpPUMLStr += (component.codeFragment());
             }
             // Custom circled character styling...
-            if (component.componentType() == OOPSourceModelConstants.ComponentType.CLASS && !component.modifiers().contains("abstract")) {
-                cmpPUMLStr += " << (C," + colorScheme.classCircledCharacterBackgroundColor() + ") >> ";
-            } else if (component.componentType() == OOPSourceModelConstants.ComponentType.STRUCT) {
-                cmpPUMLStr += " << (S," + colorScheme.structCircledCharacterBackgroundColor() + ") >> ";
+            if (component.componentType() == OOPSourceModelConstants.ComponentType.CLASS
+                    || component.componentType() == OOPSourceModelConstants.ComponentType.STRUCT) {
+                cmpPUMLStr += " << (O," + colorScheme.classCircledCharacterBackgroundColor() + ")"
+                        + " >> ";
             }
             // Insert background color tag
             componentPUMLStrings.add(colorBaseComponentBackground(component, cmpPUMLStr) + " {\n");
@@ -82,9 +85,11 @@ final class PUMLClassFieldsCode {
                 }
             });
             // Group child components into method type and field types
-            Set<DiagramComponent> methodChilds = childComponents.stream().filter(diagramComponent -> diagramComponent.componentType().isMethodComponent())
+            Set<DiagramComponent> methodChilds = childComponents.stream().filter(
+                    diagramComponent -> diagramComponent.componentType().isMethodComponent())
                     .collect(Collectors.toSet());
-            Set<DiagramComponent> fieldChilds = childComponents.stream().filter(diagramComponent -> diagramComponent.componentType().isVariableComponent())
+            Set<DiagramComponent> fieldChilds = childComponents.stream().filter(
+                    diagramComponent -> diagramComponent.componentType().isVariableComponent())
                     .collect(Collectors.toSet());
             // Insert PUML text for field children
             boolean zeroFields = true;
@@ -121,7 +126,8 @@ final class PUMLClassFieldsCode {
             if (zeroMethods && !zeroFields) {
                 componentPUMLStrings.remove(componentPUMLStrings.size() - 1);
             }
-            // Generate component doc text last since it needs to fit within the component box width constraints.
+            // Generate component doc text last since it needs to fit within the component box
+            // width constraints.
             if (component.comment() != null && !component.comment().isEmpty()) {
                 String componentDoc = componentDocText(docTextLineLength, component);
                 if (componentDoc != null && !componentDoc.isEmpty()) {
@@ -141,7 +147,8 @@ final class PUMLClassFieldsCode {
     private boolean shouldDisplayChildCmp(boolean isLargeParentCmp, DiagramComponent childComponent) {
         return !isLargeParentCmp
                 || addedComponents.contains(childComponent)
-                || deletedComponents.contains(childComponent);
+                || deletedComponents.contains(childComponent)
+                || modifiedComponents.contains(childComponent);
     }
 
     private String childComponentPUMLText(DiagramComponent childCmp) {
@@ -226,6 +233,8 @@ final class PUMLClassFieldsCode {
             return "<back:" + colorScheme.addedComponentColor() + ">" + text + "</back>         ";
         } else if (deletedComponents.contains(childComponent)) {
             return "<back:" + colorScheme.deletedComponentColor() + ">" + text + "</back>         ";
+        } else if (modifiedComponents.contains(childComponent)) {
+            return "<back:" + colorScheme.modifiedComponentColor() + ">" + text + "</back>         ";
         } else {
             return text;
         }

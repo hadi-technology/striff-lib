@@ -1,6 +1,7 @@
 package striff.test;
 
-import com.hadii.clarpse.compiler.SourceFiles;
+import com.hadii.clarpse.compiler.Lang;
+import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.NoStructuralChangesException;
@@ -9,9 +10,9 @@ import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.DiagramCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.parse.DiffCodeModel;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class StriffOperationTest {
@@ -20,7 +21,8 @@ public class StriffOperationTest {
     public void noStructuralChangesFoundException() throws Exception {
         DiagramCodeModel oldModel = new DiagramCodeModel();
         DiagramCodeModel newModel = new DiagramCodeModel();
-        List<StriffDiagram> striffDiagrams = new StriffOperation(new DiffCodeModel(oldModel, newModel), 10, Arrays.asList(new SourceFiles[]{})).result();
+        new StriffOperation(new DiffCodeModel(
+                oldModel, newModel), 10, Arrays.asList(new String[]{})).result();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -32,6 +34,7 @@ public class StriffOperationTest {
         DiagramCodeModel newModel = new DiagramCodeModel(
                 new DiagramComponent(newStrawBerryComponent, null)
         );
-        List<StriffDiagram> striffDiagrams = new StriffOperation(new DiffCodeModel(oldModel, newModel), 3, Arrays.asList(new SourceFiles[]{})).result();
+        new StriffOperation(new DiffCodeModel(
+                oldModel, newModel), 3, Arrays.asList(new String[]{})).result();
     }
 }

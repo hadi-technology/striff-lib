@@ -34,7 +34,7 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam backgroundColor  " + colorScheme.backgroundColor()
                 + "\nskinparam classArrowColor " + colorScheme.classArrowColor()
                 + "\nskinparam legendBackgroundColor " + colorScheme.legendBackgroundColor()
-                + "\nskinparam classBackgroundColor " + colorScheme.classBackgroundColor()
+                + "\nskinparam classBackgroundColor " + colorScheme.objectColorBackground()
                 + "\nskinparam classArrowFontColor " + colorScheme.classArrowFontColor()
                 + "\nskinparam classArrowFontSize " + colorScheme.classArrowFontSize()
                 + "\nskinparam classFontColor " + colorScheme.classFontColor()
