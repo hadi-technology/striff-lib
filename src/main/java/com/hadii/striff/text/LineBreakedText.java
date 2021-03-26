@@ -19,6 +19,6 @@ class LineBreakedText implements Text {
 
     @Override
     public String value() {
-        return WordUtils.wrap(this.text.value(), this.maxCharsPerLine).trim();
+        return WordUtils.wrap(this.text.value(), (int) (this.maxCharsPerLine * 0.9)).trim();
     }
 }
