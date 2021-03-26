@@ -149,5 +149,4 @@ public class StriffCodeModelTest {
                 .coreComponents()
                 .contains(new DiagramComponent("Animal")));
     }
-
 }
