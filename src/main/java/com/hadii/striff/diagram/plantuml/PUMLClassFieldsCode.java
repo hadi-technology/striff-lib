@@ -75,7 +75,7 @@ final class PUMLClassFieldsCode {
             // Insert background color tag
             componentPUMLStrings.add(colorBaseComponentBackground(component, cmpPUMLStr) + " {\n");
             // Stores the required length of lines in the component's doc text preamble
-            int docTextLineLength = 80;
+            int docTextCharLen = 80;
             // Get all child components
             Set<DiagramComponent> childComponents = new HashSet<>();
             component.children().forEach(s -> {
@@ -99,8 +99,8 @@ final class PUMLClassFieldsCode {
                     if (!childCmpPUMLStr.isEmpty()) {
                         componentPUMLStrings.add(childCmpPUMLStr);
                         zeroFields = false;
-                        if (childCmpPUMLStr.length() > docTextLineLength) {
-                            docTextLineLength = childCmpPUMLStr.length();
+                        if (childCmpPUMLStr.length() > docTextCharLen) {
+                            docTextCharLen = childCmpPUMLStr.replace(" ", "").length();
                         }
                     }
                 }
@@ -116,8 +116,8 @@ final class PUMLClassFieldsCode {
                     if (!childCmpPUMLStr.isEmpty()) {
                         componentPUMLStrings.add(childCmpPUMLStr);
                         zeroMethods = false;
-                        if (childCmpPUMLStr.length() > docTextLineLength) {
-                            docTextLineLength = childCmpPUMLStr.length();
+                        if (childCmpPUMLStr.length() > docTextCharLen) {
+                            docTextCharLen = childCmpPUMLStr.length();
                         }
                     }
                 }
@@ -129,7 +129,7 @@ final class PUMLClassFieldsCode {
             // Generate component doc text last since it needs to fit within the component box
             // width constraints.
             if (component.comment() != null && !component.comment().isEmpty()) {
-                String componentDoc = componentDocText(docTextLineLength, component);
+                String componentDoc = componentDocText(docTextCharLen, component);
                 if (componentDoc != null && !componentDoc.isEmpty()) {
                     // Only insert line if the component displays children
                     if (zeroFields && zeroMethods) {
@@ -210,8 +210,8 @@ final class PUMLClassFieldsCode {
     /**
      * Generates PlantUML code for the given component's documentation.
      */
-    private String componentDocText(int docTextLineLength, DiagramComponent component) {
-        String commentStr = new StiffComponentDocText(component.comment().trim(), docTextLineLength).value();
+    private String componentDocText(int docTextCharLen, DiagramComponent component) {
+        String commentStr = new StiffComponentDocText(component.comment().trim(), docTextCharLen).value();
         if (!commentStr.isEmpty()) {
             if (commentStr.length() < 800) {
                 commentStr += "\n";

@@ -78,30 +78,76 @@ public class TextTest {
                                                     " * @see TestResult\n" +
                                                     " * @see TestSuite\n" +
                                                     " */".trim(), 80).value().equals(
-                                                        "A test case defines the fixture to run multiple tests. To define a test case\n" +
-                                                                "implement a subclass of TestCase define instance variables that store the state\n" +
-                                                                "of the fixture initialize the fixture state by overriding {@link #setUp[]}\n" +
-                                                                "clean-up after a test by overriding {@link #tearDown[]}. Each test runs in its\n" +
-                                                                "own fixture so there can be no side effects among test runs. Here is an example:\n" +
-                                                                "public class MathTest extends TestCase { protected double fValue1; protected\n" +
-                                                                "double fValue2; protected void setUp[] { fValue1= 2.0; fValue2= 3.0; } } For\n" +
-                                                                "each test implement a method which interacts with the fixture. Verify the\n" +
-                                                                "expected results with assertions specified by calling {@link\n" +
-                                                                "junit.framework.Assert#assertTrue[String, boolean]} with a boolean. public void\n" +
-                                                                "testAdd[] { double result= fValue1 + fValue2; assertTrue[result == 5.0]; } Once\n" +
-                                                                "the methods are defined you can run them. The framework supports both a static\n" +
-                                                                "type safe and more dynamic way to run a test. In the static way you override the\n" +
-                                                                "runTest method and define the method to be invoked. A convenient way to do so is\n" +
-                                                                "with an anonymous inner class. TestCase test= new MathTest[\"add\"] { public void\n" +
-                                                                "runTest[] { testAdd[]; } }; test.run[]; The dynamic way uses reflection to\n" +
-                                                                "implement {@link #runTest[]}. It dynamically finds and invokes a method. In this\n" +
-                                                                "case the name of the test case has to correspond to the test method to be run.\n" +
-                                                                "TestCase test= new MathTest[\"testAdd\"]; test.run[]; The tests to be run can be\n" +
-                                                                "collected into a TestSuite. JUnit provides different test runners which can run\n" +
-                                                                "a test suite and collect the results. A test runner either expects a static\n" +
-                                                                "method suite as the entry point to get a test to run or it will extract the\n" +
-                                                                "suite automatically. public static Test suite[] { suite.addTest[new\n" +
-                                                                "MathTest[\"testAdd\"]]; suite.addTest[new MathTest[\"testDivideByZero\"]]; return\n" +
-                                                                "suite; } @see TestResult @see TestSuite"));
+                                                        "A test case defines the fixture to run " +
+                                                            "multiple tests. To define a test case\n" +
+                                                            "implement a subclass of TestCase " +
+                                                            "define instance variables that store" +
+                                                            " the state\n" +
+                                                            "of the fixture initialize the " +
+                                                            "fixture state by overriding {@link " +
+                                                            "#setUp[]}\n" +
+                                                            "clean-up after a test by overriding " +
+                                                            "{@link #tearDown[]}. Each test runs " +
+                                                            "in its\n" +
+                                                            "own fixture so there can be no side " +
+                                                            "effects among test runs. Here is an " +
+                                                            "example:\n" +
+                                                            "public class MathTest extends " +
+                                                            "TestCase { protected double fValue1;" +
+                                                            " protected\n" +
+                                                            "double fValue2; protected void " +
+                                                            "setUp[] { fValue1= 2.0; fValue2= 3" +
+                                                            ".0; } } For\n" +
+                                                            "each test implement a method which " +
+                                                            "interacts with the fixture. Verify " +
+                                                            "the\n" +
+                                                            "expected results with assertions " +
+                                                            "specified by calling {@link\n" +
+                                                            "junit.framework" +
+                                                            ".Assert#assertTrue[String, boolean]}" +
+                                                            " with a boolean. public void\n" +
+                                                            "testAdd[] { double result= fValue1 +" +
+                                                            " fValue2; assertTrue[result == 5.0];" +
+                                                            " } Once\n" +
+                                                            "the methods are defined you can run " +
+                                                            "them. The framework supports both a " +
+                                                            "static\n" +
+                                                            "type safe and more dynamic way to " +
+                                                            "run a test. In the static way you " +
+                                                            "override the\n" +
+                                                            "runTest method and define the method" +
+                                                            " to be invoked. A convenient way to " +
+                                                            "do so is\n" +
+                                                            "with an anonymous inner class. " +
+                                                            "TestCase test= new MathTest[\"add\"]" +
+                                                            " { public void\n" +
+                                                            "runTest[] { testAdd[]; } }; test" +
+                                                            ".run[]; The dynamic way uses " +
+                                                            "reflection to\n" +
+                                                            "implement {@link #runTest[]}. It " +
+                                                            "dynamically finds and invokes a " +
+                                                            "method. In this\n" +
+                                                            "case the name of the test case has " +
+                                                            "to correspond to the test method to " +
+                                                            "be run.\n" +
+                                                            "TestCase test= new " +
+                                                            "MathTest[\"testAdd\"]; test.run[]; " +
+                                                            "The tests to be run can be\n" +
+                                                            "collected into a TestSuite. JUnit " +
+                                                            "provides different test runners " +
+                                                            "which can run\n" +
+                                                            "a test suite and collect the results" +
+                                                            ". A test runner either expects a " +
+                                                            "static\n" +
+                                                            "method suite as the entry point to " +
+                                                            "get a test to run or it will extract" +
+                                                            " the\n" +
+                                                            "suite automatically. public static " +
+                                                            "Test suite[] { suite.addTest[new\n" +
+                                                            "MathTest[\"testAdd\"]]; suite" +
+                                                            ".addTest[new " +
+                                                            "MathTest[\"testDivideByZero\"]]; " +
+                                                            "return\n" +
+                                                            "suite; } @see TestResult @see TestSuite"));
     }
 }
