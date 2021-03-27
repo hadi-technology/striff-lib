@@ -69,7 +69,7 @@ final class PUMLClassFieldsCode {
             // Custom circled character styling...
             if (component.componentType() == OOPSourceModelConstants.ComponentType.CLASS
                     || component.componentType() == OOPSourceModelConstants.ComponentType.STRUCT) {
-                cmpPUMLStr += " << (O," + colorScheme.classCircledCharacterBackgroundColor() + ")"
+                cmpPUMLStr += " << (C," + colorScheme.classCircledCharacterBackgroundColor() + ")"
                         + " >> ";
             }
             // Insert background color tag
