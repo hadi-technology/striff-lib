@@ -99,7 +99,7 @@ final class PUMLClassFieldsCode {
                     if (!childCmpPUMLStr.isEmpty()) {
                         componentPUMLStrings.add(childCmpPUMLStr);
                         zeroFields = false;
-                        if (childCmpPUMLStr.length() > docTextCharLen) {
+                        if (getChildCmpDisplayText(fieldChild).length() > docTextCharLen) {
                             docTextCharLen = childCmpPUMLStr.replace(" ", "").length();
                         }
                     }
@@ -116,7 +116,7 @@ final class PUMLClassFieldsCode {
                     if (!childCmpPUMLStr.isEmpty()) {
                         componentPUMLStrings.add(childCmpPUMLStr);
                         zeroMethods = false;
-                        if (childCmpPUMLStr.length() > docTextCharLen) {
+                        if (getChildCmpDisplayText(methodChild).length() > docTextCharLen) {
                             docTextCharLen = childCmpPUMLStr.length();
                         }
                     }
@@ -171,12 +171,7 @@ final class PUMLClassFieldsCode {
                             .get(OOPSourceModelConstants.AccessModifiers.STATIC));
                     childCmpPUMLStr += ("} ");
                 }
-                if (childCmp.componentType().isMethodComponent() || (childCmp.componentType().isVariableComponent() && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
-                    childCmpPUMLStr += childCmp.codeFragment() + " ";
-                }
-                if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT) {
-                    childCmpPUMLStr += childCmp.name() + " ";
-                }
+                childCmpPUMLStr += getChildCmpDisplayText(childCmp) + " ";
             }
         }
         // Handle modifiers...
@@ -188,6 +183,17 @@ final class PUMLClassFieldsCode {
                     + colorChildComponentBackground(childCmp, childCmpPUMLStr.trim()) + "\n";
         }
         return childCmpPUMLStr;
+    }
+
+    private String getChildCmpDisplayText(DiagramComponent childCmp) {
+        String childCmpDisplayText = "";
+        if (childCmp.componentType().isMethodComponent() || (childCmp.componentType().isVariableComponent() && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
+            childCmpDisplayText = childCmp.codeFragment();
+        }
+        if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT) {
+            childCmpDisplayText = childCmp.name();
+        }
+        return childCmpDisplayText;
     }
 
     private String visibilitySymbol(DiagramComponent childCmp) {

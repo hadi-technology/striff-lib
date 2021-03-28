@@ -1,10 +1,10 @@
 package com.hadii.striff.text;
 
-final class DefaultText implements Text {
+public class DefaultText implements Text {
 
     private final String text;
 
-    DefaultText(String text) {
+    public DefaultText(String text) {
         this.text = text;
     }
 

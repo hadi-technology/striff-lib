@@ -1,5 +1,7 @@
 package striff.test;
 
+import com.hadii.striff.text.DefaultText;
+import com.hadii.striff.text.LineBreakedText;
 import com.hadii.striff.text.StiffComponentDocText;
 import org.junit.Test;
 
@@ -7,8 +9,19 @@ import static junit.framework.TestCase.assertTrue;
 
 public class TextTest {
 
+
     @Test
-    public void StriffComponentDocTextTest() throws Exception {
+    public void lineBreakedTextTest() {
+        assert(new LineBreakedText(new DefaultText("a test string that can be broken up."), 10))
+        .value().equals("a test\n" +
+                            "string\n" +
+                            "that can\n" +
+                            "be broken\n" +
+                            "up.");
+    }
+
+    @Test
+    public void striffComponentDocTextTest() throws Exception {
         assertTrue(new StiffComponentDocText("/**\n" +
                                                     " * A test case defines the fixture to run multiple tests. To define a test case<br/>\n" +
                                                     " * <ol>\n" +
