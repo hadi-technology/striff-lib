@@ -15,7 +15,7 @@ jobs:
       - name: Install graphviz dependency for tests
         run: sudo apt-get install -y graphviz
       - name: "Run tests and package"
-        run: "mvn clean -X package assembly:single"
+        run: "mvn clean package assembly:single"
       - name: "Codecov report"
         run: bash <(curl -s https://codecov.io/bash)
       - name: Cache Maven dependencies
