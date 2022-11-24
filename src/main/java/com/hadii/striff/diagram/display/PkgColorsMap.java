@@ -28,7 +28,7 @@ public class PkgColorsMap {
         "#fdecd5"
     };
 
-    static private final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
+    static final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
     private final Map<String, String> pkgColorMap = new HashMap<>();
 
     public PkgColorsMap(Set<String> pkgs) {
