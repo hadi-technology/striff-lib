@@ -1,4 +1,4 @@
-package com.hadii.striff.diagram;
+package com.hadii.striff.extractor;
 
 public final class DiagramConstants {
 
@@ -6,27 +6,28 @@ public final class DiagramConstants {
         /**
          * Composition Association.
          */
-        AGGREGATION(1, "-", "o", "o"),
+        AGGREGATION(6, "-", "o", "o"),
         /**
          * Weak Binary Association.
          */
-        COMPOSITION(2, "-", "*", "*"),
+        COMPOSITION(6, "-", "*", "*"),
         /**
          * Generalization Association.
          */
-        SPECIALIZATION(3, "--", "|>", "<|"),
-        /**
-         * Dependency association.
-         */
+        SPECIALIZATION(8, "--", "|>", "<|"),
         NONE(-1, "-", "", ""),
         /**
          * Realization association.
          */
-        REALIZATION(4, "-.-", "|>", "<|"),
+        REALIZATION(8, "-.-", "|>", "<|"),
         /**
-        * Basic association.
-        */
-        ASSOCIATION(0, "--", ">", "<");
+         * Dependency association.
+         */
+        WEAK_ASSOCIATION(1, "--", ">", "<"),
+        /**
+         * Basic association.
+         */
+        ASSOCIATION(3, "--", ">", "<");
 
         private final String forwardLinkEndingType;
         private final String backwardLinkEndingType;

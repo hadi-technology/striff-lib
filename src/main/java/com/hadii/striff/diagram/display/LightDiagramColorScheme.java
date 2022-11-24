@@ -1,6 +1,10 @@
-package com.hadii.striff.diagram.scheme;
+package com.hadii.striff.diagram.display;
+
 
 public class LightDiagramColorScheme implements DiagramColorScheme {
+
+    public static final String PACKAGE_BG_COLOR = "#E0E0E0";
+    public static final String DEFAULT_CLASS_HEADER_COLOR = "#24292e";
 
     @Override
     public String defaultFontName() {
@@ -10,6 +14,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     @Override
     public String backgroundColor() {
         return "transparent";
+    }
+
+    @Override
+    public String defaultClassHeaderColor() {
+        return DEFAULT_CLASS_HEADER_COLOR;
     }
 
     @Override
@@ -74,7 +83,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBackgroundColor() {
-        return "#E0E0E0";
+        return PACKAGE_BG_COLOR;
     }
 
     @Override
@@ -164,7 +173,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String modifiedComponentColor() {
-        return "#bbe5f8";
+        return "#f5e6b3";
     }
 
     @Override

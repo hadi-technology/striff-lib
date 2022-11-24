@@ -6,9 +6,9 @@ import com.hadii.clarpse.compiler.ProjectFile;
 import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.striff.metrics.OOPMetricsProfile;
-import com.hadii.striff.parse.ParsedProject;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class OOPMetricsTest {
@@ -28,7 +28,7 @@ public class OOPMetricsTest {
         reqCon.insertFile(file2);
         reqCon.insertFile(file3);
 
-        final OOPSourceCodeModel codeModel = new ParsedProject((reqCon)).model();
+        final OOPSourceCodeModel codeModel = new ClarpseProject((reqCon)).result().model();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("test.ClassC").get(), codeModel).dit() == 3);
     }
 
@@ -51,7 +51,7 @@ public class OOPMetricsTest {
         reqCon.insertFile(file3);
         reqCon.insertFile(file4);
 
-        final OOPSourceCodeModel codeModel = new ParsedProject((reqCon)).model();
+        final OOPSourceCodeModel codeModel = new ClarpseProject((reqCon)).result().model();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("test.ClassD").get(), codeModel).dit() == 1);
     }
 
@@ -70,8 +70,9 @@ public class OOPMetricsTest {
         rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
         rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
         rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
+        final OOPSourceCodeModel codeModel = parseService.result().model();
 
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(), codeModel).dit() == 4);
     }
@@ -89,8 +90,9 @@ public class OOPMetricsTest {
         rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
         rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
         rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
+        final OOPSourceCodeModel codeModel = parseService.result().model();
         assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(), codeModel).dit() == 3);
     }
 
@@ -107,11 +109,12 @@ public class OOPMetricsTest {
         rawData.insertFile(new ProjectFile("/src/main/E.go", codeE));
         rawData.insertFile(new ProjectFile("/src/main/C.go", codeC));
         rawData.insertFile(new ProjectFile("/src/main/D.go", codeD));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(
-                codeModel.getComponent("main.ClassA").get(),
-                codeModel).noc() == 3);
+        final OOPSourceCodeModel codeModel = parseService.result().model();
+        assertEquals(3.0, new OOPMetricsProfile(
+            codeModel.getComponent("main.ClassA").get(),
+            codeModel).noc());
     }
 
     @Test
@@ -121,10 +124,11 @@ public class OOPMetricsTest {
         final ProjectFiles rawData = new ProjectFiles(Lang.JAVA);
         rawData.insertFile(new ProjectFile("/src/main/A.go", code));
         rawData.insertFile(new ProjectFile("/src/main/B.go", codeB));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(
-                codeModel.getComponent("interfaceA").get(), codeModel).noc() == 0);
+        final OOPSourceCodeModel codeModel = parseService.result().model();
+        assertEquals(0.0, new OOPMetricsProfile(
+            codeModel.getComponent("interfaceA").get(), codeModel).noc());
     }
 
     @Test
@@ -132,9 +136,11 @@ public class OOPMetricsTest {
         final String code = "package main\ntype ClassA struct {}";
         final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
         rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).dit() == 1);
+        final OOPSourceCodeModel codeModel = parseService.result().model();
+        assertEquals(1.0, new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(),
+                                              codeModel).dit());
     }
 
     @Test
@@ -142,9 +148,11 @@ public class OOPMetricsTest {
         final String code = "package main\ntype ClassA struct {}";
         final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
         rawData.insertFile(new ProjectFile("/src/main/A.go", code));
+        rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(), codeModel).noc() == 0);
+        final OOPSourceCodeModel codeModel = parseService.result().model();
+        assertEquals(0.0, new OOPMetricsProfile(codeModel.getComponent("main.ClassA").get(),
+                                              codeModel).noc());
     }
 
 
@@ -154,8 +162,10 @@ public class OOPMetricsTest {
                 ".Person}";
         final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
         rawData.insertFile(new ProjectFile("person.go", code));
+        rawData.insertFile(new ProjectFile("go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData);
-        final OOPSourceCodeModel codeModel = parseService.result();
-        assertTrue(new OOPMetricsProfile(codeModel.getComponent("main.person").get(), codeModel).fanout() == 1);
+        final OOPSourceCodeModel codeModel = parseService.result().model();
+        assertEquals(1.0, new OOPMetricsProfile(codeModel.getComponent("main.person").get(),
+                                              codeModel).fanout());
     }
 }

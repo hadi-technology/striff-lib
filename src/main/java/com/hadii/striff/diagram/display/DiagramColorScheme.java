@@ -1,10 +1,12 @@
-package com.hadii.striff.diagram.scheme;
+package com.hadii.striff.diagram.display;
 
 public interface DiagramColorScheme {
 
     String defaultFontName();
 
     String backgroundColor();
+
+    String defaultClassHeaderColor();
 
     String classArrowFontName();
 

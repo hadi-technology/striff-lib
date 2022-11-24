@@ -1,12 +1,11 @@
 package com.hadii.striff;
 
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.DiagramCodeModel;
-import com.hadii.striff.extractor.ComponentRelations;
+import com.hadii.striff.diagram.StriffCodeModel;
+import com.hadii.striff.extractor.ExtractedRelationships;
+import com.hadii.striff.extractor.RelationsMap;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,11 +14,11 @@ import java.util.Set;
  */
 public final class ChangeSet {
 
-    private final ComponentRelations deletedRelations = new ComponentRelations();
-    private final ComponentRelations addedRelations = new ComponentRelations();
+    private final RelationsMap deletedRelations = new RelationsMap();
+    private final RelationsMap addedRelations = new RelationsMap();
     private final Set<DiagramComponent> addedComponents;
     private final Set<DiagramComponent> deletedComponents;
-    private final List<DiagramComponent> keyRelationsComponents = new ArrayList<>();
+    private final Set<DiagramComponent> keyRelationsComponents = new HashSet<>();
     private final Set<DiagramComponent> modifiedComponents;
 
     /**
@@ -27,18 +26,19 @@ public final class ChangeSet {
      * @param oldModel The original source code model
      * @param newModel The final source code model
      */
-    public ChangeSet(DiagramCodeModel oldModel, DiagramCodeModel newModel) {
-        ComponentRelations oldComponentRelations = new ComponentRelations(oldModel);
-        ComponentRelations newComponentRelations = new ComponentRelations(newModel);
+    public ChangeSet(StriffCodeModel oldModel, StriffCodeModel newModel) {
+        RelationsMap oldExtractedRels = new ExtractedRelationships(oldModel).result();
+        RelationsMap newExtractedRels = new ExtractedRelationships(newModel).result();
 
-        // Form a list of all components that exist in the newer code base but not in the older code base.
+        // Form a list of all newly created components.
         this.addedComponents = new HashSet<>();
         for (final Map.Entry<String, DiagramComponent> entry : newModel.components().entrySet()) {
             if (!oldModel.containsComponent(entry.getKey())) {
                 this.addedComponents.add(entry.getValue());
             }
         }
-        // Form a list of all components that do not exist in the newer code base but do exist in the older code base.
+
+        // Form a list of all deleted components.
         this.deletedComponents = new HashSet<>();
         for (final Map.Entry<String, DiagramComponent> entry : oldModel.components().entrySet()) {
             if (!newModel.containsComponent(entry.getKey())) {
@@ -46,19 +46,17 @@ public final class ChangeSet {
             }
         }
 
-        // Form a list of all component relationships that exist in the newer code base but not in the older code base.
-        newComponentRelations.relations().forEach(relation -> {
-            if (!oldComponentRelations.hasRelation(relation)) {
-                this.addedRelations.addRelation(relation);
-                if (relation.associationType().strength() > 0) {
-                    this.addKeyRelationsComponent(relation.originalComponent());
-                    this.addKeyRelationsComponent(relation.targetComponent());
-                }
+        // Form a list of all the new component relationships.
+
+
+        newExtractedRels.allRels().forEach(relation -> {
+            if (!oldExtractedRels.contains(relation)) {
+                this.addedRelations.insertRelation(relation);
+                this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
             }
         });
 
-        // Form a list of all components whose implementations have changed between the old and
-        // new code base.
+        // Form a list of all components whose implementations have changed.
         this.modifiedComponents = new HashSet<>();
         for (final Map.Entry<String, DiagramComponent> entry : newModel.components().entrySet()) {
             if (oldModel.containsComponent(entry.getKey())) {
@@ -68,19 +66,21 @@ public final class ChangeSet {
             }
         }
 
-        // Form a list of all component relationships that exist in the old code base but not in the new code base.
-        oldComponentRelations.relations().forEach(relation -> {
-        if (!newComponentRelations.hasRelation(relation)) {
-            this.deletedRelations.addRelation(relation);
-                this.addKeyRelationsComponent(relation.originalComponent());
-                this.addKeyRelationsComponent(relation.targetComponent());
+        // Form a list of all relationships that do not exist anymore.
+        oldExtractedRels.allRels().forEach(relation -> {
+        if (!newExtractedRels.contains(relation)) {
+            this.deletedRelations.insertRelation(relation);
+            this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
             }
         });
     }
 
-    private void addKeyRelationsComponent(DiagramComponent contextComponent) {
-        if (!this.addedComponents.contains(contextComponent) && !this.deletedComponents.contains(contextComponent)) {
-            this.keyRelationsComponents.add(contextComponent);
+    private void addKeyRelComponents(DiagramComponent... keyRelCmps) {
+        for (DiagramComponent keyRelCmp : keyRelCmps) {
+            if (!this.addedComponents.contains(keyRelCmp)
+                && !this.deletedComponents.contains(keyRelCmp)) {
+                this.keyRelationsComponents.add(keyRelCmp);
+            }
         }
     }
 
@@ -92,15 +92,15 @@ public final class ChangeSet {
         return deletedComponents;
     }
 
-    public List<DiagramComponent> keyRelationsComponents() {
+    public Set<DiagramComponent> keyRelationsComponents() {
         return this.keyRelationsComponents;
     }
 
-    public ComponentRelations addedRelations() {
+    public RelationsMap addedRelations() {
         return this.addedRelations;
     }
 
-    public ComponentRelations deletedRelations() {
+    public RelationsMap deletedRelations() {
         return this.deletedRelations;
     }
 

@@ -4,30 +4,24 @@ import com.hadii.clarpse.reference.ComponentReference;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
-import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.DiagramConstants;
-import com.hadii.striff.diagram.DiagramCodeModel;
+import com.hadii.striff.diagram.StriffCodeModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * Returns a list of binary class relationships from a given source code mergedModel.
+ * A collection of relationships extracted from a {@link StriffCodeModel}.
  */
-public class ComponentRelations {
+public class ExtractedRelationships {
 
-    private final Map<DiagramComponent, List<ComponentRelation>> relationMap = new HashMap<>();
-    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
+    private final RelationsMap relationMap = new RelationsMap();
+    private static final Logger LOGGER = LogManager.getLogger(ExtractedRelationships.class);
 
-    public ComponentRelations(final DiagramCodeModel sourceCodeModel) {
+    public ExtractedRelationships(final StriffCodeModel sourceCodeModel) {
         final Map<String, DiagramComponent> components = sourceCodeModel.components();
         for (final Map.Entry<String, DiagramComponent> entry : components.entrySet()) {
             final DiagramComponent tempClass = entry.getValue();
@@ -38,20 +32,17 @@ public class ComponentRelations {
         }
     }
 
-    public ComponentRelations() {
-    }
-
-    public ComponentRelations(ComponentRelations... cmpRelations) {
-        for (ComponentRelations cmpRelationsObj : cmpRelations) {
-            for (ComponentRelation componentRelation : cmpRelationsObj.relations()) {
-                this.addRelation(componentRelation);
+    public ExtractedRelationships(ExtractedRelationships... extractedRelationships) {
+        for (ExtractedRelationships extractedRelationship : extractedRelationships) {
+            for (ComponentRelation componentRelation : extractedRelationship.result().allRels()) {
+                this.relationMap.insertRelation(componentRelation);
             }
         }
     }
 
-    public ComponentRelations(Set<ComponentRelation> cmpRelations) {
+    public ExtractedRelationships(Set<ComponentRelation> cmpRelations) {
         for (ComponentRelation componentRelation : cmpRelations) {
-            this.addRelation(componentRelation);
+            this.relationMap.insertRelation(componentRelation);
         }
     }
 
@@ -63,10 +54,10 @@ public class ComponentRelations {
         // Only consider non-base components (eg: methods, fields, etc ..)
         if (!component.componentType().isBaseComponent()) {
             // Get the the current component's parent base component
-            final DiagramComponent currentBaseComponent = component.parentBaseComponent(components);
+            final DiagramComponent currentBaseComponent = component.parentBaseCmp(components);
             if (currentBaseComponent != null) {
                 // Get a list of all the external components referenced
-                final Set<ComponentReference> componentReferences = component.componentInvocations();
+                final Set<ComponentReference> componentReferences = component.references();
                 // Remove redundant references..
                 filterComponentInvocations(componentReferences, components, currentBaseComponent, currentBaseComponent);
                 // Loop through list of references and create component relationships as required..
@@ -93,18 +84,20 @@ public class ComponentRelations {
                             }
                             externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
                                     relationAssociation);
-                            // --> IF INVOCATION SITE IS METHOD
-                        } else if ((component.componentType() == ComponentType.METHOD)
+                            // --> IF INVOCATION SITE IS METHOD or CONSTRUCTOR
+                        } else if ((component.componentType() == ComponentType.METHOD
+                        || component.componentType() == ComponentType.CONSTRUCTOR)
                                 && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
-                            relationAssociation = DiagramConstants.ComponentAssociation.ASSOCIATION;
+                            relationAssociation = DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
                             externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
                                     relationAssociation);
-                            // --> IF INVOCATION SITE IS CONSTRUCTOR
-                        } else if ((component.componentType() == ComponentType.CONSTRUCTOR)
-                                && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
+                            // --> IF INVOCATION SITE IS METHOD or CONSTRUCTOR
+                        } else if ((component.componentType() == ComponentType.METHOD_PARAMETER_COMPONENT
+                        || component.componentType() == ComponentType.CONSTRUCTOR_PARAMETER_COMPONENT)
+                            && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
                             relationAssociation = DiagramConstants.ComponentAssociation.ASSOCIATION;
                             externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
-                                    relationAssociation);
+                                                                      relationAssociation);
                         } else {
                             continue;
                         }
@@ -112,7 +105,6 @@ public class ComponentRelations {
                             addRelation(externalClassLink);
                         } catch (IllegalArgumentException e) {
                             LOGGER.warn(e);
-                            continue;
                         }
                     }
                 }
@@ -123,43 +115,29 @@ public class ComponentRelations {
     /**
      * Recursively removes self-referencing implementation and extension relationships.
      */
-    private void filterComponentInvocations(Set<ComponentReference> componentInvocations,
-                                            Map<String, DiagramComponent> components, DiagramComponent filterComponent,
+    private void filterComponentInvocations(Set<ComponentReference> componentReferences,
+                                            Map<String, DiagramComponent> components, DiagramComponent unfilteredComponent,
                                             DiagramComponent originalComponent) {
-        if (!filterComponent.componentInvocations(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION).isEmpty()) {
-            for (ComponentReference ref : filterComponent.componentInvocations(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION)) {
+        // Ensure there are no self-referencing implementation relationships..
+        if (!unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION).isEmpty()) {
+            for (ComponentReference ref : unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION)) {
                 DiagramComponent invokedComponent = components.get(ref.invokedComponent());
-                if (invokedComponent != null && !filterComponent.equals(invokedComponent)) {
-                    filterComponentInvocations(componentInvocations, components, invokedComponent, originalComponent);
+                if (invokedComponent != null && !unfilteredComponent.equals(invokedComponent)) {
+                    filterComponentInvocations(componentReferences, components, invokedComponent, originalComponent);
                 }
             }
         }
-        if (!filterComponent.componentInvocations(OOPSourceModelConstants.TypeReferences.EXTENSION).isEmpty()) {
-            for (ComponentReference ref : filterComponent.componentInvocations(OOPSourceModelConstants.TypeReferences.EXTENSION)) {
+        // Ensure there are no self-referencing extension relationships..
+        if (!unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.EXTENSION).isEmpty()) {
+            for (ComponentReference ref : unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.EXTENSION)) {
                 DiagramComponent invokedComponent = components.get(ref.invokedComponent());
-                if (invokedComponent != null && !filterComponent.equals(invokedComponent)) {
-                    filterComponentInvocations(componentInvocations, components, invokedComponent, originalComponent);
+                if (invokedComponent != null && !unfilteredComponent.equals(invokedComponent)) {
+                    filterComponentInvocations(componentReferences, components, invokedComponent, originalComponent);
                 }
             }
         }
-        if (!filterComponent.uniqueName().equals(originalComponent.uniqueName())) {
-            removeMatchingInvocations(filterComponent.componentInvocations(), componentInvocations);
-        }
-    }
-
-    /**
-     * Removes all the to-be-removed-invocations from a given list of component
-     * invocations.
-     */
-    private void removeMatchingInvocations(Set<ComponentReference> invokedComponentsToBeRemoved,
-                                           Set<ComponentReference> externalClassTypeReferences) {
-        List<ComponentReference> invocationsCopy = new ArrayList<>(externalClassTypeReferences);
-        for (ComponentReference tmpInvocation : invocationsCopy) {
-            for (ComponentReference toBeRemovedInvocation : invokedComponentsToBeRemoved) {
-                if (tmpInvocation.invokedComponent().equals(toBeRemovedInvocation.invokedComponent())) {
-                    externalClassTypeReferences.remove(tmpInvocation);
-                }
-            }
+        if (!unfilteredComponent.uniqueName().equals(originalComponent.uniqueName())) {
+            componentReferences.removeAll(unfilteredComponent.references());
         }
     }
 
@@ -167,36 +145,22 @@ public class ComponentRelations {
      * Registers a new component relation between two components.
      */
     public void addRelation(final ComponentRelation cmpRelation) {
-        if (!cmpRelation.originalComponent().componentType().isBaseComponent()
-            || !cmpRelation.targetComponent().componentType().isBaseComponent()
-            || cmpRelation.originalComponent().equals(cmpRelation.targetComponent())) {
-            // skip
-            return;
+        if (isValidRelation(cmpRelation)) {
+            this.relationMap.insertRelation(cmpRelation);
         }
-        if (this.relationMap.containsKey(cmpRelation.originalComponent())) {
-            if (this.relationMap.get(cmpRelation.originalComponent()).contains(cmpRelation)) {
-                // If a relation already exists between the two components of the incoming relation, take the stronger one.
-                int relationIndex = this.relationMap.get(cmpRelation.originalComponent()).indexOf(cmpRelation);
-                int currRelationStrength = this.relationMap.get(cmpRelation.originalComponent())
-                        .get(relationIndex).associationType().strength();
-                if (currRelationStrength < cmpRelation.associationType().strength()) {
-                    this.relationMap.get(cmpRelation.originalComponent()).set(relationIndex, cmpRelation);
-                }
-            } else {
-                this.relationMap.get(cmpRelation.originalComponent()).add(cmpRelation);
-            }
-        } else {
-            List<ComponentRelation> relationships = new ArrayList<>();
-            relationships.add(cmpRelation);
-            this.relationMap.put(cmpRelation.originalComponent(), relationships);
-        }
+    }
+
+    private boolean isValidRelation(ComponentRelation cmpRelation) {
+        return cmpRelation.originalComponent().componentType().isBaseComponent()
+            && cmpRelation.targetComponent().componentType().isBaseComponent()
+            && !cmpRelation.originalComponent().equals(cmpRelation.targetComponent());
     }
 
     /**
      * Analyzes the components specialized by the given component.
      */
     private void componentSpecializations(final DiagramComponent component, final Map<String, DiagramComponent> allComponents) {
-        final List<ComponentReference> superClasses = component.componentInvocations(OOPSourceModelConstants.TypeReferences.EXTENSION);
+        final List<ComponentReference> superClasses = component.references(OOPSourceModelConstants.TypeReferences.EXTENSION);
         if (!superClasses.isEmpty()) {
             for (final ComponentReference superClass : superClasses) {
                 if (allComponents.containsKey(superClass.invokedComponent())) {
@@ -228,7 +192,7 @@ public class ComponentRelations {
      */
     private void componentRealizations(final DiagramComponent sourceComponent, final Map<String, DiagramComponent> allComponents) {
         final List<ComponentReference> implementedClasses = sourceComponent
-                .componentInvocations(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION);
+                .references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION);
         if (!implementedClasses.isEmpty()) {
             for (final ComponentReference implementedClass : implementedClasses) {
                 if (allComponents.containsKey(implementedClass.invokedComponent())) {
@@ -242,51 +206,7 @@ public class ComponentRelations {
         }
     }
 
-    public final Collection<ComponentRelation> relations() {
-        List<ComponentRelation> relations = new ArrayList<>();
-        for (Map.Entry<DiagramComponent, List<ComponentRelation>> entry : this.relationMap.entrySet()) {
-            relations.addAll(entry.getValue());
-        }
-        return relations;
-    }
-
-    public final boolean hasRelation(ComponentRelation componentRelation) {
-        return this.relationMap.containsKey(componentRelation.originalComponent())
-                && this.relationMap.get(componentRelation.originalComponent()).contains(componentRelation);
-    }
-
-    public final boolean hasRelationsforComponent(DiagramComponent component) {
-        return this.relationMap.containsKey(component);
-    }
-
-    public final boolean hasRelationsforComponent(String cmpUniqueName) {
-        return this.relationMap.keySet()
-                .stream()
-                .filter(diagramComponent -> diagramComponent.uniqueName().equals(cmpUniqueName))
-                .collect(Collectors.toSet())
-                .size() == 1;
-    }
-
-    public final List<ComponentRelation> componentRelations(DiagramComponent component) {
-        return this.relationMap.get(component);
-    }
-
-    /**
-     * Returns a relation going in the opposite direction between the original and target component if it exists.
-     * Otherwise, an empty relation is returned.
-     */
-    public final ComponentRelation reverseRelation(ComponentRelation relation) {
-        DiagramComponent componentA = relation.originalComponent();
-        DiagramComponent componentB = relation.targetComponent();
-        ComponentRelation reverseRelation = new ComponentRelation();
-        // Figure out if a component relation in the opposite direction exists
-        if (hasRelationsforComponent(componentB)) {
-            List<ComponentRelation> targetComponentRelations = new ArrayList<>(componentRelations(componentB));
-            targetComponentRelations.removeIf(targetComponentRelation -> !targetComponentRelation.targetComponent().equals(componentA));
-            if (targetComponentRelations.size() > 0) {
-                reverseRelation = targetComponentRelations.get(0);
-            }
-        }
-        return reverseRelation;
+    public final RelationsMap result() {
+        return this.relationMap;
     }
 }

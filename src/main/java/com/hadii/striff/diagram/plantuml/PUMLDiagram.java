@@ -1,13 +1,11 @@
 package com.hadii.striff.diagram.plantuml;
 
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.scheme.DiagramColorScheme;
-import com.hadii.striff.parse.DiffCodeModel;
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.FileFormatOption;
-import net.sourceforge.plantuml.SourceStringReader;
+import com.hadii.striff.diagram.display.DiagramDisplay;
+import com.hadii.striff.parse.CodeDiff;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -16,31 +14,61 @@ public class PUMLDiagram {
 
     private final String classDiagramDescription;
     private final int size;
-    private String svgText;
+    private final String svgText;
+    private static final Logger LOGGER = LogManager.getLogger(PUMLDiagram.class);
+    private String[] svgLines;
 
-    public PUMLDiagram(final DiffCodeModel mergedModel, final DiagramColorScheme colorScheme,
-                       final Set<DiagramComponent> diagramComponents) throws IOException, PUMLDrawException {
-        this.classDiagramDescription = new PUMLClassDiagramCode(
-                mergedModel, colorScheme, diagramComponents).code();
-        this.size = diagramComponents.size();
-        generateSVGText();
+    public PUMLDiagram(final CodeDiff codeDiff, final Set<DiagramComponent> cmps,
+                       final DiagramDisplay diagramDisplay) throws IOException, PUMLDrawException {
+        this.classDiagramDescription =
+            new PUMLClassDiagramCode(codeDiff, diagramDisplay, cmps).code();
+        this.size = cmps.size();
+        this.svgText = generateSVGText();
     }
 
-    private void generateSVGText() throws PUMLDrawException, IOException {
-        if (classDiagramDescription.isEmpty()) {
-            this.svgText = "";
-        } else {
+    private String generateSVGText() throws PUMLDrawException, IOException {
+        String diagramStr = "";
+        if (!classDiagramDescription.isEmpty()) {
             final long startTime = new Date().getTime();
             final String plantUMLString = genPlantUMLString();
-            final byte[] diagram = generateDiagram(plantUMLString);
-            final String diagramStr = new String(diagram);
-            System.out.println(
-                    "Striff Diagram SVG text generated in " + (new Date().getTime() - startTime) + " milliseconds.");
-            this.svgText = diagramStr;
-            if (svgText.contains("Syntax Error") || svgText.contains("An error has")) {
-                throw new PUMLDrawException("A PUML syntax error occurred while generating this diagram!");
+            final byte[] diagram = PUMLHelper.generateDiagram(plantUMLString);
+            diagramStr = decorateClassTextObjsWithCmpIds(new String(diagram));
+            LOGGER.info("Striff Diagram SVG text was generated in "
+                            + (new Date().getTime() - startTime) + " milliseconds.");
+            if (PUMLHelper.invalidPUMLDiagram(diagramStr)) {
+                LOGGER.debug("Original PUML text:\n" + plantUMLString);
+                LOGGER.debug("Generated diagram text:\n" + diagramStr);
+                throw new PUMLDrawException("A PUML syntax error occurred while generating this "
+                                                + "diagram!");
+
             }
         }
+        return diagramStr;
+    }
+
+    /**
+     * Inserts component unique ids into their corresponding class text objects in the
+     * given SVG diagram. For example, the following text object in the given SVG representing
+     * a class name:
+     * <p/>
+     * "<text fill="#F8F8FF">InternalThreadLocalMap</text>"
+     * <p/>
+     * Might be replaced with
+     *<p/>
+     * "<text id="org.com.InternalThreadLocalMap" fill="#F8F8FF">InternalThreadLocalMap</text>"
+     */
+    private String decorateClassTextObjsWithCmpIds(String pumlGeneratedSVG) {
+        String[] svgLines = pumlGeneratedSVG.split("\\r?\\n");
+        for (int i = 0; i < svgLines.length; i++) {
+            if (svgLines[i].startsWith("class ") && svgLines[i].contains("-->")) {
+                String cmpUniqueName = svgLines[i].substring(6, svgLines[i].indexOf("-->"));
+                svgLines[i] = svgLines[i].replaceFirst(
+                    "<text ",
+                    "<text id=\"" + cmpUniqueName + "\" "
+                );
+            }
+        }
+        return String.join(" ", svgLines);
     }
 
     public final String svgText() {
@@ -58,21 +86,5 @@ public class PUMLDiagram {
         return this.classDiagramDescription;
     }
 
-    /**
-     * Invokes PlantUML to draw the class diagram based on the source string
-     * representing a PlantUML compliant class diagram code.
-     */
-    private byte[] generateDiagram(String source) throws IOException, PUMLDrawException {
-        final SourceStringReader reader = new SourceStringReader(source);
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            reader.generateImage(os, new FileFormatOption(FileFormat.SVG));
-        } catch (final Exception e) {
-            throw new PUMLDrawException("Error occurred while generating diagram!", e);
-        } finally {
-            os.close();
-        }
-        // SvgGraphics.displayComponents.clear();
-        return os.toByteArray();
-    }
+
 }

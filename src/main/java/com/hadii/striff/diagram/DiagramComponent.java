@@ -46,15 +46,15 @@ public class DiagramComponent {
     }
 
     public String uniqueName() {
-        if (this.cmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD
-                || this.cmp.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT) {
+        if (cmp.codeFragment() != null && (this.cmp.componentType() == OOPSourceModelConstants.ComponentType.FIELD
+                || this.cmp.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT)) {
             return cmp.uniqueName() + "." + cmp.codeFragment();
         } else {
             return cmp.uniqueName();
         }
     }
 
-    public List<ComponentReference> componentInvocations(OOPSourceModelConstants.TypeReferences implementation) {
+    public List<ComponentReference> references(OOPSourceModelConstants.TypeReferences implementation) {
         return cmp.references(implementation);
     }
 
@@ -70,7 +70,7 @@ public class DiagramComponent {
         return this.cmp.parentUniqueName();
     }
 
-    public Set<ComponentReference> componentInvocations() {
+    public Set<ComponentReference> references() {
         return this.cmp.references();
     }
 
@@ -98,14 +98,26 @@ public class DiagramComponent {
         this.cmp.setName(name);
     }
 
-    public String packageName() {
-        return this.cmp.packageName();
+    public String packagePath() {
+        if (this.cmp.pkg() != null) {
+            if (!this.cmp.pkg().ellipsisSeparatedPkgPath().isEmpty()) {
+                return this.cmp.pkg().ellipsisSeparatedPkgPath();
+            } else {
+                return this.cmp.pkg().name();
+            }
+        } else {
+            return "";
+        }
+    }
+
+    public String componentName() {
+        return this.cmp.componentName();
     }
 
     /**
      * Fetches the current component's parent base component given the set of components in the code base.
      */
-    public DiagramComponent parentBaseComponent(Map<String, DiagramComponent> codeBase) {
+    public DiagramComponent parentBaseCmp(Map<String, DiagramComponent> codeBase) {
         String currParentClassName = this.cmp.parentUniqueName();
         DiagramComponent parent;
         for (parent = codeBase.get(currParentClassName); parent != null && !parent.componentType().isBaseComponent();
@@ -127,5 +139,10 @@ public class DiagramComponent {
         }
         DiagramComponent other = (DiagramComponent) obj;
         return other.uniqueName().equals(this.uniqueName());
+    }
+
+    @Override
+    public String toString() {
+        return this.uniqueName();
     }
 }

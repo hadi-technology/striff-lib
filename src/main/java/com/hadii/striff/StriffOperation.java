@@ -1,16 +1,21 @@
 package com.hadii.striff;
 
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.StiffComponentPartitions;
+import com.hadii.clarpse.compiler.ClarpseProject;
+import com.hadii.clarpse.compiler.CompileException;
+import com.hadii.clarpse.compiler.CompileResult;
+import com.hadii.clarpse.compiler.ProjectFile;
+import com.hadii.clarpse.compiler.ProjectFiles;
+import com.hadii.striff.diagram.StriffCodeModel;
+import com.hadii.striff.diagram.StriffDiagrams;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
-import com.hadii.striff.parse.DiffCodeModel;
+import com.hadii.striff.parse.CodeDiff;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Entry point for Stiff diagram generation.
@@ -18,60 +23,38 @@ import java.util.Set;
 public class StriffOperation {
 
     private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
-    private final int softMaxSizeLimit;
-    private final List<String> sourceFilesFilter;
-    private final int contextLevel;
-    private List<Set<DiagramComponent>> diagramComponents = new ArrayList<>();
-    private final List<StriffDiagram> striffDiagrams = new ArrayList<>();
+    private final StriffDiagrams diagrams;
 
-    public StriffOperation(DiffCodeModel diffedModel, int softMaxSizeLimit, List<String> sourceFilesFilter,
-                           int contextLevel) throws NoStructuralChangesException, IOException, PUMLDrawException {
-        int minDiagramSize = 4;
-        if (softMaxSizeLimit < minDiagramSize) {
-            throw new IllegalArgumentException("The requested max diagram size must be greater than " + minDiagramSize);
-        }
-        this.softMaxSizeLimit = softMaxSizeLimit;
-        this.sourceFilesFilter = sourceFilesFilter;
-        this.contextLevel = contextLevel;
-        partitionDiagramComponents(diffedModel);
-        genDiagrams(diffedModel);
+    public StriffOperation(ProjectFiles originalFiles, ProjectFiles newFiles, StriffConfig config)
+        throws NoStructuralChangesException, IOException, PUMLDrawException, CompileException {
+        validateFilterFiles(originalFiles, newFiles, config.filesFilter);
+        CompileResult originalCompileResult = new ClarpseProject(originalFiles).result();
+        CompileResult newCompileResult = new ClarpseProject(newFiles).result();
+        CodeDiff diffedModel = new CodeDiff(new StriffCodeModel(originalCompileResult.model()),
+                                            new StriffCodeModel(newCompileResult.model()));
+        Set<ProjectFile> combinedFailures = Stream.concat(
+                                                      newCompileResult.failures().stream(),
+                                                      originalCompileResult.failures().stream())
+                                                  .collect(Collectors.toSet());
+        this.diagrams = new StriffDiagrams(diffedModel, config, combinedFailures);
     }
 
-    public StriffOperation(DiffCodeModel diffedModel, int softMaxSizeLimit, List<String> sourceFilesFilter)
-            throws Exception {
-        this(diffedModel, softMaxSizeLimit, sourceFilesFilter, 2);
-    }
-
-    private void partitionDiagramComponents(DiffCodeModel diffedModel) throws NoStructuralChangesException {
-        // Generate a list of all the BASE components we want to include in the final diagram(s)
-        StriffCodeModel striffCodeModel = null;
-        if (this.sourceFilesFilter.isEmpty()) {
-            striffCodeModel = new StriffCodeModel(diffedModel);
-        } else {
-            striffCodeModel = new StriffCodeModel(diffedModel, this.sourceFilesFilter);
-        }
-        List<Set<DiagramComponent>> diagramComponentSets = new ArrayList<>();
-        if (striffCodeModel.allComponents().size() < 1) {
-            throw new NoStructuralChangesException("No structural changes were found between the given code bases!");
-        } else if (striffCodeModel.allComponents().size() > softMaxSizeLimit) {
-            // Current diagram would be too large, lets partition the current base component set into
-            // smaller sets to produce multiple, more readable diagrams
-            List<Set<DiagramComponent>> componentPartitions = new StiffComponentPartitions(
-                    striffCodeModel, this.softMaxSizeLimit, this.contextLevel).partitions();
-            diagramComponentSets.addAll(componentPartitions);
-        } else {
-            diagramComponentSets.add(striffCodeModel.allComponents());
-        }
-        this.diagramComponents = diagramComponentSets;
-    }
-
-    private void genDiagrams(DiffCodeModel mergedModel) throws IOException, PUMLDrawException {
-        for (Set<DiagramComponent> diagramComponentSet : this.diagramComponents) {
-            this.striffDiagrams.add(new StriffDiagram(mergedModel, diagramComponentSet));
+    private void validateFilterFiles(ProjectFiles originalFiles, ProjectFiles newFiles,
+                                     Set<String> filesFilter) {
+        if (!filterFilesExistInProjects(originalFiles, newFiles, filesFilter)) {
+            throw new IllegalArgumentException(
+                "One or more filter file paths are invalid: " + filesFilter + ".");
         }
     }
 
-    public List<StriffDiagram> result() {
-        return this.striffDiagrams;
+    private boolean filterFilesExistInProjects(ProjectFiles originalFiles, ProjectFiles newFiles,
+                                               Set<String> filesFilter) {
+        return Stream.concat(originalFiles.files().stream(), newFiles.files().stream()).map(
+            ProjectFile::path).collect(Collectors.toSet()).containsAll(filesFilter);
+    }
+
+
+    public StriffDiagrams result() {
+        return this.diagrams;
     }
 }

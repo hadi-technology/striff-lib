@@ -8,7 +8,7 @@ import com.hadii.clarpse.sourcemodel.Component;
  */
 public class ResponseForClassMetric implements Metric {
 
-    private Component component;
+    private final Component component;
 
     public ResponseForClassMetric(Component component) {
         this.component = component;

@@ -3,61 +3,61 @@ package striff.test;
 import com.hadii.clarpse.reference.TypeExtensionReference;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.StriffCodeModel;
+import com.hadii.striff.diagram.StriffDiagramModel;
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.DiagramCodeModel;
-import com.hadii.striff.parse.DiffCodeModel;
+import com.hadii.striff.diagram.StriffCodeModel;
+import com.hadii.striff.parse.CodeDiff;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * StriffCodeModel Object tests.
+ * StriffDiagramModel class tests.
  */
-public class StriffCodeModelTest {
+public class StriffDiagramModelTest {
 
     @Test
     public void testSelectedComponentsIncludeAddedComponents() {
-        DiagramCodeModel oldModel = new DiagramCodeModel();
+        StriffCodeModel oldModel = new StriffCodeModel();
         Component newStrawBerryComponent = new Component();
         newStrawBerryComponent.setComponentName("Strawberry");
         newStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        DiagramCodeModel newModel = new DiagramCodeModel(
+        StriffCodeModel newModel = new StriffCodeModel(
                 new DiagramComponent(newStrawBerryComponent, null)
         );
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
-                .coreComponents()
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel))
+                .diagramCmps()
                 .contains(new DiagramComponent("Strawberry")));
     }
 
     @Test
     public void testSelectedComponentsIncludeDeletedComponents() {
-        DiagramCodeModel newModel = new DiagramCodeModel();
+        StriffCodeModel newModel = new StriffCodeModel();
         Component oldStrawBerryComponent = new Component();
         oldStrawBerryComponent.setComponentName("Strawberry");
         oldStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        DiagramCodeModel oldModel = new DiagramCodeModel(
+        StriffCodeModel oldModel = new StriffCodeModel(
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
-                .coreComponents()
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel))
+                .diagramCmps()
                 .contains(new DiagramComponent("Strawberry")));
     }
 
     @Test
     public void testSelectedComponentsIncludeKeyRelationContextComponents() {
-        DiagramCodeModel newModel = new DiagramCodeModel();
+        StriffCodeModel newModel = new StriffCodeModel();
         Component oldStrawBerryComponent = new Component();
         oldStrawBerryComponent.setComponentName("Strawberry");
         oldStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        DiagramCodeModel oldModel = new DiagramCodeModel(
+        StriffCodeModel oldModel = new StriffCodeModel(
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel))
-                .coreComponents()
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel))
+                .diagramCmps()
                 .contains(new DiagramComponent("Strawberry")));
     }
 
@@ -72,16 +72,16 @@ public class StriffCodeModelTest {
         Component oldAnimalClassComponent = new Component();
         oldAnimalClassComponent.setComponentName("Animal");
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        DiagramCodeModel oldModel = new DiagramCodeModel(
+        StriffCodeModel oldModel = new StriffCodeModel(
                 new DiagramComponent(oldAnimalFieldComponent, null),
                 new DiagramComponent(oldAnimalClassComponent, null),
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        DiagramCodeModel newModel = new DiagramCodeModel();
-        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().size(), 2);
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
+        StriffCodeModel newModel = new StriffCodeModel();
+        assertEquals(new StriffDiagramModel(new CodeDiff(oldModel, newModel)).diagramCmps().size(), 2);
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel)).diagramCmps().contains(
                 new DiagramComponent("Animal")));
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).coreComponents().contains(
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel)).diagramCmps().contains(
                 new DiagramComponent("Strawberry")));
     }
 
@@ -90,13 +90,13 @@ public class StriffCodeModelTest {
         Component oldStrawBerryComponent = new Component();
         oldStrawBerryComponent.setComponentName("Strawberry");
         oldStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        oldStrawBerryComponent.insertComponentRef(new TypeExtensionReference("Animal"));
+        oldStrawBerryComponent.insertCmpRef(new TypeExtensionReference("Animal"));
 
         Component oldAnimalClassComponent = new Component();
         oldAnimalClassComponent.setComponentName("Animal");
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
 
-        DiagramCodeModel oldModel = new DiagramCodeModel(
+        StriffCodeModel oldModel = new StriffCodeModel(
                 new DiagramComponent(oldAnimalClassComponent, null),
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
@@ -104,7 +104,7 @@ public class StriffCodeModelTest {
         Component newStrawBerryComponent = new Component();
         newStrawBerryComponent.setComponentName("Strawberry");
         newStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        newStrawBerryComponent.insertComponentRef(new TypeExtensionReference("Animal"));
+        newStrawBerryComponent.insertCmpRef(new TypeExtensionReference("Animal"));
 
         // Animal class has new field component
         Component newAnimalFieldComponent = new Component();
@@ -115,17 +115,17 @@ public class StriffCodeModelTest {
         newAnimalClassComponent.setComponentName("Animal");
         newAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
 
-        DiagramCodeModel newModel = new DiagramCodeModel(
+        StriffCodeModel newModel = new StriffCodeModel(
                 new DiagramComponent(newAnimalFieldComponent, null),
                 new DiagramComponent(newAnimalClassComponent, null),
                 new DiagramComponent(newStrawBerryComponent, null)
         );
 
-        // Because the Strawberry component directly references the Animal class which is a core component, it should be
-        // included as a context component.
-        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().size(), 1);
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel)).contextComponents().contains(
-                new DiagramComponent("Strawberry")));
+        // Although the Strawberry component directly references the Animal class which is a core
+        // component, it has no changes within it and should not be displayed
+        assertEquals(new StriffDiagramModel(new CodeDiff(oldModel, newModel)).diagramCmps().size(), 1);
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel)).diagramCmps().contains(
+            new DiagramComponent("Animal")));
     }
 
     @Test
@@ -138,15 +138,31 @@ public class StriffCodeModelTest {
         oldAnimalClassComponent.setComponentName("Animal");
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         oldAnimalClassComponent.setSourceFilePath("animal.java");
-        DiagramCodeModel oldModel = new DiagramCodeModel(
+        StriffCodeModel oldModel = new StriffCodeModel(
                 new DiagramComponent(oldAnimalClassComponent, null),
                 new DiagramComponent(oldStrawBerryComponent, null)
         );
-        DiagramCodeModel newModel = new DiagramCodeModel();
-        assertEquals(new StriffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
-                .coreComponents().size(), 1);
-        assertTrue(new StriffCodeModel(new DiffCodeModel(oldModel, newModel), Arrays.asList(new String[]{"animal.java"}))
-                .coreComponents()
+        StriffCodeModel newModel = new StriffCodeModel();
+        assertEquals(new StriffDiagramModel(new CodeDiff(oldModel, newModel),
+                                            Collections.singleton("animal.java"))
+                         .diagramCmps().size(), 1);
+        assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel),
+                                          Collections.singleton("animal.java"))
+                .diagramCmps()
                 .contains(new DiagramComponent("Animal")));
+    }
+
+    @Test
+    public void striffCodeModelIsEmpty() {
+        StriffCodeModel oldModel = new StriffCodeModel();
+        StriffCodeModel newModel = new StriffCodeModel();
+        assertTrue(new CodeDiff(
+            oldModel, newModel).changeSet().addedComponents().isEmpty());
+        assertTrue(new CodeDiff(
+            oldModel, newModel).changeSet().deletedComponents().isEmpty());
+        assertTrue(new CodeDiff(
+            oldModel, newModel).changeSet().addedRelations().allRels().isEmpty());
+        assertTrue(new CodeDiff(
+            oldModel, newModel).changeSet().deletedRelations().allRels().isEmpty());
     }
 }

@@ -1,7 +1,5 @@
 package com.hadii.striff.extractor;
 
-import com.hadii.striff.diagram.DiagramConstants;
-
 /**
  * Represents the multiplicity that can exist between two classes, implied
  * context is a UML Class Diagram.

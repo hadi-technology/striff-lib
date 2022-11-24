@@ -1,8 +1,9 @@
 package com.hadii.striff.diagram.plantuml;
 
+import com.hadii.striff.diagram.display.DiagramDisplay;
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.scheme.DiagramColorScheme;
-import com.hadii.striff.parse.DiffCodeModel;
+import com.hadii.striff.diagram.display.DiagramColorScheme;
+import com.hadii.striff.parse.CodeDiff;
 
 import java.util.Set;
 
@@ -13,13 +14,13 @@ final class PUMLClassDiagramCode {
     private final String code;
 
 
-    PUMLClassDiagramCode(final DiffCodeModel mergedModel, final DiagramColorScheme colorScheme,
-                                final Set<DiagramComponent> diagramComponents) {
+    PUMLClassDiagramCode(final CodeDiff codeDiff, final DiagramDisplay diagramDisplay,
+                         final Set<DiagramComponent> diagramComponents) {
         this.code = PLANT_UML_BEGIN_STRING
-                + plantUMLSkinParamText(colorScheme)
-                + new PUMLClassFieldsCode(diagramComponents, mergedModel, colorScheme).value()
+                + plantUMLSkinParamText(diagramDisplay.colorScheme())
+                + new PUMLPackageCode(diagramDisplay, codeDiff, diagramComponents).value()
                 + "\n"
-                + new PUMLClassRelationsCode(diagramComponents, mergedModel, colorScheme).value()
+                + new PUMLClassRelationsCode(diagramComponents, codeDiff, diagramDisplay).value()
                 + PLANT_UML_END_STRING;
     }
 
@@ -46,6 +47,8 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam classAttributeFontName " + colorScheme.classAttributeFontName()
                 + "\nskinparam titleFontColor " + colorScheme.titleFontColor()
                 + "\nskinparam packageBackgroundColor " + colorScheme.packageBackgroundColor()
+                + "\nskinparam groupInheritance 2"
+               // + "\nskinparam linetype polyline"
                 + "\nskinparam titleFontName " + colorScheme.titleFontName()
                 + "\nskinparam packageBorderColor " + colorScheme.packageBorderColor()
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()

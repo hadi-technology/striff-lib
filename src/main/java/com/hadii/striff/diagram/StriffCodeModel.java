@@ -6,20 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Decorates a {@link OOPSourceCodeModel} to facilitate generation of Stiff diagrams.
+ * Decorates a {@link OOPSourceCodeModel} to facilitate generation of Striff diagrams.
  */
-public class DiagramCodeModel {
+public class StriffCodeModel {
 
     private final Map<String, DiagramComponent> components = new HashMap<>();
 
-    public DiagramCodeModel(OOPSourceCodeModel srcModel) {
+    public StriffCodeModel(OOPSourceCodeModel srcModel) {
         srcModel.components().forEach(value -> {
             DiagramComponent dCmp = new DiagramComponent(value, srcModel);
             this.components.put(dCmp.uniqueName(), dCmp);
         });
     }
 
-    public DiagramCodeModel(DiagramComponent... components) {
+    public StriffCodeModel(DiagramComponent... components) {
         for (DiagramComponent component : components) {
             this.components.put(component.uniqueName(), component);
         }
@@ -37,15 +37,13 @@ public class DiagramCodeModel {
         return components.containsKey(key);
     }
 
-    public void addComponent(DiagramComponent component) {
-        this.components.put(component.uniqueName(), component);
+    public void addComponent(DiagramComponent cmp) {
+        this.components.put(cmp.uniqueName(), cmp);
     }
 
-    public DiagramCodeModel copy() {
-        DiagramCodeModel copy = new DiagramCodeModel();
-        this.components().forEach((key, value) -> {
-            copy.addComponent(value);
-        });
+    public StriffCodeModel copy() {
+        StriffCodeModel copy = new StriffCodeModel();
+        this.components().forEach((key, value) -> copy.addComponent(value));
         return copy;
     }
 }
