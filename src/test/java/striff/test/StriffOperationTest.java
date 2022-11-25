@@ -25,15 +25,13 @@ public class StriffOperationTest {
     public void testStriffsRespectSizeLimit() throws Exception {
         String baseRepoOwner = "Zir0-93";
         String repoName = "junit5";
-        int softMaxSizeLimit = 12;
         Lang language = Lang.JAVA;
         ProjectFiles oldFiles = githubProjectFiles(
             baseRepoOwner, repoName, "25d727a186a3151c6cf22619c989082cad39b543", language);
         ProjectFiles newFiles = githubProjectFiles(
             baseRepoOwner, repoName, "9743eb1808b3a991cfe672d9333d81b0f5fc1118", language);
         List<StriffDiagram> striffs = new StriffOperation(
-            oldFiles, newFiles, new StriffConfig(
-            softMaxSizeLimit)).result().diagrams();
+            oldFiles, newFiles).result().diagrams();
         assertEquals(striffs.size(), 1);
         assertEquals(striffs.get(0).containedPkgs().size(), 14);
         assertEquals(33, striffs.get(0).size());
@@ -90,7 +88,6 @@ public class StriffOperationTest {
 
     @Test(expected = NoStructuralChangesException.class)
     public void noChangesException() throws Exception {
-        new StriffOperation(new ProjectFiles(Lang.GOLANG), new ProjectFiles(Lang.GOLANG),
-                            new StriffConfig(1));
+        new StriffOperation(new ProjectFiles(Lang.GOLANG), new ProjectFiles(Lang.GOLANG));
     }
 }

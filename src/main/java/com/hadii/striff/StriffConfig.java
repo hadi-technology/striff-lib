@@ -26,6 +26,9 @@ public class StriffConfig {
      */
     public Set<String> filesFilter = Collections.emptySet();
 
+
+    public StriffConfig() { }
+
     public StriffConfig(OutputMode outputMode) {
         this.outputMode = outputMode;
     }
@@ -36,20 +39,14 @@ public class StriffConfig {
      * @param filesFilter A set of files to restrict the analysis of architectural differences to.
      * @param outputMode  Desired output mode for striff diagrams.
      */
-    public StriffConfig(List<String> filesFilter,
-                        OutputMode outputMode) {
+    public StriffConfig(List<String> filesFilter, OutputMode outputMode) {
         this(outputMode);
-        this.filesFilter = filesFilter.stream().filter(
-            file -> Lang.supportedSourceFileExtns().stream().anyMatch(
-                file::endsWith)).collect(Collectors.toSet());
+        this.filesFilter =
+            filesFilter.stream().filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith)).collect(Collectors.toSet());
         LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
     }
 
     public StriffConfig(List<String> filesFilter) {
         this(filesFilter, OutputMode.DEFAULT);
-    }
-
-    public StriffConfig(int softMaxSizeLimit) {
-        this(Collections.emptyList(), OutputMode.DEFAULT);
     }
 }

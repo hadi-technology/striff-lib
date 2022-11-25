@@ -22,11 +22,11 @@ public class StriffOperation {
 
     private final StriffDiagrams diagrams;
 
-    public StriffOperation(ProjectFiles originalFiles, ProjectFiles newFiles, StriffConfig config)
+    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config)
         throws NoStructuralChangesException, IOException, PUMLDrawException, CompileException {
-        validateFilterFiles(originalFiles, newFiles, config.filesFilter);
-        CompileResult originalCompileResult = new ClarpseProject(originalFiles).result();
-        CompileResult newCompileResult = new ClarpseProject(newFiles).result();
+        validateFilterFiles(originalPFs, newPFs, config.filesFilter);
+        CompileResult originalCompileResult = new ClarpseProject(originalPFs).result();
+        CompileResult newCompileResult = new ClarpseProject(newPFs).result();
         CodeDiff diffedModel = new CodeDiff(new StriffCodeModel(originalCompileResult.model()),
                                             new StriffCodeModel(newCompileResult.model()));
         Set<ProjectFile> combinedFailures = Stream.concat(
@@ -34,6 +34,11 @@ public class StriffOperation {
                                                       originalCompileResult.failures().stream())
                                                   .collect(Collectors.toSet());
         this.diagrams = new StriffDiagrams(diffedModel, config, combinedFailures);
+    }
+
+    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs) throws PUMLDrawException,
+        NoStructuralChangesException, CompileException, IOException {
+        this(originalPFs, newPFs, new StriffConfig());
     }
 
     private void validateFilterFiles(ProjectFiles originalFiles, ProjectFiles newFiles,
@@ -44,9 +49,9 @@ public class StriffOperation {
         }
     }
 
-    private boolean filterFilesExistInProjects(ProjectFiles originalFiles, ProjectFiles newFiles,
+    private boolean filterFilesExistInProjects(ProjectFiles originalPFs, ProjectFiles newPFs,
                                                Set<String> filesFilter) {
-        return Stream.concat(originalFiles.files().stream(), newFiles.files().stream()).map(
+        return Stream.concat(originalPFs.files().stream(), newPFs.files().stream()).map(
             ProjectFile::path).collect(Collectors.toSet()).containsAll(filesFilter);
     }
 
