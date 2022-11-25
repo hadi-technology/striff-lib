@@ -1,3 +1,4 @@
 target/*
 .idea/*
 striff-lib.iml
+.vscode/*

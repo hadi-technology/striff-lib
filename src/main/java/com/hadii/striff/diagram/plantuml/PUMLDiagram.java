@@ -16,7 +16,6 @@ public class PUMLDiagram {
     private final int size;
     private final String svgText;
     private static final Logger LOGGER = LogManager.getLogger(PUMLDiagram.class);
-    private String[] svgLines;
 
     public PUMLDiagram(final CodeDiff codeDiff, final Set<DiagramComponent> cmps,
                        final DiagramDisplay diagramDisplay) throws IOException, PUMLDrawException {

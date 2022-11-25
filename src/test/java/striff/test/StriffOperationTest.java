@@ -1,5 +1,15 @@
 package striff.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static striff.test.TestUtil.githubProjectFiles;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
+
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.compiler.ProjectFile;
 import com.hadii.clarpse.compiler.ProjectFiles;
@@ -8,18 +18,6 @@ import com.hadii.striff.StriffConfig;
 import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.StriffDiagram;
 import com.hadii.striff.diagram.display.OutputMode;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static striff.test.TestUtil.githubProjectFiles;
-import static striff.test.TestUtil.writeStriffsToDisk;
 
 public class StriffOperationTest {
 
@@ -67,7 +65,7 @@ public class StriffOperationTest {
         newFiles.insertFile(fileA);
         newFiles.insertFile(fileB);
         List<String> filesFilter = Collections.singletonList("/core/fileA.java");
-        List<StriffDiagram> striffs = new StriffOperation(
+        new StriffOperation(
             oldFiles, newFiles, new StriffConfig(filesFilter, OutputMode.DEFAULT)).result().diagrams();
     }
 

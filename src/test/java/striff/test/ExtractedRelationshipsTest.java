@@ -1,5 +1,13 @@
 package striff.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.compiler.ProjectFile;
@@ -10,21 +18,13 @@ import com.hadii.clarpse.reference.TypeImplementationReference;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.diagram.StriffCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
+import com.hadii.striff.diagram.StriffCodeModel;
+import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.extractor.DiagramConstants.ComponentAssociation;
 import com.hadii.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
-import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.extractor.ExtractedRelationships;
 import com.hadii.striff.extractor.RelationsMap;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests to ensure component relations are being extracted correctly.
@@ -431,7 +431,7 @@ public class ExtractedRelationshipsTest {
         structA.insertAccessModifier(OOPSourceModelConstants.AccessModifiers.PRIVATE.name());
         Component structB = setupComponent("structB", "structB", codeModel,
                                            OOPSourceModelConstants.ComponentType.STRUCT);
-        ComponentRelation expectedRelation = new ComponentRelation(
+        new ComponentRelation(
             new DiagramComponent(structA, new OOPSourceCodeModel()),
             new DiagramComponent(structB, new OOPSourceCodeModel()), null,
             ComponentAssociation.COMPOSITION);

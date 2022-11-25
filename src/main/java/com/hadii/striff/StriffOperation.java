@@ -1,5 +1,10 @@
 package com.hadii.striff;
 
+import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.CompileException;
 import com.hadii.clarpse.compiler.CompileResult;
@@ -9,20 +14,12 @@ import com.hadii.striff.diagram.StriffCodeModel;
 import com.hadii.striff.diagram.StriffDiagrams;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import com.hadii.striff.parse.CodeDiff;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Entry point for Stiff diagram generation.
  */
 public class StriffOperation {
 
-    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
     private final StriffDiagrams diagrams;
 
     public StriffOperation(ProjectFiles originalFiles, ProjectFiles newFiles, StriffConfig config)

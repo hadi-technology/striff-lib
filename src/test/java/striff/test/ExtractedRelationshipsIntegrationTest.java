@@ -1,17 +1,14 @@
 package striff.test;
 
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.striff.diagram.StriffCodeModel;
-import com.hadii.striff.extractor.DiagramConstants;
-import com.hadii.striff.extractor.ComponentRelation;
-import com.hadii.striff.extractor.ExtractedRelationships;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Set;
-
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.hadii.clarpse.compiler.Lang;
+import com.hadii.striff.diagram.StriffCodeModel;
+import com.hadii.striff.extractor.DiagramConstants;
+import com.hadii.striff.extractor.ExtractedRelationships;
 
 /**
  * Tests to ensure component relations are being extracted correctly.
@@ -29,7 +26,7 @@ public class ExtractedRelationshipsIntegrationTest {
 
     @Test
     public void spotCheckChartStructAggregationRelationships() {
-        Set<ComponentRelation> chartStructRelations = relations.result().rels(
+        relations.result().rels(
             codeModel.component("chart.Chart")
         );
         assertTrue(relations.result().rels(
