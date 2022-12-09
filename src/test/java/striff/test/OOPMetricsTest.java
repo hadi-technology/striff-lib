@@ -29,7 +29,7 @@ public class OOPMetricsTest {
         reqCon.insertFile(file3);
 
         final OOPSourceCodeModel codeModel = new ClarpseProject(reqCon.files(), reqCon.lang()).result().model();
-        assertEquals(3, new OOPMetricsProfile(codeModel.getComponent("test.ClassC").get(),
+        assertEquals(3.0, new OOPMetricsProfile(codeModel.getComponent("test.ClassC").get(),
                                               codeModel).dit());
     }
 
@@ -54,7 +54,7 @@ public class OOPMetricsTest {
 
         final OOPSourceCodeModel codeModel =
             new ClarpseProject(reqCon.files(), reqCon.lang()).result().model();
-        assertEquals(1, new OOPMetricsProfile(codeModel.getComponent("test.ClassD").get(),
+        assertEquals(1.0, new OOPMetricsProfile(codeModel.getComponent("test.ClassD").get(),
                                               codeModel).dit());
     }
 
@@ -77,7 +77,7 @@ public class OOPMetricsTest {
         final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
         final OOPSourceCodeModel codeModel = parseService.result().model();
 
-        assertEquals(4, new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(),
+        assertEquals(4.0, new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(),
                                               codeModel).dit());
     }
 
@@ -97,7 +97,7 @@ public class OOPMetricsTest {
         rawData.insertFile(new ProjectFile("/src/go.mod", "module module/module/module"));
         final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
         final OOPSourceCodeModel codeModel = parseService.result().model();
-        assertEquals(3, new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(),
+        assertEquals(3.0, new OOPMetricsProfile(codeModel.getComponent("main.ClassD").get(),
                                               codeModel).dit());
     }
 
