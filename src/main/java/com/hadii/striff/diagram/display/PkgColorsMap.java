@@ -29,11 +29,14 @@ public class PkgColorsMap {
     };
 
     static final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
+
+    private static final Random RANDOM = new Random();
+
     private final Map<String, String> pkgColorMap = new HashMap<>();
 
     public PkgColorsMap(Set<String> pkgs) {
         pkgs.forEach(pkg -> {
-            String currColor = this.pkgColors[new Random().nextInt(this.pkgColors.length)];
+            String currColor = this.pkgColors[RANDOM.nextInt(this.pkgColors.length)];
             this.pkgColorMap.put(pkg, currColor);
         });
     }

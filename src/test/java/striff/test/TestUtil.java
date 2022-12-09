@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,16 +38,16 @@ public class TestUtil {
     }
 
     public static OOPSourceCodeModel sourceCodeModel(String testResourceZip, Lang language) throws Exception {
-        final ProjectFiles projectFiles = new ProjectFiles(
+        final ProjectFiles pfs = new ProjectFiles(
             language, Objects.requireNonNull(Test.class.getResourceAsStream(testResourceZip)));
-        return new ClarpseProject(projectFiles).result().model();
+        return new ClarpseProject(pfs.files(), pfs.lang()).result().model();
     }
 
     public static ProjectFiles githubProjectFiles(String repoOwner, String repoName,
                                                   String ref, Lang lang)
         throws Exception {
         String url = "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/zipball/"
-            + URLEncoder.encode(ref.trim(), "UTF-8");
+            + URLEncoder.encode(ref.trim(), StandardCharsets.UTF_8);
         final URL repoUrl = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) repoUrl.openConnection();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

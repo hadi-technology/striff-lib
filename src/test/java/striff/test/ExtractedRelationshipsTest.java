@@ -38,11 +38,11 @@ public class ExtractedRelationshipsTest {
             + " public class ClassA {  private ArrayList<ClassB> b;}");
         final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public " +
             "class ClassB {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
-        ProjectFiles.insertFile(fileA);
-        ProjectFiles.insertFile(fileB);
+        final ProjectFiles pfs = new ProjectFiles(Lang.JAVA);
+        pfs.insertFile(fileA);
+        pfs.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(pfs.files(), pfs.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -64,7 +64,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -83,7 +83,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
@@ -103,7 +103,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
         Set<ComponentRelation> classBRelations = relations.result().rels(componentB);
@@ -122,7 +122,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -142,7 +142,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -162,7 +162,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentC = codeModel.component("com.sample.ClassC");
@@ -183,7 +183,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -204,7 +204,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -224,7 +224,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -245,7 +245,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -265,7 +265,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentE = codeModel.component("com.sample.ClassE");
@@ -286,7 +286,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -307,7 +307,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -327,7 +327,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -415,7 +415,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class PUMLDiagram {
             final long startTime = new Date().getTime();
             final String plantUMLString = genPlantUMLString();
             final byte[] diagram = PUMLHelper.generateDiagram(plantUMLString);
-            diagramStr = decorateClassTextObjsWithCmpIds(new String(diagram));
+            diagramStr = decorateClassTextObjsWithCmpIds(new String(diagram, StandardCharsets.UTF_8));
             LOGGER.info("Striff Diagram SVG text was generated in "
                             + (new Date().getTime() - startTime) + " milliseconds.");
             if (PUMLHelper.invalidPUMLDiagram(diagramStr)) {

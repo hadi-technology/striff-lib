@@ -28,10 +28,11 @@ public class PackagePartitionStrategyTest {
     public void testPackageBasedPartition() throws Exception {
         final ProjectFile fileA = new ProjectFile("ClassA.java", CLASS_A_CODE);
         final ProjectFile fileB = new ProjectFile("ClassB.java", CLASS_B_CODE);
-        final ProjectFiles files = new ProjectFiles(Lang.JAVA);
-        files.insertFile(fileA);
-        files.insertFile(fileB);
-        final StriffCodeModel codeModel = new StriffCodeModel(new ClarpseProject(files).result().model());
+        final ProjectFiles pfs = new ProjectFiles(Lang.JAVA);
+        pfs.insertFile(fileA);
+        pfs.insertFile(fileB);
+        final StriffCodeModel codeModel =
+            new StriffCodeModel(new ClarpseProject(pfs.files(), pfs.lang()).result().model());
         List<Set<DiagramComponent>> componentPartitions = new PackagePartitionStrategy(
             new StriffDiagramModel(new CodeDiff(new StriffCodeModel(), codeModel))).apply();
         assertEquals(2, componentPartitions.size());

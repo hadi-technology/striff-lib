@@ -25,8 +25,9 @@ public class StriffOperation {
     public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config)
         throws NoStructuralChangesException, IOException, PUMLDrawException, CompileException {
         validateFilterFiles(originalPFs, newPFs, config.filesFilter);
-        CompileResult originalCompileResult = new ClarpseProject(originalPFs).result();
-        CompileResult newCompileResult = new ClarpseProject(newPFs).result();
+        CompileResult originalCompileResult = new ClarpseProject(originalPFs.files(),
+                                                                 originalPFs.lang()).result();
+        CompileResult newCompileResult = new ClarpseProject(newPFs.files(), newPFs.lang()).result();
         CodeDiff diffedModel = new CodeDiff(new StriffCodeModel(originalCompileResult.model()),
                                             new StriffCodeModel(newCompileResult.model()));
         Set<ProjectFile> combinedFailures = Stream.concat(
