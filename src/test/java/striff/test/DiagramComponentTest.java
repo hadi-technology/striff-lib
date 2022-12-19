@@ -16,10 +16,10 @@ public class DiagramComponentTest {
     public void diagramComponentChildList() throws Exception {
         final String code = "package main\ntype ClassA struct { \n string \n Name []byte \n Label" +
             " string }";
-        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
-        rawData.insertFile(new ProjectFile("main.go", code));
-        rawData.insertFile(new ProjectFile("go.mod", "module module/module/module"));
-        final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
+        final ProjectFiles rawData = new ProjectFiles();
+        rawData.insertFile(new ProjectFile("/main.go", code));
+        rawData.insertFile(new ProjectFile("/go.mod", "module module/module/module"));
+        final ClarpseProject parseService = new ClarpseProject(rawData, Lang.GOLANG);
         final OOPSourceCodeModel codeModel = parseService.result().model();
         assertTrue(new DiagramComponent(codeModel.getComponent("main.ClassA").get(),
                                     codeModel).children().stream().anyMatch(s -> s.equals("main.ClassA.Name.Name : []byte")));
@@ -30,10 +30,10 @@ public class DiagramComponentTest {
     @Test
     public void fieldDiagramComponentUniqueName() throws Exception {
         final String code = "package main\ntype ClassA struct { \n Name []byte }";
-        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
-        rawData.insertFile(new ProjectFile("main.go", code));
-        rawData.insertFile(new ProjectFile("go.mod", "module module/module/module"));
-        final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
+        final ProjectFiles rawData = new ProjectFiles();
+        rawData.insertFile(new ProjectFile("/main.go", code));
+        rawData.insertFile(new ProjectFile("/go.mod", "module module/module/module"));
+        final ClarpseProject parseService = new ClarpseProject(rawData, Lang.GOLANG);
         final OOPSourceCodeModel codeModel = parseService.result().model();
         assertTrue(new DiagramComponent(codeModel.getComponent("main.ClassA.Name").get(), codeModel)
                                             .uniqueName().equals("main.ClassA.Name.Name : []byte"));
@@ -42,10 +42,10 @@ public class DiagramComponentTest {
     @Test
     public void fieldDiagramComponentPkg() throws Exception {
         final String code = "package main\ntype ClassA struct { \n Name []byte }";
-        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
-        rawData.insertFile(new ProjectFile("main.go", code));
-        rawData.insertFile(new ProjectFile("go.mod", "module module/module/module"));
-        final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
+        final ProjectFiles rawData = new ProjectFiles();
+        rawData.insertFile(new ProjectFile("/main.go", code));
+        rawData.insertFile(new ProjectFile("/go.mod", "module module/module/module"));
+        final ClarpseProject parseService = new ClarpseProject(rawData, Lang.GOLANG);
         final OOPSourceCodeModel codeModel = parseService.result().model();
         assertTrue(new DiagramComponent(codeModel.getComponent("main.ClassA.Name").get(), codeModel)
                        .packagePath().equals("main"));
@@ -54,10 +54,10 @@ public class DiagramComponentTest {
     @Test
     public void fieldDiagramComponentParentComponent() throws Exception {
         final String code = "package main\ntype ClassA struct { \n Name []byte }";
-        final ProjectFiles rawData = new ProjectFiles(Lang.GOLANG);
-        rawData.insertFile(new ProjectFile("main.go", code));
-        rawData.insertFile(new ProjectFile("go.mod", "module module/module/module"));
-        final ClarpseProject parseService = new ClarpseProject(rawData.files(), rawData.lang());
+        final ProjectFiles rawData = new ProjectFiles();
+        rawData.insertFile(new ProjectFile("/main.go", code));
+        rawData.insertFile(new ProjectFile("/go.mod", "module module/module/module"));
+        final ClarpseProject parseService = new ClarpseProject(rawData, Lang.GOLANG);
         final OOPSourceCodeModel codeModel = parseService.result().model();
         assertTrue(new DiagramComponent(codeModel.getComponent("main.ClassA.Name").get(), codeModel)
                        .parentUniqueName().equals("main.ClassA"));

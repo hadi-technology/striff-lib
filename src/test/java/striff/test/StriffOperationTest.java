@@ -2,12 +2,17 @@ package striff.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static striff.test.TestUtil.githubProjectFiles;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import com.hadii.clarpse.compiler.CompileException;
+import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import org.junit.Test;
 
 import com.hadii.clarpse.compiler.Lang;
@@ -22,7 +27,7 @@ import com.hadii.striff.diagram.display.OutputMode;
 public class StriffOperationTest {
 
     @Test
-    public void testStriffsRespectSizeLimit() throws Exception {
+    public void testBasicStriffOperation() throws Exception {
         String baseRepoOwner = "Zir0-93";
         String repoName = "junit5";
         Lang language = Lang.JAVA;
@@ -38,17 +43,67 @@ public class StriffOperationTest {
     }
 
     @Test
-    public void testEmptySourceFilesFilter() throws Exception {
-        final ProjectFile fileA = new ProjectFile("fileA", "public class ClassA {}");
-        final ProjectFile fileB = new ProjectFile("fileB", "public class ClassB {}");
-        final ProjectFiles oldFiles = new ProjectFiles(Lang.JAVA);
+    public void testLangSpecificStriffOperation() throws Exception {
+        String baseRepoOwner = "Zir0-93";
+        String repoName = "junit5";
+        Lang language = Lang.JAVA;
+        ProjectFiles oldFiles = githubProjectFiles(
+            baseRepoOwner, repoName, "25d727a186a3151c6cf22619c989082cad39b543", language);
+        ProjectFiles newFiles = githubProjectFiles(
+            baseRepoOwner, repoName, "9743eb1808b3a991cfe672d9333d81b0f5fc1118", language);
+        List<StriffDiagram> striffs = new StriffOperation(
+            oldFiles, newFiles, new StriffConfig(OutputMode.DEFAULT,
+                                                 List.of(Lang.GOLANG))).result().diagrams();
+        assertEquals(striffs.size(), 0);
+    }
+
+    @Test
+    public void testKeepRelevantCompileErrorsOnly() throws PUMLDrawException, CompileException, NoStructuralChangesException, IOException {
+        final ProjectFile fileA = new ProjectFile("/fileA.java", "publicad ; classdaw ClassA {}");
+        final ProjectFile fileB = new ProjectFile("/fileB.java", "public class ClassB {}");
+        final ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(fileA);
-        final ProjectFiles newFiles = new ProjectFiles(Lang.JAVA);
+        oldFiles.insertFile(fileB);
+        final ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(fileA);
+        newFiles.insertFile(fileB);
+        Set<String> compileErrors = new StriffOperation(
+            oldFiles, newFiles,
+            new StriffConfig(OutputMode.DEFAULT, List.of(Lang.JAVA))).result().compileWarnings();
+        // Empty files filter means changes across all files are included in generated striffs.
+        assertTrue(compileErrors.contains("/fileA.java"));
+    }
+
+    @Test
+    public void testAnalyzeSpecifiedFilterFilesOnly() throws PUMLDrawException, CompileException, NoStructuralChangesException, IOException {
+        final ProjectFile fileA = new ProjectFile("/fileA.java", "publicad ; classdaw ClassA {}");
+        final ProjectFile fileB = new ProjectFile("/fileB.java", "public class ClassB {}");
+        final ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(fileA);
+        oldFiles.insertFile(fileB);
+        final ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(fileA);
+        newFiles.insertFile(fileB);
+        Set<String> compileErrors = new StriffOperation(
+            oldFiles, newFiles,
+            new StriffConfig(OutputMode.DEFAULT, List.of("/fileB.java"))).result().compileWarnings();
+        // Empty files filter means changes across all files are included in generated striffs.
+        assertTrue(compileErrors.isEmpty());
+    }
+
+
+    @Test
+    public void testEmptySourceFilesFilterShowsAllDifferences() throws Exception {
+        final ProjectFile fileA = new ProjectFile("/fileA.java", "public class ClassA {}");
+        final ProjectFile fileB = new ProjectFile("/fileB.java", "public class ClassB {}");
+        final ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(fileA);
+        final ProjectFiles newFiles = new ProjectFiles();
         newFiles.insertFile(fileA);
         newFiles.insertFile(fileB);
         List<StriffDiagram> striffs = new StriffOperation(
             oldFiles, newFiles,
-            new StriffConfig(Collections.emptyList(), OutputMode.DEFAULT)).result().diagrams();
+            new StriffConfig(OutputMode.DEFAULT)).result().diagrams();
         assertFalse(striffs.isEmpty());
     }
 
@@ -57,14 +112,15 @@ public class StriffOperationTest {
         final ProjectFile fileA = new ProjectFile("/xfw3/core/fileA.java", "public class ClassA " +
             "{}");
         final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB {}");
-        final ProjectFiles oldFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(fileA);
-        final ProjectFiles newFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles newFiles = new ProjectFiles();
         newFiles.insertFile(fileA);
         newFiles.insertFile(fileB);
         List<String> filesFilter = Collections.singletonList("/core/fileA.java");
         new StriffOperation(
-            oldFiles, newFiles, new StriffConfig(filesFilter, OutputMode.DEFAULT)).result().diagrams();
+            oldFiles, newFiles,
+            new StriffConfig(OutputMode.DEFAULT, filesFilter)).result().diagrams();
     }
 
     @Test
@@ -72,9 +128,9 @@ public class StriffOperationTest {
         final ProjectFile fileA = new ProjectFile("/xfw3/core/fileA.java", "public class ClassA " +
             "{}");
         final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB {}");
-        final ProjectFiles oldFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(fileA);
-        final ProjectFiles newFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles newFiles = new ProjectFiles();
         newFiles.insertFile(fileA);
         newFiles.insertFile(fileB);
         List<String> filesFilter = Arrays.asList(
@@ -82,12 +138,8 @@ public class StriffOperationTest {
             "/xfw3/core/fileB.java"
         );
         List<StriffDiagram> striffs = new StriffOperation(
-            oldFiles, newFiles, new StriffConfig(filesFilter, OutputMode.DEFAULT)).result().diagrams();
+            oldFiles, newFiles, new StriffConfig(
+                OutputMode.DEFAULT, filesFilter)).result().diagrams();
         assert(!striffs.isEmpty());
-    }
-
-    @Test(expected = NoStructuralChangesException.class)
-    public void noChangesException() throws Exception {
-        new StriffOperation(new ProjectFiles(Lang.GOLANG), new ProjectFiles(Lang.GOLANG));
     }
 }

@@ -39,8 +39,8 @@ public class TestUtil {
 
     public static OOPSourceCodeModel sourceCodeModel(String testResourceZip, Lang language) throws Exception {
         final ProjectFiles pfs = new ProjectFiles(
-            language, Objects.requireNonNull(Test.class.getResourceAsStream(testResourceZip)));
-        return new ClarpseProject(pfs.files(), pfs.lang()).result().model();
+            Objects.requireNonNull(Test.class.getResourceAsStream(testResourceZip)));
+        return new ClarpseProject(pfs, language).result().model();
     }
 
     public static ProjectFiles githubProjectFiles(String repoOwner, String repoName,
@@ -52,7 +52,7 @@ public class TestUtil {
         HttpURLConnection conn = (HttpURLConnection) repoUrl.openConnection();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copy(new BufferedInputStream(conn.getInputStream(), 1024), baos);
-        ProjectFiles files = new ProjectFiles(lang, new ByteArrayInputStream(baos.toByteArray()));
+        ProjectFiles files = new ProjectFiles(new ByteArrayInputStream(baos.toByteArray()));
         files.shiftSubDirsLeft();
         return files;
     }

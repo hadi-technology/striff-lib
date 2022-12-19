@@ -5,7 +5,6 @@ import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.striff.StriffConfig;
 import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.StriffDiagram;
-import com.hadii.striff.diagram.display.OutputMode;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,10 +27,10 @@ public class StriffAPITest {
     public void testDemonstrateStriffAPI() throws Exception {
         // Note, a ProjectFiles instance can be instantiated with a path to a dir, zip file, or
         // ZipInputStream representing your source code.
-        ProjectFiles originalCode = new ProjectFiles(Lang.JAVA, "/path/to/original/code");
-        ProjectFiles modifiedCode = new ProjectFiles(Lang.JAVA, "/path/to/modified/code");
+        ProjectFiles originalCode = new ProjectFiles("/path/to/original/code");
+        ProjectFiles modifiedCode = new ProjectFiles("/path/to/modified/code");
         List<StriffDiagram> striffs = new StriffOperation(
-            originalCode, modifiedCode, new StriffConfig(OutputMode.DEFAULT)).result().diagrams();
+            originalCode, modifiedCode, new StriffConfig()).result().diagrams();
         System.out.println("Total diagrams generated: " + striffs.size());
         writeStriffsToDisk(striffs, "sample-striffs");
     }
@@ -51,7 +50,7 @@ public class StriffAPITest {
         ProjectFiles newFiles = githubProjectFiles(
             baseRepoOwner, repoName, "718b6937415dd825383641f9ddb00ce12f4640fb", language);
         List<StriffDiagram> striffs = new StriffOperation(
-            oldFiles, newFiles, new StriffConfig(OutputMode.DEFAULT)).result().diagrams();
+            oldFiles, newFiles, new StriffConfig()).result().diagrams();
         System.out.println("Total diagrams generated: " + striffs.size());
         writeStriffsToDisk(striffs, "github-striffs-demo");
     }

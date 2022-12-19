@@ -1,13 +1,5 @@
 package striff.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.compiler.ProjectFile;
@@ -25,6 +17,13 @@ import com.hadii.striff.extractor.DiagramConstants.ComponentAssociation;
 import com.hadii.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
 import com.hadii.striff.extractor.ExtractedRelationships;
 import com.hadii.striff.extractor.RelationsMap;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests to ensure component relations are being extracted correctly.
@@ -33,16 +32,16 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaCompositionRelationExists() throws Exception {
-        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import" +
+        final ProjectFile fileA = new ProjectFile("/ClassA.java", "package com.sample;" + " import" +
             " java.util.ArrayList;"
             + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public " +
+        final ProjectFile fileB = new ProjectFile("/ClassB.java", "package com.sample; public " +
             "class ClassB {}");
-        final ProjectFiles pfs = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles pfs = new ProjectFiles();
         pfs.insertFile(fileA);
         pfs.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(pfs.files(), pfs.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(pfs, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -50,21 +49,22 @@ public class ExtractedRelationshipsTest {
                        classARelations.stream().findFirst().get().originalComponent().name().equals(
                            "ClassA") &&
                        classARelations.stream().findFirst().get().targetComponent().name().equals("ClassB") &&
-                       classARelations.stream().findFirst().get().associationType() == 
-                       ComponentAssociation.COMPOSITION);
+                       classARelations.stream().findFirst().get().associationType() ==
+                           ComponentAssociation.COMPOSITION);
     }
+
     @Test
     public void testJavaCompositionRelationMultiplicities() throws Exception {
-        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import" +
+        final ProjectFile fileA = new ProjectFile("/ClassA.java", "package com.sample;" + " import" +
             " java.util.ArrayList;"
             + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public " +
+        final ProjectFile fileB = new ProjectFile("/ClassB.java", "package com.sample; public " +
             "class ClassB {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -74,16 +74,16 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaCompositionRelationTypes() throws Exception {
-        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import" +
+        final ProjectFile fileA = new ProjectFile("/ClassA.java", "package com.sample;" + " import" +
             " java.util.ArrayList;"
             + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public " +
+        final ProjectFile fileB = new ProjectFile("/ClassB.java", "package com.sample; public " +
             "class ClassB {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
@@ -94,16 +94,16 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaRelationDoesNotExist() throws Exception {
-        final ProjectFile fileA = new ProjectFile("ClassA.java", "package com.sample;" + " import" +
+        final ProjectFile fileA = new ProjectFile("/ClassA.java", "package com.sample;" + " import" +
             " java.util.ArrayList;"
             + " public class ClassA {  private ArrayList<ClassB> b;}");
-        final ProjectFile fileB = new ProjectFile("ClassB.java", "package com.sample; public " +
+        final ProjectFile fileB = new ProjectFile("/ClassB.java", "package com.sample; public " +
             "class ClassB {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(fileA);
         ProjectFiles.insertFile(fileB);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentB = codeModel.component("com.sample.ClassB");
         Set<ComponentRelation> classBRelations = relations.result().rels(componentB);
@@ -112,17 +112,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaRealizationRelationExists() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + " public class ClassA " +
                                                      "implements ClassC {}");
-        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassC.java", "package com.sample; public " +
             "interface ClassC {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -132,17 +132,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaRealizationRelationMultiplicities() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + " public class ClassA " +
                                                      "implements ClassC {}");
-        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassC.java", "package com.sample; public " +
             "interface ClassC {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -152,17 +152,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaRealizationRelationTypes() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + " public class ClassA " +
                                                      "implements ClassC {}");
-        final ProjectFile file2 = new ProjectFile("ClassC.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassC.java", "package com.sample; public " +
             "interface ClassC {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentC = codeModel.component("com.sample.ClassC");
@@ -173,38 +173,39 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaSpecializationRelationExists() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "public class ClassA extends" +
                                                      " ClassD {}");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         Assert.assertSame(classARelations.stream().findFirst().get().associationType(),
                           ComponentAssociation.SPECIALIZATION);
-        assertEquals("com.sample.ClassD", classARelations.stream().findFirst().get().targetComponent().uniqueName());
+        assertEquals("com.sample.ClassD",
+                     classARelations.stream().findFirst().get().targetComponent().uniqueName());
     }
 
     @Test
     public void testJavaSpecializationRelationMultiplicity() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "public class ClassA extends" +
                                                      " ClassD {}");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -214,17 +215,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaSpecializationRelationTypes() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "public class ClassA extends" +
                                                      " ClassD {}");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -235,17 +236,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaAssociationRelationExists() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + "import java.util" +
                                                      ".ArrayList;" + "public class ClassA { " +
                                                      "ClassE aMethod() {}}");
-        final ProjectFile file2 = new ProjectFile("ClassE.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassE.java", "package com.sample; public " +
             "class ClassE {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -255,17 +256,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaAssociationRelationTypes() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + "import java.util" +
                                                      ".ArrayList;" + "public class ClassA { " +
                                                      "ClassE aMethod() {}}");
-        final ProjectFile file2 = new ProjectFile("ClassE.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassE.java", "package com.sample; public " +
             "class ClassE {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentE = codeModel.component("com.sample.ClassE");
@@ -276,38 +277,39 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaLocalVarAssociationRelationExists() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "class ClassA { void test ()" +
                                                      " { ClassD d; } }");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         Assert.assertSame(classARelations.stream().findFirst().get().associationType(),
                           ComponentAssociation.WEAK_ASSOCIATION);
-        assertEquals("com.sample.ClassD", classARelations.stream().findFirst().get().targetComponent().uniqueName());
+        assertEquals("com.sample.ClassD",
+                     classARelations.stream().findFirst().get().targetComponent().uniqueName());
     }
 
     @Test
     public void testJavaLocalVarAssociationRelationMultiplicity() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "class ClassA { void test ()" +
                                                      " { ClassD d; } }");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
@@ -317,17 +319,17 @@ public class ExtractedRelationshipsTest {
 
     @Test
     public void testJavaLocalVarAssociationRelationTypes() throws Exception {
-        final ProjectFile file = new ProjectFile("ClassA.java",
+        final ProjectFile file = new ProjectFile("/ClassA.java",
                                                  "package com.sample;" + " import java.util" +
                                                      ".ArrayList;" + "class ClassA { void test ()" +
                                                      " { ClassD d; } }");
-        final ProjectFile file2 = new ProjectFile("ClassD.java", "package com.sample; public " +
+        final ProjectFile file2 = new ProjectFile("/ClassD.java", "package com.sample; public " +
             "class ClassD {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("com.sample.ClassA");
         DiagramComponent componentD = codeModel.component("com.sample.ClassD");
@@ -368,11 +370,13 @@ public class ExtractedRelationshipsTest {
         cmpB.setComponentName("classB");
         cmpB.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         ComponentRelation linkA = new ComponentRelation(
-            new DiagramComponent(cmpA,new OOPSourceCodeModel()),
-            new DiagramComponent(cmpB, new OOPSourceCodeModel()), null, ComponentAssociation.REALIZATION);
+            new DiagramComponent(cmpA, new OOPSourceCodeModel()),
+            new DiagramComponent(cmpB, new OOPSourceCodeModel()), null,
+            ComponentAssociation.REALIZATION);
         ComponentRelation linkB = new ComponentRelation(
             new DiagramComponent(cmpA, new OOPSourceCodeModel()),
-            new DiagramComponent(cmpB, new OOPSourceCodeModel()), null, ComponentAssociation.ASSOCIATION);
+            new DiagramComponent(cmpB, new OOPSourceCodeModel()), null,
+            ComponentAssociation.ASSOCIATION);
         assert (linkA.hashCode() == linkB.hashCode());
     }
 
@@ -396,7 +400,8 @@ public class ExtractedRelationshipsTest {
             ComponentAssociation.COMPOSITION);
         ComponentRelation linkB = new ComponentRelation(
             new DiagramComponent(cmpB, new OOPSourceCodeModel()),
-            new DiagramComponent(cmpC, new OOPSourceCodeModel()), null, ComponentAssociation.COMPOSITION);
+            new DiagramComponent(cmpC, new OOPSourceCodeModel()), null,
+            ComponentAssociation.COMPOSITION);
         assert (linkA.hashCode() != linkB.hashCode());
     }
 
@@ -408,20 +413,21 @@ public class ExtractedRelationshipsTest {
     public void testRelationOverridingBetweenComponentPairs() throws Exception {
         // Class A uses Class B in two areas (Return type and method param). There however should
         // only be ONE ASSOCIATION relation from ClassA -> ClassE
-        final ProjectFile file = new ProjectFile("ClassA.java", "public class ClassA { ClassB " +
+        final ProjectFile file = new ProjectFile("/ClassA.java", "public class ClassA { ClassB " +
             "classB1;\n void aMethod(ClassB classB2) {}}");
-        final ProjectFile file2 = new ProjectFile("ClassB.java", "public class ClassB {}");
-        final ProjectFiles ProjectFiles = new ProjectFiles(Lang.JAVA);
+        final ProjectFile file2 = new ProjectFile("/ClassB.java", "public class ClassB {}");
+        final ProjectFiles ProjectFiles = new ProjectFiles();
         ProjectFiles.insertFile(file);
         ProjectFiles.insertFile(file2);
         final StriffCodeModel codeModel =
-            new StriffCodeModel(new ClarpseProject(ProjectFiles.files(), ProjectFiles.lang()).result().model());
+            new StriffCodeModel(new ClarpseProject(ProjectFiles, Lang.JAVA).result().model());
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         DiagramComponent componentA = codeModel.component("ClassA");
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertTrue(classARelations.size() == 2 && classARelations.stream().findFirst().get().associationType() ==
             ComponentAssociation.AGGREGATION);
     }
+
     @Test
     public void testRelationsGeneratedFromNonBaseComponentsOnly() {
         OOPSourceCodeModel codeModel = new OOPSourceCodeModel();
@@ -446,7 +452,7 @@ public class ExtractedRelationshipsTest {
         Component structA = setupComponent("structA", "structA", codeModel,
                                            OOPSourceModelConstants.ComponentType.STRUCT);
         Component structAField = setupComponent("fieldVar", "structA.fieldVar", codeModel,
-                                           OOPSourceModelConstants.ComponentType.FIELD);
+                                                OOPSourceModelConstants.ComponentType.FIELD);
         structA.insertChildComponent("structA.fieldVar");
         structAField.insertCmpRef(new SimpleTypeReference("structB"));
         structAField.insertAccessModifier(
@@ -483,17 +489,18 @@ public class ExtractedRelationshipsTest {
             new ExtractedRelationships(new StriffCodeModel(codeModel));
         assertTrue(relations.result().contains(expectedRelation));
     }
+
     @Test
     public void testGenericMethodAssociationRelationExists() {
         OOPSourceCodeModel codeModel = new OOPSourceCodeModel();
         Component classA = setupComponent("classA", "classA", codeModel,
-                                           OOPSourceModelConstants.ComponentType.CLASS);
+                                          OOPSourceModelConstants.ComponentType.CLASS);
         Component classAMethod = setupComponent("methodA", "classA.methodA", codeModel,
                                                 OOPSourceModelConstants.ComponentType.METHOD);
         classA.insertChildComponent("classA.methodA");
         classAMethod.insertCmpRef(new SimpleTypeReference("classB"));
         Component classB = setupComponent("classB", "classB", codeModel,
-                                           OOPSourceModelConstants.ComponentType.CLASS);
+                                          OOPSourceModelConstants.ComponentType.CLASS);
         ComponentRelation expectedRelation = new ComponentRelation(
             new DiagramComponent(classA, new OOPSourceCodeModel()),
             new DiagramComponent(classB, new OOPSourceCodeModel()), null,
@@ -537,7 +544,8 @@ public class ExtractedRelationshipsTest {
         assertTrue(relations.result().contains(expectedRelation));
     }
 
-    private Component setupComponent(String name, String componentName, OOPSourceCodeModel codeModel,
+    private Component setupComponent(String name, String componentName,
+                                     OOPSourceCodeModel codeModel,
                                      OOPSourceModelConstants.ComponentType type) {
         Component cmp = new Component();
         cmp.setName(name);
