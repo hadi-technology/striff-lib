@@ -11,6 +11,8 @@ import com.hadii.striff.diagram.StriffCodeModel;
 import com.hadii.striff.diagram.StriffOutput;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import com.hadii.striff.parse.CodeDiff;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -23,16 +25,19 @@ import java.util.stream.Stream;
  */
 public class StriffOperation {
 
+    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
+
     private final StriffOutput striffOutput;
 
-    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config) throws IOException, PUMLDrawException, CompileException, NoStructuralChangesException {
+    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config) throws IOException, PUMLDrawException, CompileException {
+        LOGGER.info("Starting new operation with config: " + config);
         validatePFs(originalPFs, newPFs, config.filesFilter);
         HashSet<ProjectFile> allFailures = new HashSet<>();
         CodeDiff diffedModel = generateCodeDiff(originalPFs, newPFs, config, allFailures);
         this.striffOutput = new StriffOutput(diffedModel, config, allFailures);
     }
 
-    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs) throws PUMLDrawException, CompileException, IOException, NoStructuralChangesException {
+    public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs) throws PUMLDrawException, CompileException, IOException {
         this(originalPFs, newPFs, new StriffConfig());
     }
 
@@ -49,16 +54,19 @@ public class StriffOperation {
             oldModel.merge(oldCR.model());
             newModel.merge(newCR.model());
         }
+        LOGGER.info("Generating code diff b/w old and new code models..");
         return new CodeDiff(new StriffCodeModel(oldModel),
                             new StriffCodeModel(newModel));
     }
 
     private void validatePFs(ProjectFiles originalFiles, ProjectFiles newFiles,
                              Set<String> filesFilter) {
+        LOGGER.info("Validating input project files..");
         if (!filterFilesExistInProjects(originalFiles, newFiles, filesFilter)) {
             throw new IllegalArgumentException("One or more filter file paths are invalid: " + filesFilter + ".");
         }
         if (!filesFilter.isEmpty()) {
+            LOGGER.info("Filter files list is not empty, filtering down project files..");
             originalFiles.filter(filesFilter);
             newFiles.filter(filesFilter);
         }

@@ -20,15 +20,13 @@ public class StriffConfig {
     private static final Logger LOGGER = LogManager.getLogger(StriffConfig.class);
 
     public OutputMode outputMode = OutputMode.DEFAULT;
-
-    private Set<Lang> languages = new HashSet<>(Lang.supportedLanguages());
-
     /**
      * Optional set of source files to restrict the analysis of architectural differences
      * to *specific* source files. When an empty set is provided, striffs will display
      * architectural differences encountered across all source files.
      */
     public Set<String> filesFilter = Collections.emptySet();
+    private Set<Lang> languages = new HashSet<>(Lang.supportedLanguages());
 
 
     public StriffConfig() { }
@@ -62,12 +60,19 @@ public class StriffConfig {
      * @param languages   Desired programming languages to use for the analysis.
      * @param filesFilter A set of files to restrict the analysis of architectural differences to.
      */
-    public StriffConfig(OutputMode outputMode, Collection<Lang> languages, List<String> filesFilter) {
+    public StriffConfig(OutputMode outputMode, Collection<Lang> languages,
+                        List<String> filesFilter) {
         this(outputMode, languages);
         this.languages = new HashSet<>(Lang.supportedLanguages());
         this.filesFilter =
             filesFilter.stream().filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith)).collect(Collectors.toSet());
         LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
+    }
+
+    @Override
+    public String toString() {
+        return "Output Mode: " + this.outputMode + ", Languages: " + this.languages + ", Filter "
+            + "Files: " + this.filesFilter;
     }
 
     public Set<Lang> languages() {

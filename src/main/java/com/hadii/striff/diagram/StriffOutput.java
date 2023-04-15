@@ -61,9 +61,11 @@ public class StriffOutput {
 
     private void generateDiagrams(CodeDiff mergedModel, Pair<PartitionStrategy,
         PartitionPlacement> partitionConf) throws IOException, PUMLDrawException {
+        LOGGER.info("Generating diagram with partition conf: " + partitionConf);
         PartitionPlacement placementStrategy = partitionConf.getRight();
         PartitionStrategy partitionStrategy = partitionConf.getLeft();
         List<Set<DiagramComponent>> cmpPartitions = partitionStrategy.apply();
+        LOGGER.info(cmpPartitions.size() + " partitions were generated.");
         if (placementStrategy == PartitionPlacement.ONE_PER_DIAGRAM) {
             for (Set<DiagramComponent> currPartition : cmpPartitions) {
                 this.insertDiagram(new StriffDiagram(mergedModel, currPartition,
@@ -80,6 +82,7 @@ public class StriffOutput {
             throw new IllegalArgumentException("Placement strategy " + placementStrategy + " is "
                                                    + "not supported!");
         }
+        LOGGER.info(this.diagrams.size() + " diagrams were generated.");
     }
 
     private Set<String> cmpPkgs(Set<DiagramComponent> cmps) {

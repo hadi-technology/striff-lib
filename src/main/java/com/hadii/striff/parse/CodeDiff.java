@@ -5,6 +5,8 @@ import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.StriffCodeModel;
 import com.hadii.striff.extractor.ExtractedRelationships;
 import com.hadii.striff.extractor.RelationsMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public class CodeDiff {
     private final StriffCodeModel mergedModel;
     private final ChangeSet changeSet;
     private final ExtractedRelationships relations;
+    private static final Logger LOGGER = LogManager.getLogger(CodeDiff.class);
 
     /**
      * Merges the newer source code mergedModel onto the older source code mergedModel.
@@ -24,6 +27,7 @@ public class CodeDiff {
         StriffCodeModel newerModelCopy = newerModel.copy();
         this.changeSet = new ChangeSet(olderModel, newerModelCopy);
         // Inefficient way to merge the given sets of components..
+        LOGGER.info("Merging old and new code models..");
         for (DiagramComponent oldCmp : olderModel.components().values()) {
             boolean existsInNewerSet = false;
             if (newerModelCopy.containsComponent(oldCmp.uniqueName())) {

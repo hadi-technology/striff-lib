@@ -20,6 +20,7 @@ public class PUMLDiagram {
 
     public PUMLDiagram(final CodeDiff codeDiff, final Set<DiagramComponent> cmps,
                        final DiagramDisplay diagramDisplay) throws IOException, PUMLDrawException {
+        LOGGER.info("Generating PlantUML diagram..");
         this.classDiagramDescription =
             new PUMLClassDiagramCode(codeDiff, diagramDisplay, cmps).code();
         this.size = cmps.size();

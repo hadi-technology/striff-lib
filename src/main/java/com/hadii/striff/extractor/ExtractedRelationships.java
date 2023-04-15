@@ -22,6 +22,7 @@ public class ExtractedRelationships {
     private static final Logger LOGGER = LogManager.getLogger(ExtractedRelationships.class);
 
     public ExtractedRelationships(final StriffCodeModel sourceCodeModel) {
+        LOGGER.info("Extracting relationships from source code model..");
         final Map<String, DiagramComponent> components = sourceCodeModel.components();
         for (final Map.Entry<String, DiagramComponent> entry : components.entrySet()) {
             final DiagramComponent tempClass = entry.getValue();
@@ -29,20 +30,6 @@ public class ExtractedRelationships {
             if (cmpType.isBaseComponent() || cmpType.isMethodComponent() || cmpType == ComponentType.FIELD) {
                 collectComponentRelations(tempClass, components);
             }
-        }
-    }
-
-    public ExtractedRelationships(ExtractedRelationships... extractedRelationships) {
-        for (ExtractedRelationships extractedRelationship : extractedRelationships) {
-            for (ComponentRelation componentRelation : extractedRelationship.result().allRels()) {
-                this.relationMap.insertRelation(componentRelation);
-            }
-        }
-    }
-
-    public ExtractedRelationships(Set<ComponentRelation> cmpRelations) {
-        for (ComponentRelation componentRelation : cmpRelations) {
-            this.relationMap.insertRelation(componentRelation);
         }
     }
 

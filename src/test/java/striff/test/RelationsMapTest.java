@@ -118,4 +118,16 @@ public class RelationsMapTest {
         assertSame(relMap.mostSignificantRelation(classA, classB).associationType(),
                    ComponentAssociation.AGGREGATION);
     }
+
+    @Test
+    public void testRelSize() {
+        RelationsMap relMap = new RelationsMap();
+        ComponentRelation rel1 = new ComponentRelation(
+            classA, classB, null, ComponentAssociation.ASSOCIATION);
+        relMap.insertRelation(rel1);
+        relMap.insertRelation(new ComponentRelation(
+            classA, classB, null, ComponentAssociation.AGGREGATION));
+        assertEquals(2, relMap.size());
+        assertEquals(2, relMap.allRels().size());
+    }
 }

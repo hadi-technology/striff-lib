@@ -9,7 +9,7 @@
         <Logger name="net.sourceforge.plantuml" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="com.hadii.clarpse" level="debug" additivity="false">
+        <Logger name="com.hadii.clarpse" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="debug">

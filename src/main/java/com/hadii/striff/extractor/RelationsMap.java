@@ -19,12 +19,12 @@ public class RelationsMap {
      */
     private final Map<DiagramComponent, Map<DiagramComponent, TreeSet<ComponentRelation>>> relMap = new HashMap<>();
 
+    private int size = 0;
     public Set<ComponentRelation> rels(DiagramComponent cmp) {
         if (hasRels(cmp)) {
             return this.relMap.get(cmp).values().stream().flatMap(Set::stream).collect(Collectors.toSet());
         }
         return Collections.emptySet();
-
     }
 
     /**
@@ -58,8 +58,12 @@ public class RelationsMap {
             this.relMap.get(rel.originalComponent()).put(rel.targetComponent(), new TreeSet<>());
         }
         this.relMap.get(rel.originalComponent()).get(rel.targetComponent()).add(rel);
+        this.size += 1;
     }
 
+    public int size() {
+        return this.size;
+    }
     public boolean hasRels(DiagramComponent cmp) {
         return this.relMap.containsKey(cmp) && !this.relMap.get(cmp).isEmpty();
     }

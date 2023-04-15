@@ -11,5 +11,4 @@ public interface PartitionStrategy {
      * Returns the final set of partitioned components.
      */
     List<Set<DiagramComponent>> apply();
-
 }

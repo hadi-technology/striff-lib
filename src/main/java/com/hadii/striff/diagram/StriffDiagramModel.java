@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.hadii.striff.ChangeSet;
 import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.parse.CodeDiff;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,12 +22,14 @@ public class StriffDiagramModel {
     private final Set<DiagramComponent> diagramCmps = new HashSet<>();
     private final Set<ComponentRelation> contextRelations = new HashSet<>();
     private Set<ComponentRelation> coreRelations = new HashSet<>();
+    private static final Logger LOGGER = LogManager.getLogger(StriffDiagramModel.class);
 
     public StriffDiagramModel(CodeDiff codeDiff) {
         this(codeDiff, Collections.emptySet());
     }
 
     public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter) {
+        LOGGER.info("Generating diagram model..");
         calculateCoreBaseCmps(codeDiff, sourceFilesFilter);
         calculateCoreRels(codeDiff.changeSet());
     }
@@ -51,11 +55,13 @@ public class StriffDiagramModel {
                 }
             }
         });
+        LOGGER.info(this.diagramCmps.size() + " components will be displayed.");
     }
 
     private void calculateCoreRels(ChangeSet changeSet) {
         this.coreRelations = Stream.of(changeSet.addedRelations().allRels(),
                                        changeSet.deletedRelations().allRels()).flatMap(Collection::stream).collect(Collectors.toSet());
+        LOGGER.info(this.coreRelations.size() + " relations will be displayed.");
     }
 
     public Set<DiagramComponent> allBaseCmps() {

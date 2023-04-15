@@ -1,9 +1,15 @@
 package striff.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static striff.test.TestUtil.githubProjectFiles;
+import com.hadii.clarpse.compiler.CompileException;
+import com.hadii.clarpse.compiler.Lang;
+import com.hadii.clarpse.compiler.ProjectFile;
+import com.hadii.clarpse.compiler.ProjectFiles;
+import com.hadii.striff.StriffConfig;
+import com.hadii.striff.StriffOperation;
+import com.hadii.striff.diagram.StriffDiagram;
+import com.hadii.striff.diagram.display.OutputMode;
+import com.hadii.striff.diagram.plantuml.PUMLDrawException;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -11,18 +17,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.hadii.clarpse.compiler.CompileException;
-import com.hadii.striff.diagram.plantuml.PUMLDrawException;
-import org.junit.Test;
-
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.striff.NoStructuralChangesException;
-import com.hadii.striff.StriffConfig;
-import com.hadii.striff.StriffOperation;
-import com.hadii.striff.diagram.StriffDiagram;
-import com.hadii.striff.diagram.display.OutputMode;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static striff.test.TestUtil.githubProjectFiles;
 
 public class StriffOperationTest {
 
@@ -58,7 +56,8 @@ public class StriffOperationTest {
     }
 
     @Test
-    public void testKeepRelevantCompileErrorsOnly() throws PUMLDrawException, CompileException, NoStructuralChangesException, IOException {
+    public void testKeepRelevantCompileErrorsOnly() throws PUMLDrawException, CompileException,
+        IOException {
         final ProjectFile fileA = new ProjectFile("/fileA.java", "publicad ; classdaw ClassA {}");
         final ProjectFile fileB = new ProjectFile("/fileB.java", "public class ClassB {}");
         final ProjectFiles oldFiles = new ProjectFiles();
@@ -75,7 +74,8 @@ public class StriffOperationTest {
     }
 
     @Test
-    public void testAnalyzeSpecifiedFilterFilesOnly() throws PUMLDrawException, CompileException, NoStructuralChangesException, IOException {
+    public void testAnalyzeSpecifiedFilterFilesOnly() throws PUMLDrawException, CompileException,
+        IOException {
         final ProjectFile fileA = new ProjectFile("/fileA.java", "publicad ; classdaw ClassA {}");
         final ProjectFile fileB = new ProjectFile("/fileB.java", "public class ClassB {}");
         final ProjectFiles oldFiles = new ProjectFiles();
@@ -111,7 +111,8 @@ public class StriffOperationTest {
     public void testNonMatchingSourceFilesFilterException() throws Exception {
         final ProjectFile fileA = new ProjectFile("/xfw3/core/fileA.java", "public class ClassA " +
             "{}");
-        final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB {}");
+        final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB " +
+            "{}");
         final ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(fileA);
         final ProjectFiles newFiles = new ProjectFiles();
@@ -127,7 +128,8 @@ public class StriffOperationTest {
     public void testMatchingSourceFilesFilter() throws Exception {
         final ProjectFile fileA = new ProjectFile("/xfw3/core/fileA.java", "public class ClassA " +
             "{}");
-        final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB {}");
+        final ProjectFile fileB = new ProjectFile("/xfw3/core/fileB.java", "public class ClassB " +
+            "{}");
         final ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(fileA);
         final ProjectFiles newFiles = new ProjectFiles();
@@ -139,7 +141,7 @@ public class StriffOperationTest {
         );
         List<StriffDiagram> striffs = new StriffOperation(
             oldFiles, newFiles, new StriffConfig(
-                OutputMode.DEFAULT, filesFilter)).result().diagrams();
-        assert(!striffs.isEmpty());
+            OutputMode.DEFAULT, filesFilter)).result().diagrams();
+        assert (!striffs.isEmpty());
     }
 }

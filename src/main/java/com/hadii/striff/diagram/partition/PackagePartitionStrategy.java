@@ -32,4 +32,9 @@ public final class PackagePartitionStrategy implements PartitionStrategy {
         return this.partitions;
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+
 }

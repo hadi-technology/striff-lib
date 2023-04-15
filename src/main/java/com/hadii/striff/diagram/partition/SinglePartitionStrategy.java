@@ -22,4 +22,9 @@ public final class SinglePartitionStrategy implements PartitionStrategy {
     public List<Set<DiagramComponent>> apply() {
         return this.partitions;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 }

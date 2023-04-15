@@ -4,6 +4,8 @@ import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.StriffCodeModel;
 import com.hadii.striff.extractor.ExtractedRelationships;
 import com.hadii.striff.extractor.RelationsMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -20,6 +22,7 @@ public final class ChangeSet {
     private final Set<DiagramComponent> deletedComponents;
     private final Set<DiagramComponent> keyRelationsComponents = new HashSet<>();
     private final Set<DiagramComponent> modifiedComponents;
+    private static final Logger LOGGER = LogManager.getLogger(ChangeSet.class);
 
     /**
      * A representation of the changes between an original and final code base.
@@ -27,6 +30,7 @@ public final class ChangeSet {
      * @param newModel The final source code model
      */
     public ChangeSet(StriffCodeModel oldModel, StriffCodeModel newModel) {
+        LOGGER.info("Generating changeset between old and new code models..");
         RelationsMap oldExtractedRels = new ExtractedRelationships(oldModel).result();
         RelationsMap newExtractedRels = new ExtractedRelationships(newModel).result();
 
@@ -37,6 +41,7 @@ public final class ChangeSet {
                 this.addedComponents.add(entry.getValue());
             }
         }
+        LOGGER.info("Found " + this.addedComponents.size() + " added components.");
 
         // Form a list of all deleted components.
         this.deletedComponents = new HashSet<>();
@@ -45,16 +50,25 @@ public final class ChangeSet {
                 this.deletedComponents.add(entry.getValue());
             }
         }
+        LOGGER.info("Found " + this.deletedComponents.size() + " deleted components.");
 
         // Form a list of all the new component relationships.
-
-
         newExtractedRels.allRels().forEach(relation -> {
             if (!oldExtractedRels.contains(relation)) {
                 this.addedRelations.insertRelation(relation);
                 this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
             }
         });
+        LOGGER.info("Found " + this.addedRelations.size() + " added relations.");
+
+        // Form a list of all relationships that do not exist anymore.
+        oldExtractedRels.allRels().forEach(relation -> {
+            if (!newExtractedRels.contains(relation)) {
+                this.deletedRelations.insertRelation(relation);
+                this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
+            }
+        });
+        LOGGER.info("Found " + this.deletedRelations.size() + " deleted relations.");
 
         // Form a list of all components whose implementations have changed.
         this.modifiedComponents = new HashSet<>();
@@ -65,14 +79,7 @@ public final class ChangeSet {
                 }
             }
         }
-
-        // Form a list of all relationships that do not exist anymore.
-        oldExtractedRels.allRels().forEach(relation -> {
-        if (!newExtractedRels.contains(relation)) {
-            this.deletedRelations.insertRelation(relation);
-            this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
-            }
-        });
+        LOGGER.info("Found " + this.modifiedComponents.size() + " modified components.");
     }
 
     private void addKeyRelComponents(DiagramComponent... keyRelCmps) {
