@@ -25,7 +25,7 @@ final class PUMLClassFieldsCode {
     private final DiagramDisplay diagramDisplay;
 
     PUMLClassFieldsCode(Map<String, DiagramComponent> allComponents, ChangeSet changeSet,
-                        DiagramDisplay diagramDisplay) {
+            DiagramDisplay diagramDisplay) {
         this.allComponents = allComponents;
         this.addedComponents = changeSet.addedComponents();
         this.deletedComponents = changeSet.deletedComponents();
@@ -40,8 +40,10 @@ final class PUMLClassFieldsCode {
             List<String> componentPUMLStrings = new ArrayList<>();
             if (cmp.modifiers().contains(
                     // Insert abstract keyword if cmp is Abstract class
-                    OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
-                cmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.ABSTRACT)
+                    OOPSourceModelConstants.getJavaAccessModifierMap()
+                            .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
+                cmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
+                        .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT)
                         + " ");
             }
             boolean largeComponent = cmp.children().size() > MAX_ATTRIBUTE_SIZE;
@@ -52,7 +54,7 @@ final class PUMLClassFieldsCode {
             // Insert cmp display name
             if (largeComponent) {
                 cmpPUMLStr += cmp.name() + " <b><color:"
-                    + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
+                        + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
                 cmpPUMLStr += cmp.name() + "\"";
             }
@@ -83,11 +85,11 @@ final class PUMLClassFieldsCode {
                     diagramComponent -> diagramComponent.componentType().isMethodComponent())
                     .collect(Collectors.toSet());
             Set<DiagramComponent> fieldChilds = childComponents.stream().filter(
-                    diagramComponent ->
-                        diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT
-                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT
-                            || diagramComponent.componentType()
-                            == OOPSourceModelConstants.ComponentType.FIELD)
+                    diagramComponent -> diagramComponent
+                            .componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT
+                            || diagramComponent
+                                    .componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.FIELD)
                     .collect(Collectors.toSet());
             // Insert PUML text for field children
             boolean zeroFields = true;
@@ -134,7 +136,7 @@ final class PUMLClassFieldsCode {
                     if (zeroFields && zeroMethods) {
                         componentPUMLStrings.add(1, componentDoc + "\n");
                     } else {
-                        componentPUMLStrings.add(1, componentDoc + "\n--\n");
+                        componentPUMLStrings.add(1, componentDoc + "--\n");
                     }
                 }
             }
@@ -155,16 +157,19 @@ final class PUMLClassFieldsCode {
         if ((childCmp.componentType() == OOPSourceModelConstants.ComponentType.METHOD)
                 || childCmp.componentType().isVariableComponent()) {
             if (!childCmp.componentType().isBaseComponent()) {
-                // if the field/method is abstract or static, add the {abstract}/{static} prefix..
+                // if the field/method is abstract or static, add the {abstract}/{static}
+                // prefix..
                 if (childCmp.modifiers().contains(
-                        OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
+                        OOPSourceModelConstants.getJavaAccessModifierMap()
+                                .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
                     childCmpPUMLStr += ("{");
                     childCmpPUMLStr += OOPSourceModelConstants.getJavaAccessModifierMap()
                             .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT);
                     childCmpPUMLStr += ("} ");
                 }
                 if (childCmp.modifiers().contains(
-                        OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.STATIC))) {
+                        OOPSourceModelConstants.getJavaAccessModifierMap()
+                                .get(OOPSourceModelConstants.AccessModifiers.STATIC))) {
                     childCmpPUMLStr += ("{");
                     childCmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
                             .get(OOPSourceModelConstants.AccessModifiers.STATIC));
@@ -187,8 +192,8 @@ final class PUMLClassFieldsCode {
     private String getChildCmpDisplayText(DiagramComponent childCmp) {
         String childCmpDisplayText = "";
         if (childCmp.componentType().isMethodComponent()
-            || (childCmp.componentType().isVariableComponent()
-            && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
+                || (childCmp.componentType().isVariableComponent()
+                        && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
             childCmpDisplayText = childCmp.codeFragment();
         }
         if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT) {
@@ -200,13 +205,16 @@ final class PUMLClassFieldsCode {
     private String visibilitySymbol(DiagramComponent childCmp) {
         String visibilitySymbol = "";
         if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.PUBLIC))) {
+                OOPSourceModelConstants.getJavaAccessModifierMap()
+                        .get(OOPSourceModelConstants.AccessModifiers.PUBLIC))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PUBLIC.getUMLClassDigramSymbol() + " ";
         } else if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.PRIVATE))) {
+                OOPSourceModelConstants.getJavaAccessModifierMap()
+                        .get(OOPSourceModelConstants.AccessModifiers.PRIVATE))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PRIVATE.getUMLClassDigramSymbol() + " ";
         } else if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap().get(OOPSourceModelConstants.AccessModifiers.PROTECTED))) {
+                OOPSourceModelConstants.getJavaAccessModifierMap()
+                        .get(OOPSourceModelConstants.AccessModifiers.PROTECTED))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PROTECTED.getUMLClassDigramSymbol() + " ";
         } else {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.NONE.getUMLClassDigramSymbol() + " ";
@@ -231,7 +239,8 @@ final class PUMLClassFieldsCode {
     }
 
     /**
-     * Used for coloring the background of a specific child component (method, field, etc..)
+     * Used for coloring the background of a specific child component (method,
+     * field, etc..)
      * within a base component.
      */
     private String colorChildComponentBackground(DiagramComponent childComponent, String text) {
@@ -239,13 +248,13 @@ final class PUMLClassFieldsCode {
             return text;
         } else if (addedComponents.contains(childComponent)) {
             return "<back:" + this.diagramDisplay.colorScheme().addedComponentColor()
-                + ">" + text + "</back>         ";
+                    + ">" + text + "</back>         ";
         } else if (deletedComponents.contains(childComponent)) {
             return "<back:" + this.diagramDisplay.colorScheme().deletedComponentColor() + ">"
-                + text + "</back>         ";
+                    + text + "</back>         ";
         } else if (modifiedComponents.contains(childComponent)) {
             return "<back:" + this.diagramDisplay.colorScheme().modifiedComponentColor() + ">"
-                + text + "</back>         ";
+                    + text + "</back>         ";
         } else {
             return text;
         }
@@ -257,8 +266,7 @@ final class PUMLClassFieldsCode {
     private String enhanceBaseCmp(DiagramComponent cmp, String text) {
         String addedColor = this.diagramDisplay.colorScheme().addedComponentColor().replace("#", "");
         String deletedColor = this.diagramDisplay.colorScheme().deletedComponentColor().replace("#", "");
-        String backgroundColorText =
-            "#back:" + this.diagramDisplay.colorScheme().backgroundColor().replace("#", "");
+        String backgroundColorText = "#back:" + this.diagramDisplay.colorScheme().backgroundColor().replace("#", "");
         String headerColor = ";header:" + this.diagramDisplay.colorScheme().defaultClassHeaderColor().replace("#", "");
         if (addedComponents.contains(cmp)) {
             backgroundColorText = "#back:" + addedColor;
