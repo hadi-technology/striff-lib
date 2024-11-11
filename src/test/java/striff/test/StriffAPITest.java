@@ -5,12 +5,9 @@ import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.striff.StriffConfig;
 import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.StriffDiagram;
-import com.hadii.striff.diagram.display.OutputMode;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static striff.test.TestUtil.githubProjectFiles;
@@ -33,7 +30,8 @@ public class StriffAPITest {
         @Test
         public void testDemonstrateStriffAPI() throws Exception {
                 // Note, a ProjectFiles instance can be instantiated with a path to a dir, zip
-                // file, or ZipInputStream representing your source code.
+                // file, or
+                // ZipInputStream representing your source code.
                 ProjectFiles originalCode = new ProjectFiles("/path/to/original/code");
                 ProjectFiles modifiedCode = new ProjectFiles("/path/to/modified/code");
                 List<StriffDiagram> striffs = new StriffOperation(
@@ -46,18 +44,19 @@ public class StriffAPITest {
          * We can also generate striffs based on a Pull Request in GitHub. Ensure
          * the source code refs exist and are still available before running.
          */
+        @Ignore
         @Test
         public void testDemonstrateStriffAPIWithPR() throws Exception {
-                String baseRepoOwner = "hadii-tech";
-                String repoName = "striff-lib";
+                String baseRepoOwner = "junit-team";
+                String repoName = "junit5";
                 Lang language = Lang.JAVA;
                 ProjectFiles oldFiles = githubProjectFiles(
-                                baseRepoOwner, repoName, "master", language);
+                                baseRepoOwner, repoName, "01353cddca2768d51f811ed464737a2087876e3e", language);
                 ProjectFiles newFiles = githubProjectFiles(
-                                baseRepoOwner, repoName, "oop-metrics", language);
+                                baseRepoOwner, repoName, "718b6937415dd825383641f9ddb00ce12f4640fb", language);
                 List<StriffDiagram> striffs = new StriffOperation(
                                 oldFiles, newFiles, new StriffConfig()).result().diagrams();
                 System.out.println("Total diagrams generated: " + striffs.size());
-                writeStriffsToDisk(striffs, "striff-lib");
+                writeStriffsToDisk(striffs, "github-striffs-demo");
         }
 }
