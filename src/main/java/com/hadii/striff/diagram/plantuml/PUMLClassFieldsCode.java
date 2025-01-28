@@ -1,36 +1,40 @@
 package com.hadii.striff.diagram.plantuml;
 
+import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.ChangeSet;
 import com.hadii.striff.diagram.DiagramComponent;
+import com.hadii.striff.diagram.display.MetricBadges;
 import com.hadii.striff.diagram.display.DiagramDisplay;
 import com.hadii.striff.text.StiffComponentDocText;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 final class PUMLClassFieldsCode {
 
     private static final int MAX_ATTRIBUTE_SIZE = 20;
-    private final Map<String, DiagramComponent> allComponents;
-    private final Set<DiagramComponent> deletedComponents;
-    private final Set<DiagramComponent> addedComponents;
-    private final Set<DiagramComponent> modifiedComponents;
+    private final OOPSourceCodeModel mergedModel;
+    private final Set<String> deletedComponents;
+    private final Set<String> addedComponents;
+    private final Set<String> modifiedComponents;
     private final DiagramDisplay diagramDisplay;
+    private int commentTextIndex = 1;
+    private static final Logger LOGGER = LogManager.getLogger(PUMLClassFieldsCode.class);
 
-    PUMLClassFieldsCode(Map<String, DiagramComponent> allComponents, ChangeSet changeSet,
-            DiagramDisplay diagramDisplay) {
-        this.allComponents = allComponents;
-        this.addedComponents = changeSet.addedComponents();
-        this.deletedComponents = changeSet.deletedComponents();
-        this.modifiedComponents = changeSet.modifiedComponents();
-        this.diagramDisplay = diagramDisplay;
+    PUMLClassFieldsCode(PUMLDiagramData data) {
+        this.mergedModel = data.mergedModel();
+        this.addedComponents = data.addedCmps();
+        this.deletedComponents = data.deletedCmps();
+        this.modifiedComponents = data.modifiedCmps();
+        this.diagramDisplay = data.diagramDisplay();
     }
 
     public String value(Collection<DiagramComponent> cmps) {
@@ -70,12 +74,25 @@ final class PUMLClassFieldsCode {
             }
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
+            // Insert metrics
+            try {
+                if (cmp.hasMetricChange()) {
+                    this.commentTextIndex = 2;
+                    componentPUMLStrings
+                            .add(new MetricBadges(diagramDisplay.colorScheme()).metricBadges(cmp.getMetricChange(),
+                                    this.deletedComponents.contains(cmp.uniqueName()),
+                                    this.addedComponents.contains(cmp.uniqueName())));
+                }
+            } catch (Exception e) {
+                LOGGER.error("Could not generate badges!", e);
+                componentPUMLStrings.add("---\n");
+            }
             // Stores the required length of lines in the cmp's doc text preamble
             int docTextCharLen = 80;
             // Get all child components
             Set<DiagramComponent> childComponents = new HashSet<>();
             cmp.children().forEach(s -> {
-                DiagramComponent childComponent = allComponents.get(s);
+                DiagramComponent childComponent = new DiagramComponent(mergedModel.getComponent(s).get(), mergedModel);
                 if (childComponent != null) {
                     childComponents.add(childComponent);
                 }
@@ -134,9 +151,9 @@ final class PUMLClassFieldsCode {
                 if (!componentDoc.isEmpty()) {
                     // Only insert line if the cmp displays children
                     if (zeroFields && zeroMethods) {
-                        componentPUMLStrings.add(1, componentDoc + "\n");
+                        componentPUMLStrings.add(this.commentTextIndex, componentDoc + "\n");
                     } else {
-                        componentPUMLStrings.add(1, componentDoc + "--\n");
+                        componentPUMLStrings.add(this.commentTextIndex, componentDoc + "--\n");
                     }
                 }
             }
@@ -147,9 +164,9 @@ final class PUMLClassFieldsCode {
 
     private boolean shouldDisplayChildCmp(boolean isLargeParentCmp, DiagramComponent childComponent) {
         return !isLargeParentCmp
-                || addedComponents.contains(childComponent)
-                || deletedComponents.contains(childComponent)
-                || modifiedComponents.contains(childComponent);
+                || addedComponents.contains(childComponent.uniqueName())
+                || deletedComponents.contains(childComponent.uniqueName())
+                || modifiedComponents.contains(childComponent.uniqueName());
     }
 
     private String childComponentPUMLText(DiagramComponent childCmp) {
@@ -246,13 +263,13 @@ final class PUMLClassFieldsCode {
     private String colorChildComponentBackground(DiagramComponent childComponent, String text) {
         if (text.trim().isEmpty()) {
             return text;
-        } else if (addedComponents.contains(childComponent)) {
+        } else if (addedComponents.contains(childComponent.uniqueName())) {
             return "<back:" + this.diagramDisplay.colorScheme().addedComponentColor()
                     + ">" + text + "</back>         ";
-        } else if (deletedComponents.contains(childComponent)) {
+        } else if (deletedComponents.contains(childComponent.uniqueName())) {
             return "<back:" + this.diagramDisplay.colorScheme().deletedComponentColor() + ">"
                     + text + "</back>         ";
-        } else if (modifiedComponents.contains(childComponent)) {
+        } else if (modifiedComponents.contains(childComponent.uniqueName())) {
             return "<back:" + this.diagramDisplay.colorScheme().modifiedComponentColor() + ">"
                     + text + "</back>         ";
         } else {
@@ -268,9 +285,9 @@ final class PUMLClassFieldsCode {
         String deletedColor = this.diagramDisplay.colorScheme().deletedComponentColor().replace("#", "");
         String backgroundColorText = "#back:" + this.diagramDisplay.colorScheme().backgroundColor().replace("#", "");
         String headerColor = ";header:" + this.diagramDisplay.colorScheme().defaultClassHeaderColor().replace("#", "");
-        if (addedComponents.contains(cmp)) {
+        if (addedComponents.contains(cmp.uniqueName())) {
             backgroundColorText = "#back:" + addedColor;
-        } else if (deletedComponents.contains(cmp)) {
+        } else if (deletedComponents.contains(cmp.uniqueName())) {
             backgroundColorText = "#back:" + deletedColor;
         }
         text += " " + backgroundColorText + headerColor;

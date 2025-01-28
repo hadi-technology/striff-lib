@@ -1,15 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.hadii-tech</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5.2</version>
+	<version>2.0.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadii-tech/striff-lib</url>
 	<properties>
-		<java.version>11</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<aspectj.version>1.9.7</aspectj.version>
 	</properties>
 	<licenses>
 		<license>
@@ -31,24 +34,16 @@
 		<developerConnection>scm:git:ssh://github.com/hadii-tech/striff.git</developerConnection>
 		<url>https://github.com/hadii-tech/striff.git</url>
 	</scm>
-	<repositories>
-		<repository>
-			<id>netbeans</id>
-			<name>NetBeans</name>
-			<url>https://netbeans.apidesign.org/maven2/</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>com.github.hadii-tech</groupId>
 			<artifactId>clarpse</artifactId>
-			<version>7.1.1</version>
+			<version>7.1.4</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
 		<dependency>
-			<groupId>org.gephi</groupId>
-			<artifactId>gephi-toolkit</artifactId>
-			<version>0.9.2</version>
+			<groupId>io.github.dsibilio</groupId>
+			<artifactId>badge-maker</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -56,9 +51,44 @@
 			<version>20180130</version>
 		</dependency>
 		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-transcoder</artifactId>
+			<version>1.16</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-codec</artifactId>
+			<version>1.16</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.16</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>2.0.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -73,7 +103,7 @@
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
 			<artifactId>plantuml</artifactId>
-			<version>1.2020.8</version>
+			<version>1.2020.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -101,7 +131,7 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.7</version>
 		</dependency>
-    </dependencies>
+	</dependencies>
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -137,10 +167,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.10.1</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>${maven.compiler.target}</source>
+					<target>${maven.compiler.target}</target>
 					<compilerArgument>-Xlint:all</compilerArgument>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
@@ -154,6 +184,21 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 					<appendAssemblyId>false</appendAssemblyId>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>dev.aspectj</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.14</version>
+				<configuration>
+					<forceAjcCompile>true</forceAjcCompile>
+					<sources />
+					<weaveDirectories>
+						<weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+					</weaveDirectories>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<complianceLevel>${maven.compiler.target}</complianceLevel>
 				</configuration>
 			</plugin>
 			<plugin>

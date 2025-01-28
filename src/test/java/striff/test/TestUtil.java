@@ -5,7 +5,8 @@ import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.striff.diagram.StriffDiagram;
-import org.apache.commons.compress.utils.IOUtils;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;

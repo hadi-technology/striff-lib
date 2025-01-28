@@ -13,17 +13,18 @@ import static org.junit.Assert.assertFalse;
 public class StriffConfigTest {
 
     @Test
-    public void testEmptyStriffConfigDefaults()  {
+    public void testEmptyStriffConfigDefaults() {
         StriffConfig sC = new StriffConfig();
         assertEquals(Lang.supportedLanguages().size(), sC.languages().size());
-        assertEquals(OutputMode.DEFAULT, sC.outputMode);
-        assertEquals(0, sC.filesFilter.size());
+        assertEquals(OutputMode.DEFAULT, sC.outputMode());
+        assertEquals(0, sC.filesFilter().size());
     }
 
     @Test
-    public void testGetRidofNonValidFileFilterExtns()  {
-        StriffConfig sC = new StriffConfig(OutputMode.DEFAULT, List.of(new String[] {"src.java",
-        "lol.cakes"}));
-        assertFalse(sC.filesFilter.contains("lol.cakes"));
+    public void testGetRidofNonValidFileFilterExtns() {
+        StriffConfig sC = new StriffConfig()
+                .setOutputMode(OutputMode.DEFAULT).setFilesFilter(List.of(new String[] { "src.java",
+                        "lol.cakes" }));
+        assertFalse(sC.filesFilter().contains("lol.cakes"));
     }
 }

@@ -3,65 +3,60 @@ package com.hadii.striff.metrics;
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 
-/**
- * A Profile of various OOP related Metrics.
- */
-public class OOPMetricsProfile {
+import java.util.HashSet;
+import java.util.Set;
 
-    private final OOPSourceCodeModel srcModel;
-    private final NOCMetric nocMetric;
-    private final DITMetric ditMetric;
-    private final WeightedMethodComplexity weightedMethodComplexityMetric;
-    private final AfferentCouplingMetric afferentCouplingMetric;
-    private EncapsulationMetric encapsulationMetric;
-    private EfferentCouplingMetric efferentCouplingMetric;
+public class OOPMetricsProfile {
+    private final OOPMetricsIndex index;
+
+    public OOPMetricsProfile(OOPSourceCodeModel srcModel, Set<String> targetComponents) {
+        this.index = new OOPMetricsIndex(srcModel, targetComponents);
+    }
 
     public OOPMetricsProfile(OOPSourceCodeModel srcModel) {
-        this.srcModel = srcModel;
-        this.nocMetric = new NOCMetric(srcModel);
-        this.ditMetric = new DITMetric(srcModel);
-        this.weightedMethodComplexityMetric = new WeightedMethodComplexity(srcModel);
-        this.afferentCouplingMetric = new AfferentCouplingMetric(srcModel);
-        this.efferentCouplingMetric = new EfferentCouplingMetric(srcModel);
-        this.encapsulationMetric = new EncapsulationMetric(srcModel);
+        this(srcModel, new HashSet<String>());
+    }
+
+    public double noc(Component cmp) {
+        validateCmp(cmp);
+        return index.getNOC(cmp.uniqueName());
+    }
+
+    public double dit(Component cmp) {
+        validateCmp(cmp);
+        return index.getDIT(cmp.uniqueName());
+    }
+
+    public double weightedMethodComplexity(Component cmp) {
+        validateCmp(cmp);
+        return index.getWMC(cmp.uniqueName());
+    }
+
+    public double afferentCoupling(Component cmp) {
+        validateCmp(cmp);
+        return index.getAfferentCoupling(cmp.uniqueName());
+    }
+
+    public double efferentCoupling(Component cmp) {
+        validateCmp(cmp);
+        return index.getEfferentCoupling(cmp.uniqueName());
+    }
+
+    public double encapsulation(Component cmp) {
+        validateCmp(cmp);
+        return index.getEncapsulation(cmp.uniqueName());
+    }
+
+    public OOPSourceCodeModel getSourceModel() {
+        return this.index.getSourceModel();
     }
 
     private void validateCmp(Component cmp) {
-        if (!this.srcModel.containsComponent(cmp.uniqueName())) {
+        if (!this.index.getSourceModel().containsComponent(cmp.uniqueName())) {
             throw new IllegalArgumentException("Component: " + cmp.componentName() + " was not found!");
         }
         if (!cmp.componentType().isBaseComponent()) {
             throw new IllegalArgumentException("OOP Metrics may only be generated for base component types!");
         }
-    }
-
-    public double noc(Component cmp) {
-        this.validateCmp(cmp);
-        return this.nocMetric.value(cmp.uniqueName());
-    }
-
-    public double dit(Component cmp) {
-        this.validateCmp(cmp);
-        return this.ditMetric.value(cmp.uniqueName());
-    }
-
-    public double weightedMethodComplexity(Component cmp) {
-        this.validateCmp(cmp);
-        return this.weightedMethodComplexityMetric.value(cmp.uniqueName());
-    }
-
-    public double afferentCoupling(Component cmp) {
-        this.validateCmp(cmp);
-        return this.afferentCouplingMetric.value(cmp.uniqueName());
-    }
-
-    public double efferentCoupling(Component cmp) {
-        this.validateCmp(cmp);
-        return this.efferentCouplingMetric.value(cmp.uniqueName());
-    }
-
-    public double encapsulation(Component cmp) {
-        this.validateCmp(cmp);
-        return this.encapsulationMetric.value(cmp.uniqueName());
     }
 }

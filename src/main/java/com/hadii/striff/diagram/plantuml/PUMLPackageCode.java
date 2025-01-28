@@ -1,28 +1,25 @@
 package com.hadii.striff.diagram.plantuml;
 
+import com.hadii.striff.diagram.ComponentHelper;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.parse.CodeDiff;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 
-final class PUMLPackageCode {
-
-
+public class PUMLPackageCode {
     private final String code;
 
-    PUMLPackageCode(DiagramDisplay diagramDisplay, CodeDiff codeDiff,
-                    Set<DiagramComponent> diagramComponents) {
-        this.code = this.generate(diagramDisplay, codeDiff, diagramComponents);
+    PUMLPackageCode(PUMLDiagramData data) {
+        this.code = this.generate(data);
     }
 
-    private String generate(DiagramDisplay diagramDisplay, CodeDiff codeDiff,
-                            Set<DiagramComponent> diagramComponents) {
+    private String generate(PUMLDiagramData data) {
         StringBuffer stringBuffer = new StringBuffer();
+        DiagramDisplay diagramDisplay = data.diagramDisplay();
+        Set<DiagramComponent> diagramCmps = data.diagramCmps();
         diagramDisplay.pkgColorMappings().forEach(entry -> {
             Set<DiagramComponent> pkgBaseCmps =
-                diagramComponents.stream().filter(cmp -> cmp.packagePath().equals(
+                diagramCmps.stream().filter(cmp -> ComponentHelper.packagePath(cmp.pkg()).equals(
                     entry.getKey()) && cmp.componentType().isBaseComponent())
                                  .collect(Collectors.toSet());
             if (entry.getKey() == null || entry.getKey().isEmpty()) {
@@ -35,9 +32,7 @@ final class PUMLPackageCode {
                         .append(" ")
                         .append(entry.getValue())
                         .append(" {\n")
-                        .append(new PUMLClassFieldsCode(codeDiff.components(),
-                                                        codeDiff.changeSet(),
-                                                        diagramDisplay).value(pkgBaseCmps))
+                        .append(new PUMLClassFieldsCode(data).value(pkgBaseCmps))
                         .append("}\n");
         });
         return stringBuffer.toString();

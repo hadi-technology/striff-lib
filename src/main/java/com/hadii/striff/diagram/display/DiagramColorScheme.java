@@ -14,6 +14,8 @@ public interface DiagramColorScheme {
 
     String objectColorBackground();
 
+    String classFontSize();
+
     String classArrowFontColor();
 
     String classArrowFontSize();

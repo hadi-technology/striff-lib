@@ -1,6 +1,5 @@
 package com.hadii.striff.diagram.display;
 
-
 public class LightDiagramColorScheme implements DiagramColorScheme {
 
     public static final String PACKAGE_BG_COLOR = "#E0E0E0";
@@ -9,6 +8,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     @Override
     public String defaultFontName() {
         return "Consolas,Menlo,Liberation Mono";
+    }
+
+    @Override
+    public String classFontSize() {
+        return "12";
     }
 
     @Override
@@ -48,7 +52,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classFontColor() {
-        return objectColorBackground();
+        return "#FFDEAD";
     }
 
     @Override
@@ -133,7 +137,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classBorderColor() {
-        return classAttributeFontColor();
+        return DEFAULT_CLASS_HEADER_COLOR;
     }
 
     @Override
@@ -168,7 +172,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classStereoTypeFontColor() {
-        return "#888888";
+        return "#000";
     }
 
     @Override

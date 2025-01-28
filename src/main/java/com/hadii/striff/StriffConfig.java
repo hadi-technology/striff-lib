@@ -1,6 +1,8 @@
 package com.hadii.striff;
 
 import com.hadii.clarpse.compiler.Lang;
+import com.hadii.striff.diagram.display.DiagramColorScheme;
+import com.hadii.striff.diagram.display.LightDiagramColorScheme;
 import com.hadii.striff.diagram.display.OutputMode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,69 +15,94 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Config object used to inform the striff generation process.
+ * Config object used to inform the striff generation process with a fluent
+ * interface design.
  */
 public class StriffConfig {
 
     private static final Logger LOGGER = LogManager.getLogger(StriffConfig.class);
 
-    public OutputMode outputMode = OutputMode.DEFAULT;
+    private OutputMode outputMode = OutputMode.DEFAULT;
     /**
-     * Optional set of source files to restrict the analysis of architectural differences
-     * to *specific* source files. When an empty set is provided, striffs will display
-     * architectural differences encountered across all source files.
+     * Optional set of source files to restrict the analysis of architectural
+     * differences to *specific* source files. When an empty set is provided,
+     * striffs will display architectural differences encountered across all source
+     * files.
      */
-    public Set<String> filesFilter = Collections.emptySet();
+    private Set<String> filesFilter = Collections.emptySet();
     private Set<Lang> languages = new HashSet<>(Lang.supportedLanguages());
+    private boolean processMetrics = true;
+    // Control for SVG code generation
+    private boolean metadataOnly = false;
+    private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
 
+    public StriffConfig() {
+    }
 
-    public StriffConfig() { }
+    public static StriffConfig create() {
+        return new StriffConfig();
+    }
 
-    public StriffConfig(OutputMode outputMode, Collection<Lang> languages) {
+    public StriffConfig setOutputMode(OutputMode outputMode) {
         this.outputMode = outputMode;
+        return this;
+    }
+
+    public StriffConfig setFilesFilter(List<String> filesFilter) {
+        this.filesFilter = filesFilter.stream()
+                .filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith))
+                .collect(Collectors.toSet());
+        LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
+        return this;
+    }
+
+    public StriffConfig setLanguages(Collection<Lang> languages) {
         this.languages = new HashSet<>(languages);
+        return this;
     }
 
-    public StriffConfig(OutputMode outputMode) {
-        this.outputMode = outputMode;
+    public StriffConfig setProcessMetrics(boolean processMetrics) {
+        this.processMetrics = processMetrics;
+        return this;
     }
 
-    /**
-     * Constructs a StriffConfig object.
-     *
-     * @param outputMode  Desired output mode for striff diagrams.
-     * @param filesFilter A set of files to restrict the analysis of architectural differences to.
-     */
-    public StriffConfig(OutputMode outputMode, List<String> filesFilter) {
-        this.outputMode = outputMode;
-        this.filesFilter =
-            filesFilter.stream().filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith)).collect(Collectors.toSet());
-        LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
+    public StriffConfig setMetadataOnly(boolean metadataOnly) {
+        this.metadataOnly = metadataOnly;
+        return this;
     }
 
-    /**
-     * Constructs a StriffConfig object.
-     *
-     * @param outputMode  Desired output mode for striff diagrams.
-     * @param languages   Desired programming languages to use for the analysis.
-     * @param filesFilter A set of files to restrict the analysis of architectural differences to.
-     */
-    public StriffConfig(OutputMode outputMode, Collection<Lang> languages,
-                        List<String> filesFilter) {
-        this(outputMode, languages);
-        this.languages = new HashSet<>(Lang.supportedLanguages());
-        this.filesFilter =
-            filesFilter.stream().filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith)).collect(Collectors.toSet());
-        LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
+    public StriffConfig setColorScheme(DiagramColorScheme colorScheme) {
+        this.colorScheme = colorScheme;
+        return this;
     }
 
-    @Override
-    public String toString() {
-        return "Output Mode: " + this.outputMode + ", Languages: " + this.languages + ", Filter "
-            + "Files: " + this.filesFilter;
+    public OutputMode outputMode() {
+        return this.outputMode;
+    }
+
+    public Set<String> filesFilter() {
+        return this.filesFilter;
+    }
+
+    public DiagramColorScheme colorScheme() {
+        return this.colorScheme;
     }
 
     public Set<Lang> languages() {
         return this.languages;
+    }
+
+    public boolean processMetrics() {
+        return this.processMetrics;
+    }
+
+    public boolean metadataOnly() {
+        return this.metadataOnly;
+    }
+
+    @Override
+    public String toString() {
+        return "Output Mode: " + this.outputMode + ", Languages: " + this.languages + ", Filter Files: "
+                + this.filesFilter;
     }
 }

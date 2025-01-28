@@ -23,13 +23,11 @@ public class PUMLHelper {
         } finally {
             os.close();
         }
-        // SvgGraphics.displayComponents.clear();
         return os.toByteArray();
     }
 
     public static boolean invalidPUMLDiagram(String svgCode) throws PUMLDrawException {
-       return svgCode.contains("Syntax Error") || svgCode.contains("An error has")
-            || svgCode.contains("[From string (line");
+        return svgCode.contains("Syntax Error") || svgCode.contains("An error has")
+                || svgCode.contains("[From string (line");
     }
-
 }

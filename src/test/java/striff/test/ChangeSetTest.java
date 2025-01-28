@@ -2,10 +2,11 @@ package striff.test;
 
 import com.hadii.clarpse.reference.SimpleTypeReference;
 import com.hadii.clarpse.sourcemodel.Component;
+import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.ChangeSet;
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.StriffCodeModel;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -18,179 +19,179 @@ public class ChangeSetTest {
 
     @Test
     public void testAddedFieldComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedFieldComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedMethodComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.METHOD, "Animal.test()");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.METHOD, "Animal.test()");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedMethodComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.METHOD, "Animal.test()");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.METHOD, "Animal.test()");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedConstructorComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.CONSTRUCTOR, "Animal.test" +
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.CONSTRUCTOR, "Animal.test" +
                 "()");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedConstructorComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.CONSTRUCTOR, "Animal" +
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.CONSTRUCTOR, "Animal" +
                 ".weight()");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedClassComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedClassComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedInterfaceComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.INTERFACE, "Animal");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.INTERFACE, "Animal");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedInterfaceComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.INTERFACE, "Animal");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.INTERFACE, "Animal");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedStructComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.FIELD, "Animal.weight");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedStructComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.STRUCT, "Animal");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.STRUCT, "Animal");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedLocalVarComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(
                 OOPSourceModelConstants.ComponentType.LOCAL, "Animal.weight().test");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedLocalVarComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(
+        Component oldComponent = setupComponent(
                 OOPSourceModelConstants.ComponentType.LOCAL, "Animal.weight().test");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testAddedMethodParamComponent() {
-        final StriffCodeModel oldModel = new StriffCodeModel();
-        DiagramComponent newDigramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.METHOD_PARAMETER_COMPONENT,
-                                  "Animal.weight().test");
-        final StriffCodeModel newModel = new StriffCodeModel(newDigramComponent);
+        final OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        Component newDigramComponent = setupComponent(OOPSourceModelConstants.ComponentType.METHOD_PARAMETER_COMPONENT,
+                "Animal.weight().test");
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newDigramComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).addedComponents().contains(newDigramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inAddedComponents(newDigramComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedMethodParamComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.METHOD_PARAMETER_COMPONENT,
-                                  "Animal.weight().test");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.METHOD_PARAMETER_COMPONENT,
+                "Animal.weight().test");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
     public void testDeletedComponents() {
-        DiagramComponent oldDiagramComponent =
-            setupDiagramComponent(OOPSourceModelConstants.ComponentType.FIELD,
-                                  "Animal.test");
-        StriffCodeModel oldModel = new StriffCodeModel(oldDiagramComponent);
-        final StriffCodeModel newModel = new StriffCodeModel();
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.FIELD,
+                "Animal.test");
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+        final OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         assertEquals(new ChangeSet(oldModel, newModel).deletedComponents().size(), 1);
-        assertTrue(new ChangeSet(oldModel, newModel).deletedComponents().contains(oldDiagramComponent));
+        assertTrue(new ChangeSet(oldModel, newModel).inDeletedComponents(oldComponent.uniqueName()));
     }
 
     @Test
@@ -207,12 +208,10 @@ public class ChangeSetTest {
         oldAnimalClassComponent.setComponentName("Animal");
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
 
-        StriffCodeModel oldModel = new StriffCodeModel(
-                new DiagramComponent(oldAnimalFieldComponent, null),
-                new DiagramComponent(oldAnimalClassComponent, null),
-                new DiagramComponent(oldStrawBerryComponent, null)
-        );
-
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldAnimalFieldComponent);
+        oldModel.insertComponent(oldAnimalClassComponent);
+        oldModel.insertComponent(oldStrawBerryComponent);
         Component newStrawBerryComponent = new Component();
         newStrawBerryComponent.setComponentName("Strawberry");
         newStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
@@ -229,15 +228,14 @@ public class ChangeSetTest {
         // New Reference to StrawBerry Component
         newAnimalClassComponent.insertCmpRef(new SimpleTypeReference("Strawberry"));
 
-        StriffCodeModel newModel = new StriffCodeModel(
-                new DiagramComponent(newAnimalFieldComponent, null),
-                new DiagramComponent(newAnimalClassComponent, null),
-                new DiagramComponent(newStrawBerryComponent, null)
-        );
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newAnimalFieldComponent);
+        newModel.insertComponent(newAnimalClassComponent);
+        newModel.insertComponent(newStrawBerryComponent);
 
         assertEquals(new ChangeSet(oldModel, newModel).addedRelations().allRels().size(), 1);
         assertTrue(new ChangeSet(oldModel, newModel).addedRelations().hasRels(
-            new DiagramComponent(newAnimalClassComponent, null)));
+                newAnimalClassComponent.uniqueName()));
     }
 
     @Test
@@ -256,12 +254,10 @@ public class ChangeSetTest {
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         oldAnimalClassComponent.insertCmpRef(new SimpleTypeReference("Strawberry"));
 
-        StriffCodeModel oldModel = new StriffCodeModel(
-                new DiagramComponent(oldAnimalFieldComponent, null),
-                new DiagramComponent(oldAnimalClassComponent, null),
-                new DiagramComponent(oldStrawBerryComponent, null)
-        );
-
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldAnimalFieldComponent);
+        oldModel.insertComponent(oldAnimalClassComponent);
+        oldModel.insertComponent(oldStrawBerryComponent);
         Component newStrawBerryComponent = new Component();
         newStrawBerryComponent.setComponentName("Strawberry");
         newStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
@@ -276,15 +272,13 @@ public class ChangeSetTest {
         newAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         // New component does not have reference to StrawBerry Component
 
-        StriffCodeModel newModel = new StriffCodeModel(
-                new DiagramComponent(newAnimalFieldComponent, null),
-                new DiagramComponent(newAnimalClassComponent, null),
-                new DiagramComponent(newStrawBerryComponent, null)
-        );
-
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newAnimalFieldComponent);
+        newModel.insertComponent(newAnimalClassComponent);
+        newModel.insertComponent(newStrawBerryComponent);
         assertEquals(new ChangeSet(oldModel, newModel).deletedRelations().allRels().size(), 1);
         assertTrue(new ChangeSet(oldModel, newModel).deletedRelations().hasRels(
-            new DiagramComponent(oldAnimalClassComponent, null)));
+                oldAnimalClassComponent.uniqueName()));
     }
 
     @Test
@@ -300,11 +294,10 @@ public class ChangeSetTest {
         oldAnimalClassComponent.setComponentName("Animal");
         oldAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         oldAnimalClassComponent.insertCmpRef(new SimpleTypeReference("Strawberry"));
-        StriffCodeModel oldModel = new StriffCodeModel(
-                new DiagramComponent(oldAnimalFieldComponent, null),
-                new DiagramComponent(oldAnimalClassComponent, null),
-                new DiagramComponent(oldStrawBerryComponent, null)
-        );
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldAnimalFieldComponent);
+        oldModel.insertComponent(oldAnimalClassComponent);
+        oldModel.insertComponent(oldStrawBerryComponent);
         Component newStrawBerryComponent = new Component();
         newStrawBerryComponent.setComponentName("Strawberry");
         newStrawBerryComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
@@ -316,23 +309,20 @@ public class ChangeSetTest {
         newAnimalClassComponent.setComponentName("Animal");
         newAnimalClassComponent.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
         // New component does not have reference to StrawBerry Component
-        StriffCodeModel newModel = new StriffCodeModel(
-                new DiagramComponent(newAnimalFieldComponent, null),
-                new DiagramComponent(newAnimalClassComponent, null),
-                new DiagramComponent(newStrawBerryComponent, null)
-        );
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newAnimalFieldComponent);
+        newModel.insertComponent(newAnimalClassComponent);
+        newModel.insertComponent(newStrawBerryComponent);
         assertEquals(new ChangeSet(oldModel, newModel).keyRelationsComponents().size(), 2);
         assertTrue(new ChangeSet(oldModel, newModel).keyRelationsComponents().contains(
-                new DiagramComponent(newAnimalClassComponent, null)
-        ));
+                new DiagramComponent(newAnimalClassComponent, newModel).uniqueName()));
         assertTrue(new ChangeSet(oldModel, newModel).keyRelationsComponents().contains(
-                new DiagramComponent(newStrawBerryComponent, null)
-        ));
+                new DiagramComponent(newStrawBerryComponent, newModel).uniqueName()));
     }
 
     @Test
     public void testRelationComponentsMustExist() {
-        StriffCodeModel oldModel = new StriffCodeModel();
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         Component newAnimalFieldComponent = new Component();
         newAnimalFieldComponent.setComponentName("Animal.weight");
         newAnimalFieldComponent.setComponentType(OOPSourceModelConstants.ComponentType.FIELD);
@@ -345,18 +335,17 @@ public class ChangeSetTest {
         // Note strawberry component does not exist in this code base
         newAnimalClassComponent.insertCmpRef(new SimpleTypeReference("Strawberry"));
 
-        StriffCodeModel newModel = new StriffCodeModel(
-                new DiagramComponent(newAnimalFieldComponent, null),
-                new DiagramComponent(newAnimalClassComponent, null)
-        );
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newAnimalFieldComponent);
+        newModel.insertComponent(newAnimalClassComponent);
         assertEquals(new ChangeSet(oldModel, newModel).addedRelations().allRels().size(), 0);
     }
 
-    private DiagramComponent setupDiagramComponent(OOPSourceModelConstants.ComponentType type,
-                                                   String cmpName) {
+    private Component setupComponent(OOPSourceModelConstants.ComponentType type,
+            String cmpName) {
         Component newComponent = new Component();
         newComponent.setComponentName(cmpName);
         newComponent.setComponentType(type);
-        return new DiagramComponent(newComponent, null);
+        return newComponent;
     }
 }

@@ -1,199 +1,205 @@
 package com.hadii.striff.extractor;
 
-import com.hadii.clarpse.reference.ComponentReference;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.StriffCodeModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Map;
+import com.hadii.clarpse.reference.ComponentReference;
+import com.hadii.clarpse.sourcemodel.Component;
+import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
+import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
+import com.hadii.striff.annotations.LogExecutionTime;
+
 import java.util.Set;
 
 /**
- * A collection of relationships extracted from a {@link StriffCodeModel}.
+ * Extracts and manages relationships from an {@link OOPSourceCodeModel}.
  */
+
 public class ExtractedRelationships {
 
     private final RelationsMap relationMap = new RelationsMap();
     private static final Logger LOGGER = LogManager.getLogger(ExtractedRelationships.class);
 
-    public ExtractedRelationships(final StriffCodeModel sourceCodeModel) {
-        LOGGER.info("Extracting relationships from source code model..");
-        final Map<String, DiagramComponent> components = sourceCodeModel.components();
-        for (final Map.Entry<String, DiagramComponent> entry : components.entrySet()) {
-            final DiagramComponent tempClass = entry.getValue();
-            ComponentType cmpType = entry.getValue().componentType();
-            if (cmpType.isBaseComponent() || cmpType.isMethodComponent() || cmpType == ComponentType.FIELD) {
-                collectComponentRelations(tempClass, components);
-            }
+    @LogExecutionTime
+    public ExtractedRelationships(final OOPSourceCodeModel sourceCodeModel) {
+        sourceCodeModel.components()
+                .filter(this::isRelevantComponent)
+                .forEach(component -> processComponentRelations(component, sourceCodeModel));
+    }
+
+    /**
+     * Filters relevant components (base, methods, fields) for relation extraction.
+     */
+    private boolean isRelevantComponent(Component component) {
+        ComponentType type = component.componentType();
+        return type.isBaseComponent() || type.isMethodComponent() || type == ComponentType.FIELD;
+    }
+
+    /**
+     * Processes relationships for the given component.
+     */
+    private void processComponentRelations(final Component component, final OOPSourceCodeModel model) {
+        analyzeSpecializations(component, model);
+        analyzeRealizations(component, model);
+        extractAssociations(component, model);
+    }
+
+    /**
+     * Analyzes specialization relationships (e.g., inheritance).
+     */
+    private void analyzeSpecializations(final Component component, final OOPSourceCodeModel model) {
+        component.references(OOPSourceModelConstants.TypeReferences.EXTENSION).stream()
+                .filter(ref -> model.containsComponent(ref.invokedComponent()))
+                .map(ref -> createRelation(component, model.getComponent(ref.invokedComponent()).get(),
+                        DiagramConstants.ComponentAssociation.SPECIALIZATION))
+                .forEach(this::addRelationSafely);
+    }
+
+    /**
+     * Analyzes realization relationships (e.g., implementation).
+     */
+    private void analyzeRealizations(final Component component, final OOPSourceCodeModel model) {
+        component.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION).stream()
+                .filter(ref -> model.containsComponent(ref.invokedComponent()))
+                .map(ref -> createRelation(component, model.getComponent(ref.invokedComponent()).get(),
+                        DiagramConstants.ComponentAssociation.REALIZATION))
+                .forEach(this::addRelationSafely);
+    }
+
+    /**
+     * Extracts associations (e.g., field, method, parameter associations) for the
+     * given component.
+     */
+    private void extractAssociations(final Component component, OOPSourceCodeModel model) {
+        if (component.componentType().isBaseComponent()) {
+            return;
+        }
+
+        Component baseComponent = findParentBaseComponent(component, model);
+        if (baseComponent == null) {
+            return;
+        }
+
+        Set<ComponentReference> references = component.references();
+        removeRedundantReferences(references, model, baseComponent);
+
+        references.stream()
+                .filter(ref -> model.containsComponent(ref.invokedComponent()))
+                .map(ref -> createAssociation(component, baseComponent,
+                        model.getComponent(ref.invokedComponent()).get()))
+                .filter(this::isValidRelation)
+                .forEach(this::addRelationSafely);
+    }
+
+    /**
+     * Finds the parent base component of the given component.
+     */
+    private Component findParentBaseComponent(Component component, OOPSourceCodeModel model) {
+        try {
+            return model.parentBaseCmp(component.uniqueName());
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("No parent component found for component: {}", component.uniqueName());
+            return null;
         }
     }
 
     /**
-     * Finds external class links from all the field, method and method params
-     * in the given component.
+     * Removes redundant self-referencing invocations.
      */
-    private void genAssociations(final DiagramComponent component, final Map<String, DiagramComponent> components) {
-        // Only consider non-base components (eg: methods, fields, etc ..)
-        if (!component.componentType().isBaseComponent()) {
-            // Get the the current component's parent base component
-            final DiagramComponent currentBaseComponent = component.parentBaseCmp(components);
-            if (currentBaseComponent != null) {
-                // Get a list of all the external components referenced
-                final Set<ComponentReference> componentReferences = component.references();
-                // Remove redundant references..
-                filterComponentInvocations(componentReferences, components, currentBaseComponent, currentBaseComponent);
-                // Loop through list of references and create component relationships as required..
-                for (final ComponentReference componentRelationship : componentReferences) {
-                    final String componentReferenceName = componentRelationship.invokedComponent();
-                    // Important: We only consider component references that refer to components in the given code base!
-                    if (components.containsKey(componentReferenceName)) {
-                        final DiagramComponent targetClass = components.get(componentReferenceName);
-                        ComponentAssociationMultiplicity relationMultiplicity;
-                        DiagramConstants.ComponentAssociation relationAssociation;
-                        ComponentRelation externalClassLink;
-                        // TODO: Set relation multiplicity appropriately based on component references.
-                        relationMultiplicity = new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE);
-                        // create external class link based on calling component type
-                        // --> IF INVOCATION SITE IS CLASS FIELD:
-                        if (component.componentType() == ComponentType.FIELD) {
-                            if (component.modifiers().contains(
-                                    OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))
-                                    || component.modifiers().contains(OOPSourceModelConstants
-                                    .getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
-                                relationAssociation = DiagramConstants.ComponentAssociation.COMPOSITION;
-                            } else {
-                                relationAssociation = DiagramConstants.ComponentAssociation.AGGREGATION;
-                            }
-                            externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
-                                    relationAssociation);
-                            // --> IF INVOCATION SITE IS METHOD or CONSTRUCTOR
-                        } else if ((component.componentType() == ComponentType.METHOD
-                        || component.componentType() == ComponentType.CONSTRUCTOR)
-                                && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
-                            relationAssociation = DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
-                            externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
-                                    relationAssociation);
-                            // --> IF INVOCATION SITE IS METHOD or CONSTRUCTOR
-                        } else if ((component.componentType() == ComponentType.METHOD_PARAMETER_COMPONENT
-                        || component.componentType() == ComponentType.CONSTRUCTOR_PARAMETER_COMPONENT)
-                            && !currentBaseComponent.uniqueName().equals(targetClass.uniqueName())) {
-                            relationAssociation = DiagramConstants.ComponentAssociation.ASSOCIATION;
-                            externalClassLink = new ComponentRelation(currentBaseComponent, targetClass, relationMultiplicity,
-                                                                      relationAssociation);
-                        } else {
-                            continue;
-                        }
-                        try {
-                            addRelation(externalClassLink);
-                        } catch (IllegalArgumentException e) {
-                            LOGGER.warn(e);
-                        }
-                    }
-                }
-            }
+    private void removeRedundantReferences(Set<ComponentReference> references, OOPSourceCodeModel model,
+            Component baseComponent) {
+        references.removeIf(ref -> isSelfReferencing(ref, baseComponent, model));
+    }
+
+    private boolean isSelfReferencing(ComponentReference ref, Component baseComponent, OOPSourceCodeModel model) {
+        return ref.invokedComponent().equals(baseComponent.uniqueName())
+                || !model.containsComponent(ref.invokedComponent());
+    }
+
+    /**
+     * Creates an association between components based on their relationship type.
+     */
+    private ComponentRelation createAssociation(Component component, Component baseComponent,
+            Component targetComponent) {
+        DiagramConstants.ComponentAssociation associationType = determineAssociationType(component, targetComponent);
+        return new ComponentRelation(baseComponent, targetComponent,
+                new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
+                associationType);
+    }
+
+    private DiagramConstants.ComponentAssociation determineAssociationType(Component component,
+            Component targetComponent) {
+        switch (component.componentType()) {
+            case FIELD:
+                return determineFieldAssociation(component);
+            case METHOD:
+            case CONSTRUCTOR:
+                return DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
+            case METHOD_PARAMETER_COMPONENT:
+            case CONSTRUCTOR_PARAMETER_COMPONENT:
+                return DiagramConstants.ComponentAssociation.ASSOCIATION;
+            default:
+                return null;
+        }
+    }
+
+    private DiagramConstants.ComponentAssociation determineFieldAssociation(Component component) {
+        if (component.modifiers()
+                .contains(OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))
+                || component.modifiers()
+                        .contains(OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
+            return DiagramConstants.ComponentAssociation.COMPOSITION;
+        } else {
+            return DiagramConstants.ComponentAssociation.AGGREGATION;
         }
     }
 
     /**
-     * Recursively removes self-referencing implementation and extension relationships.
+     * Adds a relation safely, logging any issues.
      */
-    private void filterComponentInvocations(Set<ComponentReference> componentReferences,
-                                            Map<String, DiagramComponent> components, DiagramComponent unfilteredComponent,
-                                            DiagramComponent originalComponent) {
-        // Ensure there are no self-referencing implementation relationships..
-        if (!unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION).isEmpty()) {
-            for (ComponentReference ref : unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION)) {
-                DiagramComponent invokedComponent = components.get(ref.invokedComponent());
-                if (invokedComponent != null && !unfilteredComponent.equals(invokedComponent)) {
-                    filterComponentInvocations(componentReferences, components, invokedComponent, originalComponent);
-                }
-            }
-        }
-        // Ensure there are no self-referencing extension relationships..
-        if (!unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.EXTENSION).isEmpty()) {
-            for (ComponentReference ref : unfilteredComponent.references(OOPSourceModelConstants.TypeReferences.EXTENSION)) {
-                DiagramComponent invokedComponent = components.get(ref.invokedComponent());
-                if (invokedComponent != null && !unfilteredComponent.equals(invokedComponent)) {
-                    filterComponentInvocations(componentReferences, components, invokedComponent, originalComponent);
-                }
-            }
-        }
-        if (!unfilteredComponent.uniqueName().equals(originalComponent.uniqueName())) {
-            componentReferences.removeAll(unfilteredComponent.references());
+    private void addRelationSafely(ComponentRelation relation) {
+        try {
+            addRelation(relation);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Failed to add relation: {}", e.getMessage());
         }
     }
 
     /**
-     * Registers a new component relation between two components.
+     * Creates a simple component relation.
      */
-    public void addRelation(final ComponentRelation cmpRelation) {
-        if (isValidRelation(cmpRelation)) {
-            this.relationMap.insertRelation(cmpRelation);
-        }
-    }
-
-    private boolean isValidRelation(ComponentRelation cmpRelation) {
-        return cmpRelation.originalComponent().componentType().isBaseComponent()
-            && cmpRelation.targetComponent().componentType().isBaseComponent()
-            && !cmpRelation.originalComponent().equals(cmpRelation.targetComponent());
+    private ComponentRelation createRelation(Component source, Component target,
+            DiagramConstants.ComponentAssociation associationType) {
+        return new ComponentRelation(source, target,
+                new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
+                associationType);
     }
 
     /**
-     * Analyzes the components specialized by the given component.
+     * Adds a valid relation to the relations map.
      */
-    private void componentSpecializations(final DiagramComponent component, final Map<String, DiagramComponent> allComponents) {
-        final List<ComponentReference> superClasses = component.references(OOPSourceModelConstants.TypeReferences.EXTENSION);
-        if (!superClasses.isEmpty()) {
-            for (final ComponentReference superClass : superClasses) {
-                if (allComponents.containsKey(superClass.invokedComponent())) {
-                    final DiagramComponent targetClass = allComponents.get(superClass.invokedComponent());
-                    final ComponentRelation specializationRelation = new ComponentRelation(component,
-                            targetClass, new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
-                            DiagramConstants.ComponentAssociation.SPECIALIZATION);
-                    addRelation(specializationRelation);
-                }
-            }
+    public void addRelation(final ComponentRelation relation) {
+        if (isValidRelation(relation)) {
+            this.relationMap.insertRelation(relation);
         }
     }
 
     /**
-     * @param component          Component to be analyzed for relations
-     * @param codeBaseComponents Map of all components in the code base
+     * Validates if a relation is between two base components and not
+     * self-referencing.
      */
-    private void collectComponentRelations(final DiagramComponent component, final Map<String, DiagramComponent> codeBaseComponents) {
-        // Scan class signature for any classes that have been extended
-        componentSpecializations(component, codeBaseComponents);
-        // Scan class signature for any classes that have been implemented
-        componentRealizations(component, codeBaseComponents);
-        // Scan class fields for associations
-        genAssociations(component, codeBaseComponents);
+    private boolean isValidRelation(ComponentRelation relation) {
+        return relation.originalComponent().componentType().isBaseComponent()
+                && relation.targetComponent().componentType().isBaseComponent()
+                && !relation.originalComponent().equals(relation.targetComponent());
     }
 
     /**
-     * Process components realized by the given component.
+     * Retrieves the extracted relationships as a RelationsMap.
      */
-    private void componentRealizations(final DiagramComponent sourceComponent, final Map<String, DiagramComponent> allComponents) {
-        final List<ComponentReference> implementedClasses = sourceComponent
-                .references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION);
-        if (!implementedClasses.isEmpty()) {
-            for (final ComponentReference implementedClass : implementedClasses) {
-                if (allComponents.containsKey(implementedClass.invokedComponent())) {
-                    final DiagramComponent targetClass = allComponents.get(implementedClass.invokedComponent());
-                    final ComponentRelation realizationExternalClassLink = new ComponentRelation(sourceComponent,
-                            targetClass, new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
-                            DiagramConstants.ComponentAssociation.REALIZATION);
-                    addRelation(realizationExternalClassLink);
-                }
-            }
-        }
-    }
-
-    public final RelationsMap result() {
+    public RelationsMap result() {
         return this.relationMap;
     }
 }
