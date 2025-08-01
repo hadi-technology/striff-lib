@@ -35,6 +35,7 @@ public class RelationsMap {
         return this.relMap;
     }
 
+
     @JsonProperty("size")
     public int size() {
         return this.size;
