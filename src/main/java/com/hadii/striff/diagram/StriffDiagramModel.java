@@ -66,7 +66,7 @@ public class StriffDiagramModel {
         ChangeSet changeSet = codeDiff.changeSet();
         Set<String> unfilteredCoreCmps = Stream.of(changeSet.addedComponents(),
                 changeSet.deletedComponents(),
-                changeSet.keyRelationsComponents(),
+                changeSet.keyRelationsComponents(), 
                 changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
         if (!sourceFilesFilter.isEmpty()) {
             unfilteredCoreCmps = unfilteredCoreCmps.stream().filter(

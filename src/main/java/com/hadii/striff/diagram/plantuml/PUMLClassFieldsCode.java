@@ -53,14 +53,16 @@ final class PUMLClassFieldsCode {
             boolean largeComponent = cmp.children().size() > MAX_ATTRIBUTE_SIZE;
             // Insert cmp type name (eg: class, interface, etc...)
             cmpPUMLStr += cmp.componentType().getValue() + " ";
-            // Insert the actual cmp unique name
-            cmpPUMLStr += cmp.name() + " as \"";
+            // Insert the actual cmp unique name with hyphens instead of dots since
+            // PUML attempts to parse dots as nested packages (we are handling
+            // packages explicitly ourselves)
+            cmpPUMLStr += cmp.uniqueName().replaceAll("\\.", "-") + " as \"";
             // Insert cmp display name
             if (largeComponent) {
-                cmpPUMLStr += cmp.name() + " <b><color:"
+                cmpPUMLStr += cmp.componentName() + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += cmp.name() + "\"";
+                cmpPUMLStr += cmp.componentName() + "\"";
             }
             // Insert class generics if required
             if (cmp.codeFragment() != null) {

@@ -66,7 +66,6 @@ public class DiagramComponent {
         return metricChange != null;
     }
 
-    @JsonProperty("children")
     public List<String> children() {
         return Collections.unmodifiableList(this.children);
     }

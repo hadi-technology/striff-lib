@@ -58,10 +58,16 @@ public class PUMLDiagram {
         String[] svgLines = pumlGeneratedSVG.split("\\r?\\n");
         for (int i = 0; i < svgLines.length; i++) {
             if (svgLines[i].startsWith("class ") && svgLines[i].contains("-->")) {
-                String cmpUniqueName = svgLines[i].substring(6, svgLines[i].indexOf("-->"));
+                String pumlFormattedCmpName = svgLines[i].substring(6, svgLines[i].indexOf("-->"));
+                String cleanedCmpName = pumlFormattedCmpName.substring(pumlFormattedCmpName.lastIndexOf(".") + 1).replaceAll("-", "\\.").trim();
                 svgLines[i] = svgLines[i].replaceFirst(
                         "<text ",
-                        "<text id=\"" + cmpUniqueName + "\" ");
+                        // Replace hyphens with dots to match Java package naming convention
+                        "<text id=\"" + cleanedCmpName + "\" ");
+                svgLines[i] = svgLines[i].replaceFirst("class " + cleanedCmpName,
+                        "class " + cleanedCmpName.replaceAll("-", "\\."));
+                // Also replace any remaining occurrences of the old PlantUML formatted name
+                svgLines[i] = svgLines[i].replace(pumlFormattedCmpName, cleanedCmpName);
             }
         }
         return String.join(" ", svgLines);

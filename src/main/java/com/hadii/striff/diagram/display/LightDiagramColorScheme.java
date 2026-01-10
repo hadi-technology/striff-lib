@@ -72,7 +72,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classBorderThickness() {
-        return "0.4";
+        return "1";
     }
 
     @Override

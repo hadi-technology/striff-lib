@@ -35,6 +35,10 @@ public class StriffConfig {
     // Control for SVG code generation
     private boolean metadataOnly = false;
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
+    /**
+     * Hard limit to avoid sending extremely large diagrams to PlantUML.
+     */
+    private int maxComponentsPerDiagram = 120;
 
     public StriffConfig() {
     }
@@ -71,6 +75,14 @@ public class StriffConfig {
         return this;
     }
 
+    public StriffConfig setMaxComponentsPerDiagram(int maxComponentsPerDiagram) {
+        if (maxComponentsPerDiagram <= 0) {
+            throw new IllegalArgumentException("maxComponentsPerDiagram must be greater than zero.");
+        }
+        this.maxComponentsPerDiagram = maxComponentsPerDiagram;
+        return this;
+    }
+
     public StriffConfig setColorScheme(DiagramColorScheme colorScheme) {
         this.colorScheme = colorScheme;
         return this;
@@ -100,9 +112,13 @@ public class StriffConfig {
         return this.metadataOnly;
     }
 
+    public int maxComponentsPerDiagram() {
+        return this.maxComponentsPerDiagram;
+    }
+
     @Override
     public String toString() {
         return "Output Mode: " + this.outputMode + ", Languages: " + this.languages + ", Filter Files: "
-                + this.filesFilter;
+                + this.filesFilter + ", Max Components/Diagram: " + this.maxComponentsPerDiagram;
     }
 }

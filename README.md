@@ -10,6 +10,6 @@ Striffs leverage the basic premise surrounding the utility of line-wise code dif
 * Ensure `graphviz` is installed on your system.
 * Execute `mvn clean package assembly:single` to  build jar. 
 * `StriffAPITest.java` demonstrates how to use this library to generate striff diagrams. 
-
+* If you want to avoid rendering very large diagrams, configure a hard cap (defaults to 120 components) via `StriffConfig.setMaxComponentsPerDiagram(...)`; diagrams over the cap will return metadata only.
 
 
