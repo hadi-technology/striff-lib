@@ -45,13 +45,13 @@ public class StriffAPITest {
 	//@Ignore
 	@Test
 	public void testDemonstrateStriffAPIWithPR() throws Exception {
-		String baseRepoOwner = "Zir0-93";
-		String repoName = "junit5";
+		String baseRepoOwner = "hadii-tech";
+		String repoName = "striff-lib";
 		Lang language = Lang.JAVA;
 		ProjectFiles oldFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "25d727a186a3151c6cf22619c989082cad39b543", language);
+				baseRepoOwner, repoName, "master", language);
 		ProjectFiles newFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "9743eb1808b3a991cfe672d9333d81b0f5fc1118", language);
+				baseRepoOwner, repoName, "tmp-changes", language);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, new StriffConfig()).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());

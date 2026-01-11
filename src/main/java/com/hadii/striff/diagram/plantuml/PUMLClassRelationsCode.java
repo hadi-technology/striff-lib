@@ -1,6 +1,5 @@
 package com.hadii.striff.diagram.plantuml;
 
-import com.hadii.striff.diagram.ComponentHelper;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.extractor.DiagramConstants;
 import com.hadii.striff.diagram.display.DiagramDisplay;
@@ -28,10 +27,6 @@ final class PUMLClassRelationsCode {
         genCode();
     }
 
-    private String sanitizedCmpName(String cmpRef) {
-        return cmpRef.replace("-", "").replaceAll("\\.\\.+", ".");
-    }
-
     private void genCode() {
         this.tempStrBuilder = new StringBuilder();
         Set<String> diagramCmpNames = this.diagramComponents.stream().map(DiagramComponent::uniqueName)
@@ -50,11 +45,9 @@ final class PUMLClassRelationsCode {
                         final DiagramConstants.ComponentAssociation bToAAssociation = reverseRel.associationType();
                         // Insert original component name
                         this.tempStrBuilder
-                                .append(sanitizedCmpName(
-                                        ComponentHelper.packagePath(currCmpRel.originalComponent().pkg())))
-                                .append(".")
-                                .append(sanitizedCmpName(currCmpRel.originalComponent().name()))
-                                .append(" ");
+                                .append("\"")
+                                .append(PUMLHelper.pumlQualifiedId(currCmpRel.originalComponent()))
+                                .append("\" ");
                         // Insert BtoA multiplicity if it's not a standard 0-1 multiplicity
                         ComponentAssociationMultiplicity bToAMultiplicity = reverseRel
                                 .targetComponentRelationMultiplicity();
@@ -115,11 +108,9 @@ final class PUMLClassRelationsCode {
                         }
                         // Insert target component name
                         this.tempStrBuilder
-                                .append(sanitizedCmpName(
-                                        ComponentHelper.packagePath(currCmpRel.targetComponent().pkg())))
-                                .append(".")
-                                .append(sanitizedCmpName(currCmpRel.targetComponent().name()))
-                                .append(" ");
+                                .append("\"")
+                                .append(PUMLHelper.pumlQualifiedId(currCmpRel.targetComponent()))
+                                .append("\" ");
                         this.tempStrBuilder.append("\n");
                     }
                 }

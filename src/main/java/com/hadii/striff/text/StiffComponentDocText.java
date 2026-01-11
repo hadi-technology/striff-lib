@@ -15,11 +15,20 @@ public final class StiffComponentDocText implements Text {
 
     @Override
     public String value() {
-        return new LineBreakedText(
+        String wrapped = new LineBreakedText(
                 new NormalizedSpaceText(
                         new PlantUMLFriendlyText(
                                 new DocCommentCharacterStrippedText(
                                         new HtmlTagsStrippedText(
                                                 new DefaultText(this.text.trim()))))), lineLength).value();
+        String[] lines = wrapped.split("\\r?\\n");
+        StringBuilder bolded = new StringBuilder();
+        for (int i = 0; i < lines.length; i++) {
+            bolded.append("**").append(lines[i]).append("**");
+            if (i < lines.length - 1) {
+                bolded.append("\n");
+            }
+        }
+        return bolded.toString();
     }
 }

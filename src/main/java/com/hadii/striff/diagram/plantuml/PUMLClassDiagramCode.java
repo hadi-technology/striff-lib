@@ -10,6 +10,7 @@ final class PUMLClassDiagramCode {
 
     PUMLClassDiagramCode(PUMLDiagramData data) {
         this.code = PLANT_UML_BEGIN_STRING
+                + plantUMLStyleBlock(data.diagramDisplay().colorScheme())
                 + plantUMLSkinParamText(data.diagramDisplay().colorScheme())
                 + "\n" + new PUMLPackageCode(data).value()
                 + "\n"
@@ -19,6 +20,53 @@ final class PUMLClassDiagramCode {
 
     public String code() {
         return this.code;
+    }
+
+    private String plantUMLStyleBlock(DiagramColorScheme colorScheme) {
+        return "<style>\n"
+                + "classDiagram {\n"
+                + "class {\n"
+                + "      FontSize: " + colorScheme.classFontSize() + ";\n"
+                + "header {\n"
+                + "        FontSize: " + colorScheme.classFontSize() + ";\n"
+                + "        FontColor: " + colorScheme.classFontColor() + ";\n"
+                + "      }\n"
+                + "}\n"
+
+                + "spot{\n"                + "}\n"
+                + "  spotClass {\n"
+                + "    BackgroundColor: #dfdfdf;\n"
+                + "    FontColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    LineColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    FontSize: 16;\n"
+                + "    FontStyle: bold;\n"
+                + "  }\n"
+                + "  spotAbstractClass {\n"
+                + "    FontColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    LineColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    FontSize: 16;\n"
+                + "    FontStyle: bold;\n"
+                + "  }\n"
+                + "  spotInterface {\n"
+                + "    FontColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    LineColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    FontSize: 16;\n"
+                + "    FontStyle: bold;\n"
+                + "  }\n"
+                + "  spotStruct {\n"
+                + "    FontColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    LineColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    FontSize: 16;\n"
+                + "    FontStyle: bold;\n"
+                + "  }\n"
+                + "  spotEnum {\n"
+                + "    FontColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    LineColor: " + colorScheme.classBorderColor() + ";\n"
+                + "    FontSize: 16;\n"
+                + "    FontStyle: bold;\n"
+                + "  }\n"
+                + "}\n"
+                + "</style>\n";
     }
 
     private String plantUMLSkinParamText(DiagramColorScheme colorScheme) {
@@ -32,19 +80,13 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam classArrowFontColor " + colorScheme.classArrowFontColor()
                 + "\nskinparam classArrowFontSize " + colorScheme.classArrowFontSize()
                 + "\nskinparam classFontColor " + colorScheme.classFontColor()
-                + "\nskinparam classFontSize " + colorScheme.classFontSize()
-                + "\nskinparam classStereotypeFontColor " + colorScheme.classStereoTypeFontColor()
-                + "\nskinparam CircledCharacterFontColor " + colorScheme.classCircledCharacterFontColor()
-                + "\nskinparam CircledCharacterFontSize " + colorScheme.classCircledCharacterFontSize()
                 + "\nskinparam classBorderColor " + colorScheme.classBorderColor()
                 + "\nskinparam classBorderThickness " + colorScheme.classBorderThickness()
-                + "\nskinparam classAttributeFontColor " + colorScheme.classAttributeFontColor()
                 + "\nskinparam classFontName " + colorScheme.classFontName()
                 + "\nskinparam classAttributeFontName " + colorScheme.classAttributeFontName()
                 + "\nskinparam titleFontColor " + colorScheme.titleFontColor()
                 + "\nskinparam packageBackgroundColor " + colorScheme.packageBackgroundColor()
                 + "\nskinparam groupInheritance 2"
-                // + "\nskinparam linetype polyline"
                 + "\nskinparam titleFontName " + colorScheme.titleFontName()
                 + "\nskinparam packageBorderColor " + colorScheme.packageBorderColor()
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()

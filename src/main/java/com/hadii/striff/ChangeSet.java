@@ -68,7 +68,7 @@ public final class ChangeSet {
         newModel.components().filter(cmp -> oldModel.containsComponent(cmp.uniqueName()))
             .forEach(cmp -> {
                 Component oldCmp = oldModel.getComponent(cmp.uniqueName()).orElse(null);
-                if (oldCmp != null && cmp.hashCode() != oldCmp.hashCode()) {
+                if (oldCmp != null && cmp.codeHash() != oldCmp.codeHash()) {
                     this.modifiedComponents.add(cmp.uniqueName());
                 }
             });

@@ -1,5 +1,7 @@
 package com.hadii.striff.diagram.plantuml;
 
+import com.hadii.clarpse.sourcemodel.Component;
+import com.hadii.striff.diagram.ComponentHelper;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -8,6 +10,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class PUMLHelper {
+
+    public static String pumlId(String uniqueName) {
+        return uniqueName.replace(".", "-");
+    }
+
+    public static String pumlQualifiedId(Component component) {
+        String namespace = ComponentHelper.packagePath(component.pkg());
+        String id = pumlId(component.uniqueName());
+        if (namespace == null || namespace.isEmpty()) {
+            return id;
+        }
+        return namespace + "." + id;
+    }
 
     /**
      * Invokes PlantUML to draw the class diagram based on the source string

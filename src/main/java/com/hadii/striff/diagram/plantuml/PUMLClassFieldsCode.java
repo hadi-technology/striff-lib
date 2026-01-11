@@ -56,7 +56,7 @@ final class PUMLClassFieldsCode {
             // Insert the actual cmp unique name with hyphens instead of dots since
             // PUML attempts to parse dots as nested packages (we are handling
             // packages explicitly ourselves)
-            cmpPUMLStr += cmp.uniqueName().replaceAll("\\.", "-") + " as \"";
+            cmpPUMLStr += PUMLHelper.pumlId(cmp.uniqueName()) + " as \"";
             // Insert cmp display name
             if (largeComponent) {
                 cmpPUMLStr += cmp.componentName() + " <b><color:"
@@ -68,12 +68,7 @@ final class PUMLClassFieldsCode {
             if (cmp.codeFragment() != null) {
                 cmpPUMLStr += (cmp.codeFragment());
             }
-            // Custom circled character styling...
-            if (cmp.componentType() == OOPSourceModelConstants.ComponentType.CLASS
-                    || cmp.componentType() == OOPSourceModelConstants.ComponentType.STRUCT) {
-                cmpPUMLStr += " << (C," + this.diagramDisplay.colorScheme().classCircledCharacterBackgroundColor() + ")"
-                        + " >> ";
-            }
+
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
             // Insert metrics
