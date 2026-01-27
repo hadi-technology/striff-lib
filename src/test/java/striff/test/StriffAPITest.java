@@ -42,7 +42,7 @@ public class StriffAPITest {
 	 * Generates striffs based on a Pull Request in GitHub. Ensure
 	 * the source code refs exist and are still available before running.
 	 */
-	//@Ignore
+	@Ignore
 	@Test
 	public void testDemonstrateStriffAPIWithPR() throws Exception {
 		String baseRepoOwner = "hadii-tech";

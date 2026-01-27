@@ -1,16 +1,19 @@
 package com.hadii.striff.diagram.plantuml;
 
+import com.hadii.striff.annotations.LogExecutionTime;
+import com.hadii.striff.diagram.ComponentHelper;
+import com.hadii.striff.diagram.DiagramComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.hadii.striff.annotations.LogExecutionTime;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 public class PUMLDiagram {
 
     private final String classDiagramDescription;
+    private final Set<DiagramComponent> diagramComponents;
     private final int size;
     private final String svgText;
     private static final Logger LOGGER = LogManager.getLogger(PUMLDiagram.class);
@@ -19,7 +22,8 @@ public class PUMLDiagram {
     public PUMLDiagram(PUMLDiagramData data) throws IOException, PUMLDrawException {
         LOGGER.info("Generating PlantUML diagram..");
         this.classDiagramDescription = new PUMLClassDiagramCode(data).code();
-        this.size = data.diagramCmps().size();
+        this.diagramComponents = data.diagramCmps();
+        this.size = this.diagramComponents.size();
         this.svgText = generateSVGText();
     }
 
@@ -28,7 +32,7 @@ public class PUMLDiagram {
         if (!classDiagramDescription.isEmpty()) {
             final String plantUMLString = genPlantUMLString();
             final byte[] diagram = PUMLHelper.generateDiagram(plantUMLString);
-            diagramStr = decorateClassTextObjsWithCmpIds(new String(diagram, StandardCharsets.UTF_8));
+            diagramStr = stripQualifiedPumlIds(new String(diagram, StandardCharsets.UTF_8));
             if (PUMLHelper.invalidPUMLDiagram(diagramStr)) {
                 LOGGER.debug("Original PUML text:\n" + plantUMLString);
                 LOGGER.debug("Generated diagram text:\n" + diagramStr);
@@ -40,37 +44,27 @@ public class PUMLDiagram {
         return diagramStr;
     }
 
-    /**
-     * Inserts component unique ids into their corresponding class text objects in
-     * the
-     * given SVG diagram. For example, the following text object in the given SVG
-     * representing
-     * a class name:
-     * <p/>
-     * "<text fill="#F8F8FF">InternalThreadLocalMap</text>"
-     * <p/>
-     * Might be replaced with
-     * <p/>
-     * "<text id="org.com.InternalThreadLocalMap" fill=
-     * "#F8F8FF">InternalThreadLocalMap</text>"
-     */
-    private String decorateClassTextObjsWithCmpIds(String pumlGeneratedSVG) {
-        String[] svgLines = pumlGeneratedSVG.split("\\r?\\n");
-        for (int i = 0; i < svgLines.length; i++) {
-            if (svgLines[i].startsWith("class ") && svgLines[i].contains("-->")) {
-                String pumlFormattedCmpName = svgLines[i].substring(6, svgLines[i].indexOf("-->"));
-                String cleanedCmpName = pumlFormattedCmpName.substring(pumlFormattedCmpName.lastIndexOf(".") + 1).replaceAll("-", "\\.").trim();
-                svgLines[i] = svgLines[i].replaceFirst(
-                        "<text ",
-                        // Replace hyphens with dots to match Java package naming convention
-                        "<text id=\"" + cleanedCmpName + "\" ");
-                svgLines[i] = svgLines[i].replaceFirst("class " + cleanedCmpName,
-                        "class " + cleanedCmpName.replaceAll("-", "\\."));
-                // Also replace any remaining occurrences of the old PlantUML formatted name
-                svgLines[i] = svgLines[i].replace(pumlFormattedCmpName, cleanedCmpName);
-            }
+    private String stripQualifiedPumlIds(String pumlGeneratedSVG) {
+        if (diagramComponents == null || diagramComponents.isEmpty()) {
+            return pumlGeneratedSVG;
         }
-        return String.join(" ", svgLines);
+        String updatedSvg = pumlGeneratedSVG;
+        for (DiagramComponent component : diagramComponents) {
+            if (component == null || component.uniqueName() == null) {
+                continue;
+            }
+            String packageName = ComponentHelper.packagePath(component.pkg());
+            String pumlId = PUMLHelper.pumlId(component.uniqueName());
+            String qualifiedId;
+            if (packageName.isEmpty()) {
+                qualifiedId = " ." + pumlId;
+            } else {
+                qualifiedId = packageName + "." + pumlId;
+            }
+
+            updatedSvg = updatedSvg.replace(qualifiedId, pumlId);
+        }
+        return updatedSvg;
     }
 
     public final String svgText() {

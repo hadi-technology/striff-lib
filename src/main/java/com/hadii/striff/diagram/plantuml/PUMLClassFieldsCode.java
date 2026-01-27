@@ -5,7 +5,7 @@ import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.display.MetricBadges;
 import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.text.StiffComponentDocText;
+import com.hadii.striff.text.StriffComponentDocText;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -240,7 +240,7 @@ final class PUMLClassFieldsCode {
      * Generates PlantUML code for the given component's documentation.
      */
     private String componentDocText(int docTextCharLen, DiagramComponent component) {
-        String commentStr = new StiffComponentDocText(component.comment().trim(), docTextCharLen).value();
+        String commentStr = new StriffComponentDocText(component.comment().trim(), docTextCharLen).value();
         if (!commentStr.isEmpty()) {
             if (commentStr.length() < 800) {
                 commentStr += "\n";
