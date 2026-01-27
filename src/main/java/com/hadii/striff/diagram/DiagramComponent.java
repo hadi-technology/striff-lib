@@ -11,8 +11,11 @@ import com.hadii.striff.metrics.MetricChange;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +23,7 @@ public class DiagramComponent {
 
     private final Component cmp;
     private final List<String> children = new ArrayList<>();
+    private final Map<String, Object> augmentations = new HashMap<>();
     private MetricChange metricChange;
 
     /**
@@ -64,6 +68,16 @@ public class DiagramComponent {
 
     public boolean hasMetricChange() {
         return metricChange != null;
+    }
+
+    @JsonIgnore
+    public void putAugmentation(String key, Object value) {
+        augmentations.put(key, value);
+    }
+
+    @JsonIgnore
+    public Optional<Object> augmentation(String key) {
+        return Optional.ofNullable(augmentations.get(key));
     }
 
     public List<String> children() {
