@@ -114,7 +114,7 @@ public class MetricBadges {
     }
 
     private String touchUpSVG(String svg) throws IOException, TranscoderException {
-        svg = scaleSVG(cleanupPercentageText(removeEmptyImageTags(svg), "#000"), "0.9")
+        svg = cleanupPercentageText(removeEmptyImageTags(svg), "#000")
                 .replace("clip-path=\"url(#r)\"", "");
         if (svg.contains(new String(Character.toChars(0x2064)))) {
             // No percentage change visible, remove right rectangle

@@ -5,7 +5,7 @@
 	<groupId>com.github.hadii-tech</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>2.0.0</version>
+	<version>2.0.1</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadii-tech/striff-lib</url>
@@ -48,7 +48,18 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20180130</version>
+			<version>20231013</version>
+		</dependency>
+		<dependency>
+			<groupId>org.skyscreamer</groupId>
+			<artifactId>jsonassert</artifactId>
+			<version>1.5.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin.external.google</groupId>
+					<artifactId>android-json</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
@@ -66,9 +77,15 @@
 			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.6.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-transcoder</artifactId>
-			<version>1.16</version>
+			<version>1.17</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
@@ -103,7 +120,7 @@
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
 			<artifactId>plantuml</artifactId>
-			<version>1.2020.23</version>
+			<version>1.2026.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
@@ -129,7 +146,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.7</version>
+			<version>2.14.0</version>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
@@ -235,31 +252,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.7.3.0</version>
-				<configuration>
-					<excludeFilterFile>src/main/resources/spotbugs_exclude.xml</excludeFilterFile>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>com.github.spotbugs</groupId>
-						<artifactId>spotbugs</artifactId>
-						<version>4.7.3</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<!-- Ensures that Spotbugs inspects source code when project is compiled. -->
-					<execution>
-						<id>analyze-compile</id>
-						<phase>package</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -270,7 +262,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.11.2</version>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
@@ -283,7 +275,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.0.1</version>
+						<version>3.3.1</version>
 						<executions>
 							<execution>
 								<id>attach-sources</id>
@@ -310,7 +302,7 @@
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.8</version>
+						<version>1.6.13</version>
 						<extensions>true</extensions>
 						<configuration>
 							<serverId>ossrh</serverId>

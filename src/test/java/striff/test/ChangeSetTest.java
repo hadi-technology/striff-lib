@@ -195,6 +195,38 @@ public class ChangeSetTest {
     }
 
     @Test
+    public void testModifiedComponentDetected() {
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        oldComponent.setCodeHash(101);
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+
+        Component newComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        newComponent.setCodeHash(202);
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newComponent);
+
+        ChangeSet changeSet = new ChangeSet(oldModel, newModel);
+        assertEquals(1, changeSet.modifiedComponents().size());
+        assertTrue(changeSet.modifiedComponents().contains(newComponent.uniqueName()));
+    }
+
+    @Test
+    public void testUnmodifiedComponentNotDetected() {
+        Component oldComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        oldComponent.setCodeHash(101);
+        OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
+        oldModel.insertComponent(oldComponent);
+
+        Component newComponent = setupComponent(OOPSourceModelConstants.ComponentType.CLASS, "Animal");
+        newComponent.setCodeHash(101);
+        OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        newModel.insertComponent(newComponent);
+
+        assertEquals(0, new ChangeSet(oldModel, newModel).modifiedComponents().size());
+    }
+
+    @Test
     public void testAddedRelations() {
         Component oldStrawBerryComponent = new Component();
         oldStrawBerryComponent.setComponentName("Strawberry");

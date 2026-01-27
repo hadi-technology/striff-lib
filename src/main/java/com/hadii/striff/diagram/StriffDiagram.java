@@ -12,6 +12,8 @@ import com.hadii.striff.diagram.plantuml.PUMLDiagramData;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import com.hadii.striff.extractor.RelationsMap;
 import com.hadii.striff.parse.CodeDiff;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +30,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class StriffDiagram {
 
+    private static final Logger LOGGER = LogManager.getLogger(StriffDiagram.class);
     private final Set<String> containedPkgs = new HashSet<>();
     private String svgCode;
     private final Set<DiagramComponent> diagramComponents;
@@ -41,7 +44,14 @@ public class StriffDiagram {
         this.diagramComponents = diagramComponents;
         this.diagramComponents.forEach(
                 cmp -> this.containedPkgs.add(ComponentHelper.packagePath(cmp.pkg())));
-        if (!config.metadataOnly()) {
+        boolean skipDiagramGeneration = config.metadataOnly();
+        if (this.diagramComponents.size() > config.maxComponentsPerDiagram()) {
+            LOGGER.warn("Skipping PlantUML rendering for diagram with {} components (limit: {}). "
+                    + "Metadata will still be returned.",
+                    this.diagramComponents.size(), config.maxComponentsPerDiagram());
+            skipDiagramGeneration = true;
+        }
+        if (!skipDiagramGeneration) {
             this.svgCode = new PUMLDiagram(new PUMLDiagramData(diagramRels, codeDiff.changeSet().addedRelations(),
                     codeDiff.changeSet().deletedRelations(), diagramDisplay,
                     codeDiff.mergedModel(), codeDiff.changeSet().addedComponents(),

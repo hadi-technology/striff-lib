@@ -42,8 +42,8 @@ public class StriffOperationTest {
 				.result().diagrams();
 
 		assertEquals(1, striffs.size());
-		assertEquals(13, striffs.get(0).containedPkgs().size());
-		assertEquals(25, striffs.get(0).size());
+		assertEquals(14, striffs.get(0).containedPkgs().size());
+		assertEquals(33, striffs.get(0).size());
 	}
 
 	@Test

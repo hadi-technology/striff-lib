@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Represents the product of merging multiple {@link StriffCodeModel} together.
+ * Represents the product of merging multiple {@link OOPSourceCodeModel} together.
  */
 public class CodeDiff {
 

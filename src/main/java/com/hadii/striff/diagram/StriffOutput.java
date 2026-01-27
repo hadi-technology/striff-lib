@@ -93,7 +93,7 @@ public class StriffOutput {
             throw new IllegalArgumentException("Placement strategy " + placementStrategy + " is not supported!");
         }
 
-        LOGGER.info(this.diagrams.size() + " diagrams were generated.");
+        LOGGER.info(this.diagrams.size() + " StriffDiagram objects were generated.");
     }
 
     private Set<String> cmpPkgs(Set<DiagramComponent> cmps) {
