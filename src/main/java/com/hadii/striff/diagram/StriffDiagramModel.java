@@ -6,6 +6,8 @@ import com.hadii.striff.annotations.LogExecutionTime;
 import com.hadii.striff.extractor.RelationsMap;
 import com.hadii.striff.metrics.OOPMetricsChangeAnalyzer;
 import com.hadii.striff.parse.CodeDiff;
+import com.hadii.striff.spi.DiagramAugmenter;
+import com.hadii.striff.spi.SpiLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,6 +51,9 @@ public class StriffDiagramModel {
             getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
                     cmpName -> this.diagramCmps.add(new DiagramComponent(
                             cmpName, codeDiff.mergedModel())));
+        }
+        if (processMetrics) {
+            applyAugmenters(codeDiff);
         }
         getCoreRelations(this.diagramCmps, codeDiff.extractedRels());
     }
@@ -103,5 +108,11 @@ public class StriffDiagramModel {
 
     public boolean empty() {
         return this.diagramCmps.isEmpty();
+    }
+
+    private void applyAugmenters(CodeDiff codeDiff) {
+        for (DiagramAugmenter augmenter : SpiLoader.loadOrdered(DiagramAugmenter.class, DiagramAugmenter::order)) {
+            augmenter.augment(codeDiff, this.diagramCmps);
+        }
     }
 }
