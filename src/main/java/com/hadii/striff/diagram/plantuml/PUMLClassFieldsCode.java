@@ -5,6 +5,8 @@ import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.display.MetricBadges;
 import com.hadii.striff.diagram.display.DiagramDisplay;
+import com.hadii.striff.spi.ClassDecorator;
+import com.hadii.striff.spi.ClassInsertionPoint;
 import com.hadii.striff.text.StriffComponentDocText;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,7 @@ final class PUMLClassFieldsCode {
     private final Set<String> addedComponents;
     private final Set<String> modifiedComponents;
     private final DiagramDisplay diagramDisplay;
+    private final List<ClassDecorator> classDecorators;
     private int commentTextIndex = 1;
     private static final Logger LOGGER = LogManager.getLogger(PUMLClassFieldsCode.class);
 
@@ -35,6 +38,7 @@ final class PUMLClassFieldsCode {
         this.deletedComponents = data.deletedCmps();
         this.modifiedComponents = data.modifiedCmps();
         this.diagramDisplay = data.diagramDisplay();
+        this.classDecorators = data.classDecorators();
     }
 
     public String value(Collection<DiagramComponent> cmps) {
@@ -71,6 +75,7 @@ final class PUMLClassFieldsCode {
 
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
+            emitDecorators(componentPUMLStrings, ClassInsertionPoint.TOP, cmp);
             // Insert metrics
             try {
                 if (cmp.hasMetricChange()) {
@@ -122,6 +127,7 @@ final class PUMLClassFieldsCode {
             if (!zeroFields) {
                 componentPUMLStrings.add("--\n");
             }
+            emitDecorators(componentPUMLStrings, ClassInsertionPoint.AFTER_FIELDS, cmp);
             // Insert PUML text for method children
             boolean zeroMethods = true;
             for (DiagramComponent methodChild : methodChilds) {
@@ -141,6 +147,7 @@ final class PUMLClassFieldsCode {
             if (zeroMethods && !zeroFields) {
                 componentPUMLStrings.remove(componentPUMLStrings.size() - 1);
             }
+            emitDecorators(componentPUMLStrings, ClassInsertionPoint.AFTER_METHODS, cmp);
             // Generate cmp doc text last since it needs to fit within the cmp box
             // width constraints.
             if (cmp.comment() != null && !cmp.comment().isEmpty()) {
@@ -154,9 +161,25 @@ final class PUMLClassFieldsCode {
                     }
                 }
             }
+            emitDecorators(componentPUMLStrings, ClassInsertionPoint.BOTTOM, cmp);
             tempStrBuilder.append(StringUtils.join(componentPUMLStrings, " ")).append("}\n");
         }
         return tempStrBuilder.toString();
+    }
+
+    private void emitDecorators(List<String> out, ClassInsertionPoint point, DiagramComponent component) {
+        if (classDecorators.isEmpty()) {
+            return;
+        }
+        for (ClassDecorator decorator : classDecorators) {
+            if (decorator.insertionPoint() != point) {
+                continue;
+            }
+            List<String> extra = decorator.decorateClass(component, diagramDisplay);
+            if (extra != null && !extra.isEmpty()) {
+                out.addAll(extra);
+            }
+        }
     }
 
     private boolean shouldDisplayChildCmp(boolean isLargeParentCmp, DiagramComponent childComponent) {

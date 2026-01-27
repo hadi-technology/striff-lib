@@ -1,9 +1,13 @@
 package com.hadii.striff.diagram.plantuml;
 
-import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.extractor.RelationsMap;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.striff.diagram.DiagramComponent;
+import com.hadii.striff.diagram.display.DiagramDisplay;
+import com.hadii.striff.extractor.RelationsMap;
+import com.hadii.striff.spi.ClassDecorator;
+import com.hadii.striff.spi.SpiLoader;
+
+import java.util.List;
 import java.util.Set;
 
 public class PUMLDiagramData {
@@ -16,6 +20,7 @@ public class PUMLDiagramData {
     private final Set<String> deletedCmps;
     private final Set<String> modifiedCmps;
     private final Set<DiagramComponent> diagramCmps;
+    private final List<ClassDecorator> classDecorators;
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
@@ -29,6 +34,7 @@ public class PUMLDiagramData {
         this.deletedCmps = deletedCmps;
         this.modifiedCmps = modifiedCmps;
         this.diagramCmps = diagramCmps;
+        this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
     }
 
     public RelationsMap diagramRels() {
@@ -65,5 +71,9 @@ public class PUMLDiagramData {
 
     public Set<DiagramComponent> diagramCmps() {
         return diagramCmps;
+    }
+
+    public List<ClassDecorator> classDecorators() {
+        return classDecorators;
     }
 }
