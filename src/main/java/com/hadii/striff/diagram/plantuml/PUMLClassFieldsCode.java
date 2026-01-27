@@ -4,7 +4,6 @@ import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.metrics.spi.OopMetricsAugmentation;
 import com.hadii.striff.spi.ClassDecorator;
 import com.hadii.striff.spi.ClassInsertionPoint;
 import com.hadii.striff.text.StriffComponentDocText;
@@ -73,11 +72,6 @@ final class PUMLClassFieldsCode {
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
             emitDecorators(componentPUMLStrings, ClassInsertionPoint.TOP, cmp);
-            // Align comment placement with metrics decorators when present.
-            boolean hasOopMetricsAugmentation = cmp.augmentation(OopMetricsAugmentation.KEY).isPresent();
-            if (hasOopMetricsAugmentation) {
-                this.commentTextIndex = 2;
-            }
             // Stores the required length of lines in the cmp's doc text preamble
             int docTextCharLen = 80;
             // Get all child components
