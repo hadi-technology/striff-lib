@@ -2,6 +2,7 @@ package com.hadii.striff;
 
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.striff.diagram.display.DiagramColorScheme;
+import com.hadii.striff.diagram.display.DiagramDisplayOverride;
 import com.hadii.striff.diagram.display.LightDiagramColorScheme;
 import com.hadii.striff.diagram.display.OutputMode;
 import org.apache.logging.log4j.LogManager;
@@ -35,6 +36,7 @@ public class StriffConfig {
     // Control for SVG code generation
     private boolean metadataOnly = false;
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
+    private DiagramDisplayOverride displayOverride = null;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
      */
@@ -88,6 +90,11 @@ public class StriffConfig {
         return this;
     }
 
+    public StriffConfig setDisplayOverride(DiagramDisplayOverride displayOverride) {
+        this.displayOverride = displayOverride;
+        return this;
+    }
+
     public OutputMode outputMode() {
         return this.outputMode;
     }
@@ -98,6 +105,10 @@ public class StriffConfig {
 
     public DiagramColorScheme colorScheme() {
         return this.colorScheme;
+    }
+
+    public DiagramDisplayOverride displayOverride() {
+        return this.displayOverride;
     }
 
     public Set<Lang> languages() {
