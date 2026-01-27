@@ -3,7 +3,6 @@ package com.hadii.striff.diagram.plantuml;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.display.MetricBadges;
 import com.hadii.striff.diagram.display.DiagramDisplay;
 import com.hadii.striff.metrics.spi.OopMetricsAugmentation;
 import com.hadii.striff.spi.ClassDecorator;
@@ -11,8 +10,6 @@ import com.hadii.striff.spi.ClassInsertionPoint;
 import com.hadii.striff.text.StriffComponentDocText;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +28,6 @@ final class PUMLClassFieldsCode {
     private final DiagramDisplay diagramDisplay;
     private final List<ClassDecorator> classDecorators;
     private int commentTextIndex = 1;
-    private static final Logger LOGGER = LogManager.getLogger(PUMLClassFieldsCode.class);
 
     PUMLClassFieldsCode(PUMLDiagramData data) {
         this.mergedModel = data.mergedModel();
@@ -77,23 +73,10 @@ final class PUMLClassFieldsCode {
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
             emitDecorators(componentPUMLStrings, ClassInsertionPoint.TOP, cmp);
-            // Insert metrics (skip direct rendering if SPI augmentation is present)
+            // Align comment placement with metrics decorators when present.
             boolean hasOopMetricsAugmentation = cmp.augmentation(OopMetricsAugmentation.KEY).isPresent();
             if (hasOopMetricsAugmentation) {
                 this.commentTextIndex = 2;
-            } else {
-                try {
-                    if (cmp.hasMetricChange()) {
-                        this.commentTextIndex = 2;
-                        componentPUMLStrings
-                                .add(new MetricBadges(diagramDisplay.colorScheme()).metricBadges(cmp.getMetricChange(),
-                                        this.deletedComponents.contains(cmp.uniqueName()),
-                                        this.addedComponents.contains(cmp.uniqueName())));
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Could not generate badges!", e);
-                    componentPUMLStrings.add("---\n");
-                }
             }
             // Stores the required length of lines in the cmp's doc text preamble
             int docTextCharLen = 80;

@@ -4,7 +4,6 @@ import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.striff.ChangeSet;
 import com.hadii.striff.annotations.LogExecutionTime;
 import com.hadii.striff.extractor.RelationsMap;
-import com.hadii.striff.metrics.OOPMetricsChangeAnalyzer;
 import com.hadii.striff.parse.CodeDiff;
 import com.hadii.striff.spi.DiagramAugmenter;
 import com.hadii.striff.spi.SpiLoader;
@@ -40,18 +39,9 @@ public class StriffDiagramModel {
                 .filter(cmp -> sourceFilesFilter.contains(cmp.sourceFile())).map(Component::uniqueName)
                 .collect(Collectors.toSet());
         LOGGER.debug("The following components will be analyzed: " + targetCmpNames);
-        if (processMetrics) {
-            LOGGER.info("Calculating metrics...");
-            OOPMetricsChangeAnalyzer oopMetricsChangeAnalyzer = new OOPMetricsChangeAnalyzer(
-                    codeDiff.oldModel(), codeDiff.newModel(), targetCmpNames);
-            getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
-                    cmpName -> this.diagramCmps.add(new DiagramComponent(
-                            cmpName, oopMetricsChangeAnalyzer.analyzeChanges(cmpName).get(), codeDiff.mergedModel())));
-        } else {
-            getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
-                    cmpName -> this.diagramCmps.add(new DiagramComponent(
-                            cmpName, codeDiff.mergedModel())));
-        }
+        getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
+                cmpName -> this.diagramCmps.add(new DiagramComponent(
+                        cmpName, codeDiff.mergedModel())));
         if (processMetrics) {
             applyAugmenters(codeDiff);
         }

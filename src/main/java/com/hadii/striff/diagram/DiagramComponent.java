@@ -7,8 +7,6 @@ import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.clarpse.sourcemodel.Package;
-import com.hadii.striff.metrics.MetricChange;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ public class DiagramComponent {
     private final Component cmp;
     private final List<String> children = new ArrayList<>();
     private final Map<String, Object> augmentations = new HashMap<>();
-    private MetricChange metricChange;
 
     /**
      * If serialization only is needed, this no-arg constructor
@@ -52,22 +49,8 @@ public class DiagramComponent {
         this.cmp.setComponentName(componentName);
     }
 
-    public DiagramComponent(String cmpName, MetricChange metricChange, OOPSourceCodeModel srcModel) {
-        this(srcModel.getComponent(cmpName).orElse(new Component()), srcModel);
-        this.metricChange = metricChange;
-    }
-
     public DiagramComponent(String cmpName, OOPSourceCodeModel srcModel) {
         this(srcModel.getComponent(cmpName).orElse(new Component()), srcModel);
-    }
-
-    @JsonProperty("metricChange")
-    public MetricChange getMetricChange() {
-        return metricChange;
-    }
-
-    public boolean hasMetricChange() {
-        return metricChange != null;
     }
 
     @JsonIgnore
