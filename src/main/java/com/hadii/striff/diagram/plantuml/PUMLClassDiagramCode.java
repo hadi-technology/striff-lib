@@ -1,6 +1,9 @@
 package com.hadii.striff.diagram.plantuml;
 
 import com.hadii.striff.diagram.display.DiagramColorScheme;
+import com.hadii.striff.spi.DiagramDecorator;
+
+import java.util.List;
 
 final class PUMLClassDiagramCode {
 
@@ -9,10 +12,11 @@ final class PUMLClassDiagramCode {
     private final String code;
 
     PUMLClassDiagramCode(PUMLDiagramData data) {
+        String diagramDecorations = diagramDecoratorsText(data);
         this.code = PLANT_UML_BEGIN_STRING
                 + plantUMLStyleBlock(data.diagramDisplay().colorScheme())
                 + plantUMLSkinParamText(data.diagramDisplay().colorScheme())
-                + "\n" + new PUMLPackageCode(data).value()
+                + "\n" + diagramDecorations + new PUMLPackageCode(data).value()
                 + "\n"
                 + new PUMLClassRelationsCode(data).value()
                 + PLANT_UML_END_STRING;
@@ -92,5 +96,22 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()
                 + "\nskinparam packageFontName " + colorScheme.packageFontName()
                 + "\nskinparam packageFontStyle " + colorScheme.packageFontStyle();
+    }
+
+    private String diagramDecoratorsText(PUMLDiagramData data) {
+        StringBuilder builder = new StringBuilder();
+        for (DiagramDecorator decorator : data.diagramDecorators()) {
+            List<String> extra = decorator.decorateDiagram(data.diagramDisplay());
+            if (extra == null || extra.isEmpty()) {
+                continue;
+            }
+            for (String line : extra) {
+                builder.append(line);
+                if (!line.endsWith("\n")) {
+                    builder.append("\n");
+                }
+            }
+        }
+        return builder.toString();
     }
 }
