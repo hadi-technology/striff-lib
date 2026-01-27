@@ -12,12 +12,12 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classFontSize() {
-        return "12";
+        return "14";
     }
 
     @Override
     public String backgroundColor() {
-        return "transparent";
+        return "#f8f8f8";
     }
 
     @Override
@@ -42,7 +42,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classArrowFontColor() {
-        return classAttributeFontColor();
+        return "#24292E";
     }
 
     @Override
@@ -66,13 +66,8 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
-    public String classAttributeFontColor() {
-        return "#24292e";
-    }
-
-    @Override
     public String classBorderThickness() {
-        return "0.4";
+        return "1";
     }
 
     @Override
@@ -97,7 +92,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String classHeaderBackgroundColor() {
-        return classAttributeFontColor();
+        return "#24292E";
     }
 
     @Override
@@ -117,7 +112,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageFontColor() {
-        return classAttributeFontColor();
+        return "#24292E";
     }
 
     @Override
@@ -141,11 +136,6 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
-    public String classCircledCharacterFontColor() {
-        return objectColorBackground();
-    }
-
-    @Override
     public String addedComponentColor() {
         return "#bef5cb";
     }
@@ -156,28 +146,8 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
-    public String classCircledCharacterFontSize() {
-        return "10";
-    }
-
-    @Override
-    public String classCircledCharacterBackgroundColor() {
-        return "#d4d4d4";
-    }
-
-    @Override
-    public String structCircledCharacterBackgroundColor() {
-        return "#d4d4d4";
-    }
-
-    @Override
-    public String classStereoTypeFontColor() {
-        return "#000";
-    }
-
-    @Override
     public String modifiedComponentColor() {
-        return "#f5e6b3";
+        return "#b3e3f5";
     }
 
     @Override

@@ -10,6 +10,27 @@
 * Ensure `graphviz` is installed on your system.
 * Execute `mvn clean package assembly:single` to  build jar. 
 * `StriffAPITest.java` demonstrates how to use this library to generate striff diagrams. 
+* If you want to avoid rendering very large diagrams, configure a hard cap (defaults to 120 components) via `StriffConfig.setMaxComponentsPerDiagram(...)`; diagrams over the cap will return metadata only.
 
+### Versions & Requirements
+* Java 17 (see `maven.compiler.source/target` in `pom.xml`).
+* Maven 3.x.
+* Graphviz (`dot`) installed and on PATH.
 
+### Quickstart
+Minimal example (full examples in `src/test/java/striff/test/StriffAPITest.java`):
+
+```java
+ProjectFiles oldFiles = new ProjectFiles("/path/to/original/code");
+ProjectFiles newFiles = new ProjectFiles("/path/to/modified/code");
+List<StriffDiagram> striffs = new StriffOperation(
+        oldFiles, newFiles, new StriffConfig()).result().diagrams();
+writeStriffsToDisk(striffs); // outputs SVGs to /tmp/striffs
+```
+
+### Known Limitations & Tuning
+* Large codebases can produce very large diagrams; cap the output with
+  `StriffConfig.setMaxComponentsPerDiagram(...)` (default is 120).
+* If you see performance or memory issues, reduce scope by filtering files
+  or increasing the component cap only for smaller modules.
 

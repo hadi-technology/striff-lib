@@ -5,7 +5,7 @@ import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadii.striff.diagram.DiagramComponent;
 import com.hadii.striff.diagram.display.MetricBadges;
 import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.text.StiffComponentDocText;
+import com.hadii.striff.text.StriffComponentDocText;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -53,25 +53,22 @@ final class PUMLClassFieldsCode {
             boolean largeComponent = cmp.children().size() > MAX_ATTRIBUTE_SIZE;
             // Insert cmp type name (eg: class, interface, etc...)
             cmpPUMLStr += cmp.componentType().getValue() + " ";
-            // Insert the actual cmp unique name
-            cmpPUMLStr += cmp.name() + " as \"";
+            // Insert the actual cmp unique name with hyphens instead of dots since
+            // PUML attempts to parse dots as nested packages (we are handling
+            // packages explicitly ourselves)
+            cmpPUMLStr += PUMLHelper.pumlId(cmp.uniqueName()) + " as \"";
             // Insert cmp display name
             if (largeComponent) {
-                cmpPUMLStr += cmp.name() + " <b><color:"
+                cmpPUMLStr += cmp.componentName() + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += cmp.name() + "\"";
+                cmpPUMLStr += cmp.componentName() + "\"";
             }
             // Insert class generics if required
             if (cmp.codeFragment() != null) {
                 cmpPUMLStr += (cmp.codeFragment());
             }
-            // Custom circled character styling...
-            if (cmp.componentType() == OOPSourceModelConstants.ComponentType.CLASS
-                    || cmp.componentType() == OOPSourceModelConstants.ComponentType.STRUCT) {
-                cmpPUMLStr += " << (C," + this.diagramDisplay.colorScheme().classCircledCharacterBackgroundColor() + ")"
-                        + " >> ";
-            }
+
             // Insert background color tag
             componentPUMLStrings.add(enhanceBaseCmp(cmp, cmpPUMLStr) + " {\n");
             // Insert metrics
@@ -243,7 +240,7 @@ final class PUMLClassFieldsCode {
      * Generates PlantUML code for the given component's documentation.
      */
     private String componentDocText(int docTextCharLen, DiagramComponent component) {
-        String commentStr = new StiffComponentDocText(component.comment().trim(), docTextCharLen).value();
+        String commentStr = new StriffComponentDocText(component.comment().trim(), docTextCharLen).value();
         if (!commentStr.isEmpty()) {
             if (commentStr.length() < 800) {
                 commentStr += "\n";

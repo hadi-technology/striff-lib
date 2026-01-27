@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,12 +74,12 @@ public class TestUtil {
         return changedFiles;
     }
 
-    public static void writeStriffsToDisk(List<StriffDiagram> striffs, String folderName) throws IOException {
-        String striffDirectory = System.getProperty("java.io.tmpdir") + "/" + folderName;
-        Files.createDirectories(Paths.get(striffDirectory));
+    public static void writeStriffsToDisk(List<StriffDiagram> striffs) throws IOException {
+        Path striffDirectory = Paths.get(System.getProperty("java.io.tmpdir"), "striffs");
+        Files.createDirectories(striffDirectory);
         for (int i = 0; i < striffs.size(); i ++) {
             File diagramFile =
-                new File(striffDirectory + "/" + i + ".svg");
+                new File(striffDirectory.toString() + "/" + i + ".svg");
             PrintWriter writer = new PrintWriter(diagramFile);
             writer.println(striffs.get(i).svg());
             writer.close();

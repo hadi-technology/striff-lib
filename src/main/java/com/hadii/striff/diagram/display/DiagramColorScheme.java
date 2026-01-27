@@ -32,10 +32,6 @@ public interface DiagramColorScheme {
 
     String zoomOutIconColor();
 
-    String classCircledCharacterFontColor();
-
-    String classAttributeFontColor();
-
     String classBorderThickness();
 
     String classAttributeFontName();
@@ -71,12 +67,4 @@ public interface DiagramColorScheme {
     String deletedRelationColor();
 
     String deletedComponentColor();
-
-    String classCircledCharacterFontSize();
-
-    String classCircledCharacterBackgroundColor();
-
-    String structCircledCharacterBackgroundColor();
-
-    String classStereoTypeFontColor();
 }

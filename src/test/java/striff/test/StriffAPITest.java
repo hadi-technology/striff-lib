@@ -35,7 +35,7 @@ public class StriffAPITest {
 		List<StriffDiagram> striffs = new StriffOperation(
 				originalCode, modifiedCode, new StriffConfig()).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());
-		writeStriffsToDisk(striffs, "sample-striffs");
+		writeStriffsToDisk(striffs);
 	}
 
 	/**
@@ -51,10 +51,10 @@ public class StriffAPITest {
 		ProjectFiles oldFiles = githubProjectFiles(
 				baseRepoOwner, repoName, "master", language);
 		ProjectFiles newFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "metrics", language);
+				baseRepoOwner, repoName, "tmp-changes", language);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, new StriffConfig()).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());
-		writeStriffsToDisk(striffs, "github-striffs-demo");
+		writeStriffsToDisk(striffs);
 	}
 }

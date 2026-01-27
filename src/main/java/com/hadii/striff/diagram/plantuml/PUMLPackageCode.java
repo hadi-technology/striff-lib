@@ -24,7 +24,7 @@ public class PUMLPackageCode {
                                  .collect(Collectors.toSet());
             if (entry.getKey() == null || entry.getKey().isEmpty()) {
                 // PUML namespaces cannot be empty, so we need to use the package keyword...
-                stringBuffer.append("package ");
+                stringBuffer.append("package \" \"");
             } else {
                 stringBuffer.append("namespace ");
             }
