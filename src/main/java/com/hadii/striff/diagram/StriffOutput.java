@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hadii.clarpse.compiler.ProjectFile;
 import com.hadii.striff.StriffConfig;
 import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.diagram.display.DiagramDisplayOverride;
 import com.hadii.striff.diagram.display.OutputMode;
 import com.hadii.striff.diagram.display.PartitionPlacement;
 import com.hadii.striff.diagram.partition.PackagePartitionStrategy;
@@ -13,8 +12,6 @@ import com.hadii.striff.diagram.partition.PartitionStrategy;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
 import com.hadii.striff.extractor.RelationsMap;
 import com.hadii.striff.parse.CodeDiff;
-import com.hadii.striff.spi.DisplayDefaultsProvider;
-import com.hadii.striff.spi.SpiLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -113,18 +110,7 @@ public class StriffOutput {
 
     private DiagramDisplay resolveDiagramDisplay(StriffConfig config, Set<String> pkgs) {
         DiagramDisplay baseDisplay = new DiagramDisplay(config.colorScheme(), pkgs);
-        DiagramDisplay displayWithDefaults = applyDisplayDefaults(baseDisplay);
-        return displayWithDefaults.merge(config.displayOverride());
-    }
-
-    private DiagramDisplay applyDisplayDefaults(DiagramDisplay baseDisplay) {
-        DiagramDisplay display = baseDisplay;
-        for (DisplayDefaultsProvider provider :
-                SpiLoader.loadOrdered(DisplayDefaultsProvider.class, DisplayDefaultsProvider::order)) {
-            DiagramDisplayOverride override = provider.defaultsFor(display);
-            display = display.merge(override);
-        }
-        return display;
+        return baseDisplay.merge(config.displayOverride());
     }
 
     @JsonProperty("diagrams")

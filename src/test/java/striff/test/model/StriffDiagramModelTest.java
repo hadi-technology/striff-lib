@@ -139,10 +139,10 @@ public class StriffDiagramModelTest {
 
                 OOPSourceCodeModel newModel = new OOPSourceCodeModel();
                 assertEquals(new StriffDiagramModel(new CodeDiff(oldModel, newModel),
-                                Collections.singleton("animal.java"), false)
+                                Collections.singleton("animal.java"))
                                 .diagramCmps().size(), 1);
                 assertTrue(new StriffDiagramModel(new CodeDiff(oldModel, newModel),
-                                Collections.singleton("animal.java"), false)
+                                Collections.singleton("animal.java"))
                                 .diagramCmps()
                                 .contains(new DiagramComponent("Animal")));
         }
