@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import com.hadii.clarpse.reference.TypeExtensionReference;
 import com.hadii.clarpse.sourcemodel.Component;

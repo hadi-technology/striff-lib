@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.puml;
 
 import com.hadii.clarpse.compiler.CompileException;
 import com.hadii.clarpse.compiler.Lang;

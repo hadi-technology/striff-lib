@@ -29,11 +29,11 @@ public class StriffDiagramModel {
     private static final Logger LOGGER = LogManager.getLogger(StriffDiagramModel.class);
 
     public StriffDiagramModel(CodeDiff codeDiff) {
-        this(codeDiff, Collections.emptySet(), false);
+        this(codeDiff, Collections.emptySet());
     }
 
     @LogExecutionTime
-    public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter, boolean processMetrics) {
+    public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter) {
         LOGGER.info("Generating diagram model..");
         Set<String> targetCmpNames = codeDiff.mergedModel().components()
                 .filter(cmp -> sourceFilesFilter.contains(cmp.sourceFile())).map(Component::uniqueName)
@@ -42,9 +42,7 @@ public class StriffDiagramModel {
         getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
                 cmpName -> this.diagramCmps.add(new DiagramComponent(
                         cmpName, codeDiff.mergedModel())));
-        if (processMetrics) {
-            applyAugmenters(codeDiff);
-        }
+        applyAugmenters(codeDiff);
         getCoreRelations(this.diagramCmps, codeDiff.extractedRels());
     }
 

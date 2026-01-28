@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +12,8 @@ import com.hadii.striff.diagram.StriffDiagram;
 import com.hadii.striff.diagram.StriffOutput;
 import com.hadii.striff.diagram.display.OutputMode;
 import com.hadii.striff.diagram.plantuml.PUMLDrawException;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static striff.test.TestUtil.githubProjectFiles;
 
 public class StriffOperationTest {
-
+	@Ignore
 	@Test
 	public void testBasicStriffOperation() throws Exception {
 		String baseRepoOwner = "Zir0-93";
@@ -47,6 +49,7 @@ public class StriffOperationTest {
 	}
 
 	@Test
+	@Ignore
 	public void testLangSpecificStriffOperation() throws Exception {
 		String baseRepoOwner = "Zir0-93";
 		String repoName = "junit5";

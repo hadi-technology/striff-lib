@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import com.hadii.clarpse.compiler.Lang;
 import com.hadii.striff.StriffConfig;

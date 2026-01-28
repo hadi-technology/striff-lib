@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.spi;
 
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.CompileException;
@@ -53,7 +53,7 @@ public class ClassDecoratorNoOpTest {
             newFiles.insertFile(new ProjectFile("/B.java", "public class B { }"));
 
             CodeDiff diff = codeDiff(oldFiles, newFiles);
-            StriffDiagramModel model = new StriffDiagramModel(diff, Set.of(), false);
+            StriffDiagramModel model = new StriffDiagramModel(diff, Set.of());
             Set<DiagramComponent> diagramCmps = model.diagramCmps();
             DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), cmpPkgs(diagramCmps));
 

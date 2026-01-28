@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import static org.junit.Assert.assertTrue;
 
@@ -9,6 +9,7 @@ import com.hadii.clarpse.compiler.Lang;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadii.striff.extractor.DiagramConstants;
 import com.hadii.striff.extractor.ExtractedRelationships;
+import striff.test.TestUtil;
 
 /**
  * Tests to ensure component relations are being extracted correctly.

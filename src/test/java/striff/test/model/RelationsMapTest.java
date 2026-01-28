@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import com.hadii.clarpse.sourcemodel.Component;
 import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
@@ -8,8 +8,6 @@ import com.hadii.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
 import com.hadii.striff.extractor.ComponentAssociationMultiplicity;
 import com.hadii.striff.extractor.ComponentRelation;
 import com.hadii.striff.extractor.RelationsMap;
-import com.jayway.jsonpath.JsonPath;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -82,11 +80,11 @@ public class RelationsMapTest {
                 relMap.insertRelation(new ComponentRelation(
                                 classA, classB, new ComponentAssociationMultiplicity(DefaultClassMultiplicities.NONE),
                                 ComponentAssociation.AGGREGATION));
-                ObjectMapper objectMapper = new ObjectMapper();
-                String json = objectMapper.writeValueAsString(relMap);
-                int size = JsonPath.read(json, "$.size");
-                assertEquals(2, size);
-        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(relMap);
+        int size = objectMapper.readTree(json).path("size").asInt();
+        assertEquals(2, size);
+    }
 
         @Test
         public void testContainRels() {

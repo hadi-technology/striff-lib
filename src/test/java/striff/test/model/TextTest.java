@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.model;
 
 import com.hadii.striff.text.DefaultText;
 import com.hadii.striff.text.LineBreakedText;

@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.puml;
 
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.CompileException;
@@ -44,7 +44,7 @@ public class PlantUmlDeterminismTest {
         newFiles.insertFile(new ProjectFile("/B.java", "public class B { }"));
 
         CodeDiff diff = codeDiff(oldFiles, newFiles);
-        StriffDiagramModel model = new StriffDiagramModel(diff, Set.of(), false);
+        StriffDiagramModel model = new StriffDiagramModel(diff, Set.of());
         Set<DiagramComponent> diagramCmps = model.diagramCmps();
         DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), cmpPkgs(diagramCmps));
 

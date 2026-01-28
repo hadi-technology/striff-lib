@@ -32,7 +32,6 @@ public class StriffConfig {
      */
     private Set<String> filesFilter = Collections.emptySet();
     private Set<Lang> languages = new HashSet<>(Lang.supportedLanguages());
-    private boolean processMetrics = true;
     // Control for SVG code generation
     private boolean metadataOnly = false;
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
@@ -67,10 +66,6 @@ public class StriffConfig {
         return this;
     }
 
-    public StriffConfig setProcessMetrics(boolean processMetrics) {
-        this.processMetrics = processMetrics;
-        return this;
-    }
 
     public StriffConfig setMetadataOnly(boolean metadataOnly) {
         this.metadataOnly = metadataOnly;
@@ -115,9 +110,6 @@ public class StriffConfig {
         return this.languages;
     }
 
-    public boolean processMetrics() {
-        return this.processMetrics;
-    }
 
     public boolean metadataOnly() {
         return this.metadataOnly;

@@ -1,4 +1,4 @@
-package striff.test;
+package striff.test.display;
 
 import com.hadii.clarpse.compiler.ClarpseProject;
 import com.hadii.clarpse.compiler.CompileException;
@@ -29,7 +29,7 @@ public class DiagramDisplayOverrideTest {
     @Test
     public void overrideUpdatesOnlySpecifiedValues() throws Exception {
         CodeDiff diff = codeDiff();
-        StriffDiagramModel model = new StriffDiagramModel(diff, Set.of(), false);
+        StriffDiagramModel model = new StriffDiagramModel(diff, Set.of());
         Set<DiagramComponent> diagramCmps = model.diagramCmps();
         Set<String> pkgs = cmpPkgs(diagramCmps);
 

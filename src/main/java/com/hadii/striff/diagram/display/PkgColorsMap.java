@@ -1,8 +1,10 @@
 package com.hadii.striff.diagram.display;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -30,15 +32,19 @@ public class PkgColorsMap {
 
     static final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
 
-    private static final Random RANDOM = new Random();
+    private final Map<String, String> pkgColorMap = new LinkedHashMap<>();
 
-    private final Map<String, String> pkgColorMap = new HashMap<>();
-
+    /**
+     * Deterministic ordering is important so PlantUML text output is stable
+     * between runs; this avoids noisy diffs and regression test flakiness.
+     */
     public PkgColorsMap(Set<String> pkgs) {
-        pkgs.forEach(pkg -> {
-            String currColor = this.pkgColors[RANDOM.nextInt(this.pkgColors.length)];
-            this.pkgColorMap.put(pkg, currColor);
-        });
+        List<String> sortedPkgs = new ArrayList<>(pkgs);
+        Collections.sort(sortedPkgs);
+        for (int i = 0; i < sortedPkgs.size(); i++) {
+            String currColor = this.pkgColors[i % this.pkgColors.length];
+            this.pkgColorMap.put(sortedPkgs.get(i), currColor);
+        }
     }
 
     public String color(String pkg) {
