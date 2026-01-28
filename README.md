@@ -1,5 +1,5 @@
 # [striff-lib](https://striff.io)
-[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadii%20Technologies-violet.svg)](https://hadii.ca) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.hadii-tech/striff-lib/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.hadii-tech/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadii-tech/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![codecov](https://codecov.io/gh/hadii-tech/clarpse/branch/master/graph/badge.svg?token=7uf2jQMlH1)](https://codecov.io/gh/hadii-tech/clarpse) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-orange.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadii%20Technologies-violet.svg)](https://hadii.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/com.github.hadii-tech/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/com.github.hadii-tech/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadii-tech/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![codecov](https://codecov.io/gh/hadii-tech/clarpse/branch/master/graph/badge.svg?token=7uf2jQMlH1)](https://codecov.io/gh/hadii-tech/clarpse) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-orange.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 ### Architectural Diagrams, Made For Code Reviews.
@@ -8,30 +8,148 @@ Striffs leverage the basic premise surrounding the utility of line-wise code dif
 ![sample_striff](striff.png)
 
 ### Getting Started
-* Ensure `graphviz` is installed on your system.
-* Execute `mvn clean package assembly:single` to  build jar. 
-* `StriffAPITest.java` demonstrates how to use this library to generate striff diagrams. 
-* If you want to avoid rendering very large diagrams, configure a hard cap (defaults to 120 components) via `StriffConfig.setMaxComponentsPerDiagram(...)`; diagrams over the cap will return metadata only.
+* Ensure `graphviz` is installed on your system (required for SVG rendering).
+* Java 17 and Maven 3.x are required (see `pom.xml`).
+* Add the dependency:
 
-### Versions & Requirements
-* Java 17 (see `maven.compiler.source/target` in `pom.xml`).
-* Maven 3.x.
-* Graphviz (`dot`) installed and on PATH.
+```xml
+<dependency>
+  <groupId>com.github.hadii-tech</groupId>
+  <artifactId>striff-lib</artifactId>
+  <version>3.0.0</version>
+</dependency>
+```
+
+* Build from source:
+
+```bash
+mvn clean package assembly:single
+```
 
 ### Quickstart
-Minimal example (full examples in `src/test/java/striff/test/StriffAPITest.java`):
+Minimal example (see `src/test/java/striff/test/model/StriffAPITest.java` for more):
 
 ```java
+import com.hadii.clarpse.compiler.ProjectFiles;
+import com.hadii.striff.StriffConfig;
+import com.hadii.striff.StriffOperation;
+import com.hadii.striff.diagram.StriffDiagram;
+
+import java.util.List;
+
 ProjectFiles oldFiles = new ProjectFiles("/path/to/original/code");
 ProjectFiles newFiles = new ProjectFiles("/path/to/modified/code");
 List<StriffDiagram> striffs = new StriffOperation(
         oldFiles, newFiles, new StriffConfig()).result().diagrams();
-writeStriffsToDisk(striffs); // outputs SVGs to /tmp/striffs
+for (StriffDiagram diagram : striffs) {
+  String svg = diagram.svg();               // null if metadata-only
+  String compressed = diagram.compressedSVG();
+  int size = diagram.size();                // number of components
+  var pkgs = diagram.containedPkgs();       // packages included
+  var components = diagram.cmps();          // DiagramComponent set
+  var relations = diagram.relations();      // RelationsMap
+  var changeSet = diagram.changeSet();      // ChangeSet for this diff
+}
 ```
 
-### Known Limitations & Tuning
-* Large codebases can produce very large diagrams; cap the output with
-  `StriffConfig.setMaxComponentsPerDiagram(...)` (default is 120).
-* If you see performance or memory issues, reduce scope by filtering files
-  or increasing the component cap only for smaller modules.
+### Configuration
 
+#### Parsing and language support (Clarpse)
+Striff uses the [Clarpse](https://github.com/hadii-tech/clarpse) parser under the hood to build the source model from your codebase.
+Parsing is performed per language configured in `StriffConfig.setLanguages(...)`.
+
+Supported languages (via Clarpse):
+* Java
+* TypeScript (Coming Soon)
+* Python (Coming Soon)
+* C# (Coming Soon)
+* Go (Coming Soon)
+
+Parsing failures (e.g., unsupported syntax) are reported by Clarpse and surfaced
+through Striff as compile warnings on the output. Striff will still attempt to
+return diagrams/metadata when possible.
+
+#### File filters
+Limit parsing and diagram generation to a specific file list:
+
+```java
+StriffConfig config = new StriffConfig()
+        .setFilesFilter(List.of("/src/main/java/com/acme/Foo.java"));
+```
+
+Note: the file filter is applied to parsing, so only the filtered files are compiled
+and considered for diagram components.
+
+#### Styling and color schemes
+Start from an existing scheme and override only what you need:
+
+```java
+DiagramColorScheme custom = DiagramColorSchemeOverride
+        .from(new LightDiagramColorScheme())
+        .setClassFontColor("#123456")
+        .setPackageFontName("Courier New");
+
+StriffConfig config = new StriffConfig()
+        .setColorScheme(custom);
+```
+
+You can also apply a display-only override:
+
+```java
+DiagramDisplayOverride displayOverride = new DiagramDisplayOverride()
+        .setClassFontColor("#123456");
+
+StriffConfig config = new StriffConfig()
+        .setDisplayOverride(displayOverride);
+```
+
+#### Metadata-only output
+Skip rendering diagrams but keep metadata (components, relations, change set):
+
+```java
+StriffConfig config = new StriffConfig()
+        .setMetadataOnly(true);
+```
+
+You can also cap rendering size; diagrams over the cap return metadata only:
+
+```java
+StriffConfig config = new StriffConfig()
+        .setMaxComponentsPerDiagram(120);
+```
+
+#### Augmentation and decorators (SPI)
+Striff supports extension points that can add components or decorate PlantUML output.
+
+* `DiagramAugmenter` runs during model construction and can add components or attach
+  metadata to existing components (via `DiagramComponent.putAugmentation(...)`).
+* `ClassDecorator` and `DiagramDecorator` run during PlantUML generation and can
+  inject extra PUML at specific insertion points.
+* Architecture details and examples: `architecture/adr-002-spi-extensions.md`
+
+Register implementations using Java `ServiceLoader`:
+
+```
+src/main/resources/META-INF/services/com.hadii.striff.spi.DiagramAugmenter
+src/main/resources/META-INF/services/com.hadii.striff.spi.ClassDecorator
+src/main/resources/META-INF/services/com.hadii.striff.spi.DiagramDecorator
+```
+
+Each file lists your implementation class names (one per line). Order is stable
+using the `order()` method on each SPI.
+
+If you have augmenters on the classpath, you can turn them off:
+
+```java
+StriffConfig config = new StriffConfig()
+        .setEnableAugmenters(false);
+```
+
+### Examples
+* Library usage: `src/test/java/striff/test/model/StriffAPITest.java`
+* API usage: see striff-api tests (e.g., `src/test/java/com/hadii/striff/IntegrationTest.java`)
+
+### Contributing
+* Build: `mvn clean package assembly:single`
+* Run tests: `mvn test`
+* See `src/test/java/` for usage examples and regression tests.

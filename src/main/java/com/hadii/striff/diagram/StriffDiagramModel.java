@@ -34,6 +34,11 @@ public class StriffDiagramModel {
 
     @LogExecutionTime
     public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter) {
+        this(codeDiff, sourceFilesFilter, true);
+    }
+
+    @LogExecutionTime
+    public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter, boolean enableAugmenters) {
         LOGGER.info("Generating diagram model..");
         Set<String> targetCmpNames = codeDiff.mergedModel().components()
                 .filter(cmp -> sourceFilesFilter.contains(cmp.sourceFile())).map(Component::uniqueName)
@@ -42,7 +47,9 @@ public class StriffDiagramModel {
         getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
                 cmpName -> this.diagramCmps.add(new DiagramComponent(
                         cmpName, codeDiff.mergedModel())));
-        applyAugmenters(codeDiff);
+        if (enableAugmenters) {
+            applyAugmenters(codeDiff);
+        }
         getCoreRelations(this.diagramCmps, codeDiff.extractedRels());
     }
 

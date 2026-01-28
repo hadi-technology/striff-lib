@@ -5,6 +5,9 @@ import com.hadii.clarpse.compiler.ProjectFiles;
 import com.hadii.striff.StriffConfig;
 import com.hadii.striff.StriffOperation;
 import com.hadii.striff.diagram.StriffDiagram;
+import com.hadii.striff.diagram.display.DiagramColorScheme;
+import com.hadii.striff.diagram.display.DiagramColorSchemeOverride;
+import com.hadii.striff.diagram.display.LightDiagramColorScheme;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -54,6 +57,50 @@ public class StriffAPITest {
 				baseRepoOwner, repoName, "tmp-changes", language);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, new StriffConfig()).result().diagrams();
+		System.out.println("Total diagrams generated: " + striffs.size());
+		writeStriffsToDisk(striffs);
+	}
+
+	/**
+	 * Demonstrates how to customize the diagram color scheme by overriding only
+	 * selected fields.
+	 */
+	@Ignore
+	@Test
+	public void testDemonstrateColorSchemeOverride() throws Exception {
+		ProjectFiles originalCode = new ProjectFiles("/path/to/original/code");
+		ProjectFiles modifiedCode = new ProjectFiles("/path/to/modified/code");
+
+		DiagramColorScheme scheme = DiagramColorSchemeOverride
+				.from(new LightDiagramColorScheme())
+				.setClassFontColor("#123456")
+				.setPackageFontName("Courier New");
+
+		StriffConfig config = new StriffConfig()
+				.setColorScheme(scheme);
+
+		List<StriffDiagram> striffs = new StriffOperation(
+				originalCode, modifiedCode, config).result().diagrams();
+		System.out.println("Total diagrams generated: " + striffs.size());
+		writeStriffsToDisk(striffs);
+	}
+
+	/**
+	 * Demonstrates how to filter analysis to a specific set of files.
+	 */
+	@Ignore
+	@Test
+	public void testDemonstrateFilesFilter() throws Exception {
+		ProjectFiles originalCode = new ProjectFiles("/path/to/original/code");
+		ProjectFiles modifiedCode = new ProjectFiles("/path/to/modified/code");
+
+		StriffConfig config = new StriffConfig()
+				.setFilesFilter(List.of(
+						"/path/to/original/code/src/main/java/com/acme/Foo.java",
+						"/path/to/original/code/src/main/java/com/acme/Bar.java"));
+
+		List<StriffDiagram> striffs = new StriffOperation(
+				originalCode, modifiedCode, config).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());
 		writeStriffsToDisk(striffs);
 	}

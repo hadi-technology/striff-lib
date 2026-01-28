@@ -38,7 +38,7 @@ public class StriffOutput {
 
     public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<ProjectFile> compileFailures)
             throws PUMLDrawException, IOException {
-        StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter());
+        StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter(), config.enableAugmenters());
         generateDiagrams(codeDiff, sDM.diagramRels(), partitionConfig(sDM, config), config);
         if (config.filesFilter().isEmpty()) {
             compileFailures.forEach(failure -> this.compileWarnings.add(failure.path()));

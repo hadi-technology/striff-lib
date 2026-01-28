@@ -36,6 +36,7 @@ public class StriffConfig {
     private boolean metadataOnly = false;
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
     private DiagramDisplayOverride displayOverride = null;
+    private boolean enableAugmenters = true;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
      */
@@ -90,6 +91,10 @@ public class StriffConfig {
         return this;
     }
 
+    public StriffConfig setEnableAugmenters(boolean enableAugmenters) {
+        this.enableAugmenters = enableAugmenters;
+        return this;
+    }
     public OutputMode outputMode() {
         return this.outputMode;
     }
@@ -106,6 +111,9 @@ public class StriffConfig {
         return this.displayOverride;
     }
 
+    public boolean enableAugmenters() {
+        return this.enableAugmenters;
+    }
     public Set<Lang> languages() {
         return this.languages;
     }
