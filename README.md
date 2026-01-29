@@ -1,5 +1,5 @@
 # [striff-lib](https://striff.io)
-[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadii%20Technologies-violet.svg)](https://hadii.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/com.github.hadii-tech/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/com.github.hadii-tech/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadii-tech/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![codecov](https://codecov.io/gh/hadii-tech/clarpse/branch/master/graph/badge.svg?token=7uf2jQMlH1)](https://codecov.io/gh/hadii-tech/clarpse) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-orange.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technologies-violet.svg)](https://hadi.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-tech/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![codecov](https://codecov.io/gh/hadi-tech/clarpse/branch/master/graph/badge.svg?token=7uf2jQMlH1)](https://codecov.io/gh/hadi-tech/clarpse) [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-orange.svg)](https://www.gnu.org/licenses/agpl-3.0) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 ### Architectural Diagrams, Made For Code Reviews.
@@ -14,9 +14,9 @@ Striffs leverage the basic premise surrounding the utility of line-wise code dif
 
 ```xml
 <dependency>
-  <groupId>com.github.hadii-tech</groupId>
+  <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>3.0.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
@@ -30,10 +30,10 @@ mvn clean package assembly:single
 Minimal example (see `src/test/java/striff/test/model/StriffAPITest.java` for more):
 
 ```java
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.striff.StriffConfig;
-import com.hadii.striff.StriffOperation;
-import com.hadii.striff.diagram.StriffDiagram;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.striff.StriffConfig;
+import com.hadi.striff.StriffOperation;
+import com.hadi.striff.diagram.StriffDiagram;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ for (StriffDiagram diagram : striffs) {
 ### Configuration
 
 #### Parsing and language support (Clarpse)
-Striff uses the [Clarpse](https://github.com/hadii-tech/clarpse) parser under the hood to build the source model from your codebase.
+Striff uses the [Clarpse](https://github.com/hadi-tech/clarpse) parser under the hood to build the source model from your codebase.
 Parsing is performed per language configured in `StriffConfig.setLanguages(...)`.
 
 Supported languages (via Clarpse):
@@ -130,9 +130,9 @@ Striff supports extension points that can add components or decorate PlantUML ou
 Register implementations using Java `ServiceLoader`:
 
 ```
-src/main/resources/META-INF/services/com.hadii.striff.spi.DiagramAugmenter
-src/main/resources/META-INF/services/com.hadii.striff.spi.ClassDecorator
-src/main/resources/META-INF/services/com.hadii.striff.spi.DiagramDecorator
+src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramAugmenter
+src/main/resources/META-INF/services/com.hadi.striff.spi.ClassDecorator
+src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramDecorator
 ```
 
 Each file lists your implementation class names (one per line). Order is stable
@@ -147,7 +147,7 @@ StriffConfig config = new StriffConfig()
 
 ### Examples
 * Library usage: `src/test/java/striff/test/model/StriffAPITest.java`
-* API usage: see striff-api tests (e.g., `src/test/java/com/hadii/striff/IntegrationTest.java`)
+* API usage: see striff-api tests (e.g., `src/test/java/com/hadi/striff/IntegrationTest.java`)
 
 ### Contributing
 * Build: `mvn clean package assembly:single`

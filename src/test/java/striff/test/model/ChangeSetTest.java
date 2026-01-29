@@ -1,11 +1,11 @@
 package striff.test.model;
 
-import com.hadii.clarpse.reference.SimpleTypeReference;
-import com.hadii.clarpse.sourcemodel.Component;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.ChangeSet;
-import com.hadii.striff.diagram.DiagramComponent;
+import com.hadi.clarpse.reference.SimpleTypeReference;
+import com.hadi.clarpse.sourcemodel.Component;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadi.striff.ChangeSet;
+import com.hadi.striff.diagram.DiagramComponent;
 
 import org.junit.Test;
 

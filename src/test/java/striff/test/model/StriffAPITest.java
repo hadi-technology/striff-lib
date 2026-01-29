@@ -1,13 +1,13 @@
 package striff.test.model;
 
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.striff.StriffConfig;
-import com.hadii.striff.StriffOperation;
-import com.hadii.striff.diagram.StriffDiagram;
-import com.hadii.striff.diagram.display.DiagramColorScheme;
-import com.hadii.striff.diagram.display.DiagramColorSchemeOverride;
-import com.hadii.striff.diagram.display.LightDiagramColorScheme;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.striff.StriffConfig;
+import com.hadi.striff.StriffOperation;
+import com.hadi.striff.diagram.StriffDiagram;
+import com.hadi.striff.diagram.display.DiagramColorScheme;
+import com.hadi.striff.diagram.display.DiagramColorSchemeOverride;
+import com.hadi.striff.diagram.display.LightDiagramColorScheme;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class StriffAPITest {
 	@Ignore
 	@Test
 	public void testDemonstrateStriffAPIWithPR() throws Exception {
-		String baseRepoOwner = "hadii-tech";
+		String baseRepoOwner = "hadi-tech";
 		String repoName = "striff-lib";
 		Lang language = Lang.JAVA;
 		ProjectFiles oldFiles = githubProjectFiles(

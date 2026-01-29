@@ -1,20 +1,20 @@
 package striff.test.display;
 
-import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.CompileException;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.striff.diagram.ComponentHelper;
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.StriffDiagramModel;
-import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.diagram.display.DiagramDisplayOverride;
-import com.hadii.striff.diagram.display.LightDiagramColorScheme;
-import com.hadii.striff.diagram.plantuml.PUMLDiagramData;
-import com.hadii.striff.diagram.plantuml.PUMLDiagramText;
-import com.hadii.striff.parse.CodeDiff;
+import com.hadi.clarpse.compiler.ClarpseProject;
+import com.hadi.clarpse.compiler.CompileException;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.striff.diagram.ComponentHelper;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.diagram.StriffDiagramModel;
+import com.hadi.striff.diagram.display.DiagramDisplay;
+import com.hadi.striff.diagram.display.DiagramDisplayOverride;
+import com.hadi.striff.diagram.display.LightDiagramColorScheme;
+import com.hadi.striff.diagram.plantuml.PUMLDiagramData;
+import com.hadi.striff.diagram.plantuml.PUMLDiagramText;
+import com.hadi.striff.parse.CodeDiff;
 import org.junit.Test;
 
 import java.util.Set;

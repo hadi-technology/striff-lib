@@ -2,16 +2,16 @@ package striff.test.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hadii.clarpse.compiler.CompileException;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.striff.StriffConfig;
-import com.hadii.striff.StriffOperation;
-import com.hadii.striff.diagram.StriffDiagram;
-import com.hadii.striff.diagram.StriffOutput;
-import com.hadii.striff.diagram.display.OutputMode;
-import com.hadii.striff.diagram.plantuml.PUMLDrawException;
+import com.hadi.clarpse.compiler.CompileException;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.striff.StriffConfig;
+import com.hadi.striff.StriffOperation;
+import com.hadi.striff.diagram.StriffDiagram;
+import com.hadi.striff.diagram.StriffOutput;
+import com.hadi.striff.diagram.display.OutputMode;
+import com.hadi.striff.diagram.plantuml.PUMLDrawException;
 
 import org.junit.Ignore;
 import org.junit.Test;

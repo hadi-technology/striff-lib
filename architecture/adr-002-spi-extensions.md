@@ -39,7 +39,7 @@ deterministic ordering requirement is addressed by sorting providers by
 disable augmenters via configuration.
 
 ## Implementation Details
-The SPI interfaces are in `com.hadii.striff.spi`:
+The SPI interfaces are in `com.hadi.striff.spi`:
 * `DiagramAugmenter`: runs during model construction and may add components or
   attach metadata via `DiagramComponent.putAugmentation(...)`.
 * `ClassDecorator`: injects PlantUML inside class blocks at defined insertion points.
@@ -47,9 +47,9 @@ The SPI interfaces are in `com.hadii.striff.spi`:
 
 Registration uses `META-INF/services/...` entries:
 ```
-META-INF/services/com.hadii.striff.spi.DiagramAugmenter
-META-INF/services/com.hadii.striff.spi.ClassDecorator
-META-INF/services/com.hadii.striff.spi.DiagramDecorator
+META-INF/services/com.hadi.striff.spi.DiagramAugmenter
+META-INF/services/com.hadi.striff.spi.ClassDecorator
+META-INF/services/com.hadi.striff.spi.DiagramDecorator
 ```
 
 Augmenters can be disabled with:
@@ -64,9 +64,9 @@ Add a synthetic component when a metric threshold is met and attach metadata:
 ```java
 package com.example.striff.spi;
 
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.parse.CodeDiff;
-import com.hadii.striff.spi.DiagramAugmenter;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.parse.CodeDiff;
+import com.hadi.striff.spi.DiagramAugmenter;
 
 import java.util.Set;
 
@@ -92,10 +92,10 @@ Inject a banner line inside each class box:
 ```java
 package com.example.striff.spi;
 
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.spi.ClassDecorator;
-import com.hadii.striff.spi.ClassInsertionPoint;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.diagram.display.DiagramDisplay;
+import com.hadi.striff.spi.ClassDecorator;
+import com.hadi.striff.spi.ClassInsertionPoint;
 
 import java.util.List;
 
@@ -117,8 +117,8 @@ Add a diagram-level legend or skinparam:
 ```java
 package com.example.striff.spi;
 
-import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.spi.DiagramDecorator;
+import com.hadi.striff.diagram.display.DiagramDisplay;
+import com.hadi.striff.spi.DiagramDecorator;
 
 import java.util.List;
 
@@ -132,13 +132,13 @@ public class LegendDecorator implements DiagramDecorator {
 
 ### ServiceLoader registration
 ```
-META-INF/services/com.hadii.striff.spi.DiagramAugmenter
+META-INF/services/com.hadi.striff.spi.DiagramAugmenter
 com.example.striff.spi.MetricsAugmenter
 
-META-INF/services/com.hadii.striff.spi.ClassDecorator
+META-INF/services/com.hadi.striff.spi.ClassDecorator
 com.example.striff.spi.BannerDecorator
 
-META-INF/services/com.hadii.striff.spi.DiagramDecorator
+META-INF/services/com.hadi.striff.spi.DiagramDecorator
 com.example.striff.spi.LegendDecorator
 ```
 

@@ -1,8 +1,8 @@
 package striff.test.spi;
 
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.parse.CodeDiff;
-import com.hadii.striff.spi.DiagramAugmenter;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.parse.CodeDiff;
+import com.hadi.striff.spi.DiagramAugmenter;
 
 import java.util.Set;
 

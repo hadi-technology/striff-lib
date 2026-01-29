@@ -5,10 +5,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.striff.extractor.DiagramConstants;
-import com.hadii.striff.extractor.ExtractedRelationships;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.striff.extractor.DiagramConstants;
+import com.hadi.striff.extractor.ExtractedRelationships;
 import striff.test.TestUtil;
 
 /**

@@ -1,9 +1,9 @@
 package striff.test.spi;
 
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.display.DiagramDisplay;
-import com.hadii.striff.spi.ClassDecorator;
-import com.hadii.striff.spi.ClassInsertionPoint;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.diagram.display.DiagramDisplay;
+import com.hadi.striff.spi.ClassDecorator;
+import com.hadi.striff.spi.ClassInsertionPoint;
 
 import java.util.List;
 

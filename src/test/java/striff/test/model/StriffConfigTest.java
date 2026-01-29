@@ -1,8 +1,8 @@
 package striff.test.model;
 
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.striff.StriffConfig;
-import com.hadii.striff.diagram.display.OutputMode;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.striff.StriffConfig;
+import com.hadi.striff.diagram.display.OutputMode;
 import org.junit.Test;
 
 import java.util.List;

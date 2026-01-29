@@ -1,13 +1,13 @@
 package striff.test.model;
 
-import com.hadii.clarpse.sourcemodel.Component;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.extractor.DiagramConstants.ComponentAssociation;
-import com.hadii.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
-import com.hadii.striff.extractor.ComponentAssociationMultiplicity;
-import com.hadii.striff.extractor.ComponentRelation;
-import com.hadii.striff.extractor.RelationsMap;
+import com.hadi.clarpse.sourcemodel.Component;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadi.striff.extractor.DiagramConstants.ComponentAssociation;
+import com.hadi.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
+import com.hadi.striff.extractor.ComponentAssociationMultiplicity;
+import com.hadi.striff.extractor.ComponentRelation;
+import com.hadi.striff.extractor.RelationsMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

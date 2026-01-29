@@ -1,20 +1,20 @@
 package striff.test.model;
 
-import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.clarpse.reference.SimpleTypeReference;
-import com.hadii.clarpse.reference.TypeExtensionReference;
-import com.hadii.clarpse.reference.TypeImplementationReference;
-import com.hadii.clarpse.sourcemodel.Component;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.clarpse.sourcemodel.OOPSourceModelConstants;
-import com.hadii.striff.extractor.ComponentRelation;
-import com.hadii.striff.extractor.DiagramConstants.ComponentAssociation;
-import com.hadii.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
-import com.hadii.striff.extractor.ExtractedRelationships;
-import com.hadii.striff.extractor.RelationsMap;
+import com.hadi.clarpse.compiler.ClarpseProject;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.reference.SimpleTypeReference;
+import com.hadi.clarpse.reference.TypeExtensionReference;
+import com.hadi.clarpse.reference.TypeImplementationReference;
+import com.hadi.clarpse.sourcemodel.Component;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadi.striff.extractor.ComponentRelation;
+import com.hadi.striff.extractor.DiagramConstants.ComponentAssociation;
+import com.hadi.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
+import com.hadi.striff.extractor.ExtractedRelationships;
+import com.hadi.striff.extractor.RelationsMap;
 import org.junit.Assert;
 import org.junit.Test;
 

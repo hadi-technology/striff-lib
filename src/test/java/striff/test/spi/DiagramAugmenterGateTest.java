@@ -1,14 +1,14 @@
 package striff.test.spi;
 
-import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.CompileException;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.striff.diagram.DiagramComponent;
-import com.hadii.striff.diagram.StriffDiagramModel;
-import com.hadii.striff.parse.CodeDiff;
+import com.hadi.clarpse.compiler.ClarpseProject;
+import com.hadi.clarpse.compiler.CompileException;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.striff.diagram.DiagramComponent;
+import com.hadi.striff.diagram.StriffDiagramModel;
+import com.hadi.striff.parse.CodeDiff;
 import org.junit.Test;
 
 import java.util.Set;

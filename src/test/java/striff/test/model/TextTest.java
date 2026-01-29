@@ -1,8 +1,8 @@
 package striff.test.model;
 
-import com.hadii.striff.text.DefaultText;
-import com.hadii.striff.text.LineBreakedText;
-import com.hadii.striff.text.StriffComponentDocText;
+import com.hadi.striff.text.DefaultText;
+import com.hadi.striff.text.LineBreakedText;
+import com.hadi.striff.text.StriffComponentDocText;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;

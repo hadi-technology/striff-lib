@@ -1,8 +1,8 @@
 package striff.test.display;
 
-import com.hadii.striff.diagram.display.DiagramColorScheme;
-import com.hadii.striff.diagram.display.DiagramColorSchemeOverride;
-import com.hadii.striff.diagram.display.LightDiagramColorScheme;
+import com.hadi.striff.diagram.display.DiagramColorScheme;
+import com.hadi.striff.diagram.display.DiagramColorSchemeOverride;
+import com.hadi.striff.diagram.display.LightDiagramColorScheme;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

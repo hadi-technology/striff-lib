@@ -1,12 +1,12 @@
 package striff.test.model;
 
-import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFile;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.striff.diagram.ComponentHelper;
-import com.hadii.striff.diagram.DiagramComponent;
+import com.hadi.clarpse.compiler.ClarpseProject;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.striff.diagram.ComponentHelper;
+import com.hadi.striff.diagram.DiagramComponent;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

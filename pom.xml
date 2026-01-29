@@ -2,13 +2,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.hadii-tech</groupId>
+	<groupId>io.github.hadi-technology</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0.0</version>
+	<version>4.0.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
-	<url>https://github.com/hadii-tech/striff-lib</url>
+	<url>https://github.com/hadi-tech/striff-lib</url>
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
@@ -24,21 +24,21 @@
 	<developers>
 		<developer>
 			<name>Muntazir Fadhel</name>
-			<email>mfadhel@hadii.ca</email>
-			<organization>hadii-tech</organization>
-			<organizationUrl>https://hadii.ca</organizationUrl>
+			<email>mfadhel@hadi.ca</email>
+			<organization>hadi-tech</organization>
+			<organizationUrl>https://hadi.ca</organizationUrl>
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git://github.com/hadii-tech/striff.git</connection>
-		<developerConnection>scm:git:ssh://github.com/hadii-tech/striff.git</developerConnection>
-		<url>https://github.com/hadii-tech/striff.git</url>
+		<connection>scm:git:git://github.com/hadi-tech/striff.git</connection>
+		<developerConnection>scm:git:ssh://github.com/hadi-tech/striff.git</developerConnection>
+		<url>https://github.com/hadi-tech/striff.git</url>
 	</scm>
 	<dependencies>
 		<dependency>
-			<groupId>com.github.hadii-tech</groupId>
+			<groupId>io.github.hadi-technology</groupId>
 			<artifactId>clarpse</artifactId>
-			<version>7.1.4</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.dsibilio</groupId>
