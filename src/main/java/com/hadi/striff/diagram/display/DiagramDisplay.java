@@ -204,6 +204,9 @@ public class DiagramDisplay {
     }
 
     private static String pick(String overrideValue, String baseValue) {
-        return overrideValue != null ? overrideValue : baseValue;
+        if (overrideValue != null) {
+            return overrideValue;
+        }
+        return baseValue;
     }
 }

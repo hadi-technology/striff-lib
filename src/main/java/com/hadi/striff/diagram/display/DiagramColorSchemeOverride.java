@@ -380,6 +380,9 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
     }
 
     private static String pick(String overrideValue, String baseValue) {
-        return overrideValue != null ? overrideValue : baseValue;
+        if (overrideValue != null) {
+            return overrideValue;
+        }
+        return baseValue;
     }
 }

@@ -11,6 +11,7 @@ import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
 import com.hadi.striff.annotations.LogExecutionTime;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -50,10 +51,12 @@ public class ExtractedRelationships {
      * Analyzes specialization relationships (e.g., inheritance).
      */
     private void analyzeSpecializations(final Component component, final OOPSourceCodeModel model) {
-        component.references(OOPSourceModelConstants.TypeReferences.EXTENSION).stream()
-                .filter(ref -> model.containsComponent(ref.invokedComponent()))
-                .map(ref -> createRelation(component, model.getComponent(ref.invokedComponent()).get(),
-                        DiagramConstants.ComponentAssociation.SPECIALIZATION))
+        component.internalDependencies().stream()
+                .filter(ref -> OOPSourceModelConstants.TypeReferences.EXTENSION
+                        .getMatchingClass().isAssignableFrom(ref.getClass()))
+                .map(ref -> resolveTargetBaseComponent(ref, model))
+                .filter(target -> target != null)
+                .map(target -> createRelation(component, target, DiagramConstants.ComponentAssociation.SPECIALIZATION))
                 .forEach(this::addRelationSafely);
     }
 
@@ -61,10 +64,12 @@ public class ExtractedRelationships {
      * Analyzes realization relationships (e.g., implementation).
      */
     private void analyzeRealizations(final Component component, final OOPSourceCodeModel model) {
-        component.references(OOPSourceModelConstants.TypeReferences.IMPLEMENTATION).stream()
-                .filter(ref -> model.containsComponent(ref.invokedComponent()))
-                .map(ref -> createRelation(component, model.getComponent(ref.invokedComponent()).get(),
-                        DiagramConstants.ComponentAssociation.REALIZATION))
+        component.internalDependencies().stream()
+                .filter(ref -> OOPSourceModelConstants.TypeReferences.IMPLEMENTATION
+                        .getMatchingClass().isAssignableFrom(ref.getClass()))
+                .map(ref -> resolveTargetBaseComponent(ref, model))
+                .filter(target -> target != null)
+                .map(target -> createRelation(component, target, DiagramConstants.ComponentAssociation.REALIZATION))
                 .forEach(this::addRelationSafely);
     }
 
@@ -82,15 +87,35 @@ public class ExtractedRelationships {
             return;
         }
 
-        Set<ComponentReference> references = component.references();
+        Set<ComponentReference> references = new LinkedHashSet<>(component.internalDependencies());
         removeRedundantReferences(references, model, baseComponent);
 
         references.stream()
-                .filter(ref -> model.containsComponent(ref.invokedComponent()))
-                .map(ref -> createAssociation(component, baseComponent,
-                        model.getComponent(ref.invokedComponent()).get()))
+                .map(ref -> resolveTargetBaseComponent(ref, model))
+                .filter(target -> target != null)
+                .filter(target -> !target.equals(baseComponent))
+                .map(target -> createAssociation(component, baseComponent, target))
                 .filter(this::isValidRelation)
                 .forEach(this::addRelationSafely);
+    }
+
+    private Component resolveTargetBaseComponent(ComponentReference ref, OOPSourceCodeModel model) {
+        if (!model.containsComponent(ref.invokedComponent())) {
+            return null;
+        }
+        Component target = model.getComponent(ref.invokedComponent()).orElse(null);
+        if (target == null) {
+            return null;
+        }
+        if (target.componentType().isBaseComponent()) {
+            return target;
+        }
+        try {
+            return model.parentBaseCmp(target.uniqueName());
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("No parent base component found for reference target: {}", target.uniqueName());
+            return null;
+        }
     }
 
     /**

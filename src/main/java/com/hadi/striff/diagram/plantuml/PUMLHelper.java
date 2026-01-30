@@ -30,15 +30,12 @@ public class PUMLHelper {
      */
     public static byte[] generateDiagram(String source) throws IOException, PUMLDrawException {
         final SourceStringReader reader = new SourceStringReader(source);
-        final ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
+            return os.toByteArray();
         } catch (final Exception e) {
             throw new PUMLDrawException("Error occurred while generating diagram!", e);
-        } finally {
-            os.close();
         }
-        return os.toByteArray();
     }
 
     public static boolean invalidPUMLDiagram(String svgCode) throws PUMLDrawException {
