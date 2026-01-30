@@ -1,7 +1,7 @@
 # Architecture Decision Record: Handling Parse Errors
 
 ## Context
-While generating striffs for a given code base, [clarpse](https://github.com/hadii-tech/clarpse) may
+While generating striffs for a given code base, [clarpse](https://github.com/hadi-tech/clarpse) may
 report compile failures for certain source files, possbily preventing striff-lib from generating 
 complete and accurate diagrams.
 

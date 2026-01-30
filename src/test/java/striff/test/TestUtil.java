@@ -1,10 +1,10 @@
 package striff.test;
 
-import com.hadii.clarpse.compiler.ClarpseProject;
-import com.hadii.clarpse.compiler.Lang;
-import com.hadii.clarpse.compiler.ProjectFiles;
-import com.hadii.clarpse.sourcemodel.OOPSourceCodeModel;
-import com.hadii.striff.diagram.StriffDiagram;
+import com.hadi.clarpse.compiler.ClarpseProject;
+import com.hadi.clarpse.compiler.Lang;
+import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
+import com.hadi.striff.diagram.StriffDiagram;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
