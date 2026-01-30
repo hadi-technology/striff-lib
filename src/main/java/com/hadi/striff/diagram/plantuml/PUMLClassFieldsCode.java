@@ -160,7 +160,16 @@ final class PUMLClassFieldsCode {
             }
             List<String> extra = decorator.decorateClass(component, diagramDisplay);
             if (extra != null && !extra.isEmpty()) {
-                out.addAll(extra);
+                for (String line : extra) {
+                    if (line == null || line.isEmpty()) {
+                        continue;
+                    }
+                    if (line.endsWith("\n")) {
+                        out.add(line);
+                    } else {
+                        out.add(line + "\n");
+                    }
+                }
             }
         }
     }
