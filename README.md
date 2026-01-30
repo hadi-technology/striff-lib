@@ -16,7 +16,7 @@ Striffs leverage the basic premise surrounding the utility of line-wise code dif
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>4.0.0</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 

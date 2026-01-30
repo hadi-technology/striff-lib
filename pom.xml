@@ -5,7 +5,7 @@
 	<groupId>io.github.hadi-technology</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>4.0.0</version>
+	<version>3.0.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadi-tech/striff-lib</url>
