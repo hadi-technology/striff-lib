@@ -17,7 +17,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<aspectj.version>1.9.7</aspectj.version>
 		<clarpse.groupId>io.github.hadi-technology</clarpse.groupId>
-		<clarpse.version>8.0.0</clarpse.version>
+		<clarpse.version>8.1.0</clarpse.version>
 	</properties>
 	<licenses>
 		<license>
