@@ -31,8 +31,8 @@ public class PUMLDeterminismTest {
 
         assertEquals(first, second);
         assertTrue(first.contains("@startuml"));
-        assertTrue(first.contains("\"A\""));
-        assertTrue(first.contains("\"B\""));
+        assertTrue(first.contains("class A as \"A"));
+        assertTrue(first.contains("class B as \"B\""));
     }
 
     private static String buildPlantUmlString() throws Exception {

@@ -68,16 +68,14 @@ final class PUMLClassFieldsCode {
                     displayName = displayName.substring(module.length() + 1);
                 }
             }
+            // Insert change summary if applicable (inside quotes, after display name)
+            String changeSummary = generateChangeSummary(cmp);
             if (largeComponent) {
-                cmpPUMLStr += displayName + " <b><color:"
+                cmpPUMLStr += displayName + changeSummary + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += displayName;
+                cmpPUMLStr += displayName + changeSummary + "\"";
             }
-
-            // Insert change summary if applicable (before closing quote)
-            String changeSummary = generateChangeSummary(cmp);
-            cmpPUMLStr += changeSummary + "\"";
 
             // Insert class generics if required
             if (cmp.codeFragment() != null) {

@@ -12,7 +12,7 @@ import java.io.IOException;
 public class PUMLHelper {
 
     public static String pumlId(String uniqueName) {
-        return uniqueName.replace(".", "-");
+        return uniqueName.replace(".", "-").replace(":", "-");
     }
 
     public static String pumlQualifiedId(Component component) {
