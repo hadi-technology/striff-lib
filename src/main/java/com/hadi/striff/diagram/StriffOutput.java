@@ -2,7 +2,7 @@ package com.hadi.striff.diagram;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.CompileFailure;
 import com.hadi.striff.StriffConfig;
 import com.hadi.striff.diagram.display.DiagramDisplay;
 import com.hadi.striff.diagram.display.OutputMode;
@@ -36,16 +36,16 @@ public class StriffOutput {
         this(codeDiff, config, Collections.emptySet());
     }
 
-    public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<ProjectFile> compileFailures)
+    public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<CompileFailure> compileFailures)
             throws PUMLDrawException, IOException {
         StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter(), config.enableAugmenters());
         generateDiagrams(codeDiff, sDM.diagramRels(), partitionConfig(sDM, config), config);
         if (config.filesFilter().isEmpty()) {
-            compileFailures.forEach(failure -> this.compileWarnings.add(failure.path()));
+            compileFailures.forEach(failure -> this.compileWarnings.add(failure.file().path()));
         } else {
             compileFailures.stream()
-                    .filter(failure -> config.filesFilter().contains(failure.path()))
-                    .forEach(failure -> this.compileWarnings.add(failure.path()));
+                    .filter(failure -> config.filesFilter().contains(failure.file().path()))
+                    .forEach(failure -> this.compileWarnings.add(failure.file().path()));
         }
     }
 

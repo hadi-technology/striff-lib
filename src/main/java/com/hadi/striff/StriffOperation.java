@@ -2,6 +2,7 @@ package com.hadi.striff;
 
 import com.hadi.clarpse.compiler.ClarpseProject;
 import com.hadi.clarpse.compiler.CompileException;
+import com.hadi.clarpse.compiler.CompileFailure;
 import com.hadi.clarpse.compiler.CompileResult;
 import com.hadi.clarpse.compiler.Lang;
 import com.hadi.clarpse.compiler.ProjectFile;
@@ -34,7 +35,7 @@ public class StriffOperation {
             throws IOException, PUMLDrawException, CompileException {
         LOGGER.info("Starting new operation with config: " + config);
         validateProjectFiles(originalPFs, newPFs, config.filesFilter());
-        HashSet<ProjectFile> allFailures = new HashSet<>();
+        HashSet<CompileFailure> allFailures = new HashSet<>();
         LOGGER.info("Generating code diff metadata..");
         CodeDiff diffedModel = generateCodeDiff(originalPFs, newPFs, config, allFailures);
         LOGGER.info("Generating striff output metadata.. ");
@@ -49,7 +50,7 @@ public class StriffOperation {
     @LogExecutionTime
     private static CodeDiff generateCodeDiff(ProjectFiles originalPFs, ProjectFiles newPFs,
             StriffConfig config,
-            HashSet<ProjectFile> allFailures) throws CompileException {
+            HashSet<CompileFailure> allFailures) throws CompileException {
         OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         for (Lang currLang : config.languages()) {
