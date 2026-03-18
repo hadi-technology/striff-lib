@@ -47,11 +47,22 @@ public class PkgColorsMap {
         }
     }
 
+    /**
+     * Creates a PkgColorsMap from a predefined mapping of packages to colors.
+     */
+    public PkgColorsMap(Map<String, String> pkgColors) {
+        this.pkgColorMap.putAll(pkgColors);
+    }
+
     public String color(String pkg) {
         return this.pkgColorMap.getOrDefault(pkg, DEFAULT_PKG_COLOR);
     }
 
     public Set<Map.Entry<String, String>> mappings() {
         return this.pkgColorMap.entrySet();
+    }
+
+    public Map<String, String> asMap() {
+        return new LinkedHashMap<>(this.pkgColorMap);
     }
 }

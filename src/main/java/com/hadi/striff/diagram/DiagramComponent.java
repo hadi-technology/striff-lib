@@ -64,6 +64,11 @@ public class DiagramComponent {
     }
 
     public List<String> children() {
+        if (this.children.isEmpty() && !this.cmp.children().isEmpty()) {
+            // If the internal list is empty but the underlying component has children,
+            // return the component's children directly
+            return this.cmp.children();
+        }
         return Collections.unmodifiableList(this.children);
     }
 
@@ -143,6 +148,11 @@ public class DiagramComponent {
     @JsonProperty("componentName")
     public String componentName() {
         return this.cmp.componentName();
+    }
+
+    @JsonIgnore
+    public String module() {
+        return this.cmp.module();
     }
 
     @Override

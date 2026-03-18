@@ -1,6 +1,7 @@
 package com.hadi.striff.diagram.display;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,12 +20,31 @@ public class DiagramDisplay {
         this.diagramCS = diagramCS;
     }
 
+    public DiagramDisplay(DiagramColorScheme diagramCS, Map<String, String> pkgColors) {
+        this.pkgColorsMap = new PkgColorsMap(pkgColors);
+        this.diagramCS = diagramCS;
+    }
+
     public DiagramColorScheme colorScheme() {
         return this.diagramCS;
     }
 
     public List<java.util.Map.Entry<String, String>> pkgColorMappings() {
         return new ArrayList<>(this.pkgColorsMap.mappings());
+    }
+
+    public DiagramDisplay withPackageColors(Map<String, String> pkgColors) {
+        if (pkgColors == null || pkgColors.isEmpty()) {
+            return this;
+        }
+        Map<String, String> mergedPkgColors = new LinkedHashMap<>(this.pkgColorsMap.asMap());
+        for (Map.Entry<String, String> entry : pkgColors.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null || entry.getValue().isBlank()) {
+                continue;
+            }
+            mergedPkgColors.put(entry.getKey(), entry.getValue());
+        }
+        return new DiagramDisplay(this.diagramCS, mergedPkgColors);
     }
 
     public DiagramDisplay merge(DiagramDisplayOverride override) {
@@ -195,6 +215,11 @@ public class DiagramDisplay {
             @Override
             public String deletedComponentColor() {
                 return pick(override.deletedComponentColor(), diagramCS.deletedComponentColor());
+            }
+
+            @Override
+            public String syntheticStereotypeFontColor() {
+                return pick(override.syntheticStereotypeFontColor(), diagramCS.syntheticStereotypeFontColor());
             }
         };
         Set<String> pkgs = pkgColorMappings().stream()

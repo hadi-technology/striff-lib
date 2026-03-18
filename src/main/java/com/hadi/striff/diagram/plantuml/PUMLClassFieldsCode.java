@@ -58,15 +58,32 @@ final class PUMLClassFieldsCode {
             // packages explicitly ourselves)
             cmpPUMLStr += PUMLHelper.pumlId(cmp.uniqueName()) + " as \"";
             // Insert cmp display name
+            String displayName = cmp.componentName();
+            if (cmp.augmentation("syntheticDisplayName").isPresent()) {
+                displayName = cmp.augmentation("syntheticDisplayName").get().toString();
+            } else if (cmp.module() != null && !cmp.module().isEmpty()) {
+                // Strip module prefix from display name if redundant (e.g., "Module.ModuleName" -> "ModuleName")
+                String module = cmp.module();
+                if (displayName.startsWith(module + ".")) {
+                    displayName = displayName.substring(module.length() + 1);
+                }
+            }
             if (largeComponent) {
-                cmpPUMLStr += cmp.componentName() + " <b><color:"
+                cmpPUMLStr += displayName + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += cmp.componentName() + "\"";
+                cmpPUMLStr += displayName + "\"";
             }
             // Insert class generics if required
             if (cmp.codeFragment() != null) {
                 cmpPUMLStr += (cmp.codeFragment());
+            }
+
+            // Insert synthetic module stereotypes if applicable
+            if (cmp.augmentation("synthetic").isPresent()
+                    && Boolean.TRUE.equals(cmp.augmentation("synthetic").get())) {
+                String syntheticColor = this.diagramDisplay.colorScheme().syntheticStereotypeFontColor();
+                cmpPUMLStr += " << (M," + syntheticColor + ") >><<synthetic>>";
             }
 
             // Insert background color tag
@@ -184,6 +201,7 @@ final class PUMLClassFieldsCode {
     private String childComponentPUMLText(DiagramComponent childCmp) {
         String childCmpPUMLStr = "";
         if ((childCmp.componentType() == OOPSourceModelConstants.ComponentType.METHOD)
+                || (childCmp.componentType() == OOPSourceModelConstants.ComponentType.FUNCTION)
                 || childCmp.componentType().isVariableComponent()) {
             if (!childCmp.componentType().isBaseComponent()) {
                 // if the field/method is abstract or static, add the {abstract}/{static}
