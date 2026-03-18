@@ -29,6 +29,89 @@ public class ExtractedRelationships {
         sourceCodeModel.components()
                 .filter(this::isRelevantComponent)
                 .forEach(component -> processComponentRelations(component, sourceCodeModel));
+
+        // Create synthetic modules and fold module-level relations
+        createSyntheticModulesAndRelations(sourceCodeModel);
+    }
+
+    /**
+     * Creates synthetic modules for module-level components and folds their relations.
+     */
+    private void createSyntheticModulesAndRelations(OOPSourceCodeModel sourceCodeModel) {
+        Set<Component> moduleLevelComponents = sourceCodeModel.components()
+                .filter(SyntheticModuleSupport::isModuleLevelComponent)
+                .collect(java.util.stream.Collectors.toSet());
+
+        if (moduleLevelComponents.isEmpty()) {
+            return;
+        }
+
+        SyntheticModuleSupport.syntheticComponentsByModule(sourceCodeModel).forEach((moduleKey, synthetic) -> {
+            // Create relations from module-level components to the synthetic module
+            Set<Component> modulesComps = sourceCodeModel.components()
+                    .filter(SyntheticModuleSupport::isModuleLevelComponent)
+                    .filter(cmp -> moduleKey.equals(cmp.module()))
+                    .collect(java.util.stream.Collectors.toSet());
+
+            for (Component moduleLevelCmp : modulesComps) {
+                Set<ComponentReference> references = new LinkedHashSet<>(moduleLevelCmp.internalDependencies());
+
+                for (ComponentReference ref : references) {
+                    if (!sourceCodeModel.containsComponent(ref.invokedComponent())) {
+                        continue;
+                    }
+
+                    Component target = sourceCodeModel.getComponent(ref.invokedComponent()).orElse(null);
+                    if (target == null) {
+                        continue;
+                    }
+
+                    // If target is not a base component, try to get its parent
+                    if (!target.componentType().isBaseComponent()) {
+                        try {
+                            target = sourceCodeModel.parentBaseCmp(target.uniqueName());
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.debug("No parent base component for reference target: {}", ref.invokedComponent());
+                            continue;
+                        }
+                    }
+
+                    if (target == null || target.equals(synthetic)) {
+                        continue;
+                    }
+
+                    // Determine the association type
+                    DiagramConstants.ComponentAssociation associationType;
+                    if (moduleLevelCmp.componentType() == ComponentType.FIELD
+                            || moduleLevelCmp.componentType() == ComponentType.MODULE_FIELD) {
+                        associationType = DiagramConstants.ComponentAssociation.COMPOSITION;
+                    } else {
+                        associationType = DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
+                    }
+
+                    // Create the relation from synthetic module to target
+                    ComponentRelation relation = new ComponentRelation();
+                    try {
+                        setRelationField(relation, "originalComponent", synthetic);
+                        setRelationField(relation, "targetComponent", target);
+                        setRelationField(relation, "targetComponentRelationMultiplicity",
+                                new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE));
+                        setRelationField(relation, "associationType", associationType);
+
+                        this.relationMap.insertRelation(relation);
+                    } catch (Exception e) {
+                        LOGGER.error("Failed to create synthetic module relation: {}", e.getMessage());
+                    }
+                }
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setRelationField(Object obj, String fieldName, Object value) throws Exception {
+        java.lang.reflect.Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, value);
     }
 
     /**

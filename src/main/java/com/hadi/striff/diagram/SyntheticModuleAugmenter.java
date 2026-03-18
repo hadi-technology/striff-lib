@@ -38,6 +38,8 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
             return;
         }
 
+        LOGGER.info("Found {} module-level components, creating synthetic modules", moduleLevelComponents.size());
+
         // Create synthetic modules for each unique module key
         SyntheticModuleSupport.syntheticComponentsByModule(model).forEach((moduleKey, synthetic) -> {
             // Create a DiagramComponent for the synthetic module
@@ -67,11 +69,19 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
                 .filter(cmp -> moduleKey.equals(cmp.module()))
                 .collect(Collectors.toSet());
 
+        LOGGER.info("Creating relations for synthetic module {} from {} module-level components",
+                moduleKey, moduleLevelComponents.size());
+
         for (Component moduleLevelCmp : moduleLevelComponents) {
             // Get all references from this module-level component
             Set<ComponentReference> references = new LinkedHashSet<>(moduleLevelCmp.internalDependencies());
 
+            LOGGER.info("Processing module-level component {} with {} references",
+                    moduleLevelCmp.uniqueName(), references.size());
+
             for (ComponentReference ref : references) {
+                LOGGER.info("Processing reference to: {}", ref.invokedComponent());
+
                 // Resolve the target component
                 if (!model.containsComponent(ref.invokedComponent())) {
                     continue;
@@ -118,6 +128,9 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
                     setRelationField(relation, "associationType", associationType);
 
                     diff.extractedRels().insertRelation(relation);
+
+                    LOGGER.info("Created relation from {} to {}",
+                            synthetic.uniqueName(), target.uniqueName());
                 } catch (Exception e) {
                     LOGGER.error("Failed to create relation from synthetic module: {}", e.getMessage());
                 }
