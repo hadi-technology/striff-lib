@@ -77,10 +77,15 @@ public class StriffDiagramModel {
             if (codeDiff.mergedModel().getComponent(diagramComponent).get().componentType().isBaseComponent()) {
                 diagramCmpNames.add(diagramComponent);
             } else {
-                DiagramComponent parentComponent = new DiagramComponent(
-                        codeDiff.mergedModel().parentBaseCmp(diagramComponent), codeDiff.mergedModel());
-                if (parentComponent != null) {
-                    diagramCmpNames.add(parentComponent.uniqueName());
+                try {
+                    Component parentBaseCmp = codeDiff.mergedModel().parentBaseCmp(diagramComponent);
+                    if (parentBaseCmp != null) {
+                        diagramCmpNames.add(parentBaseCmp.uniqueName());
+                    }
+                } catch (IllegalArgumentException e) {
+                    // Component has no parent (e.g., module-level function/field)
+                    // Skip it as it will be handled by synthetic module support
+                    LOGGER.debug("Skipping component with no parent: {}", diagramComponent);
                 }
             }
         });

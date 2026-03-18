@@ -10,6 +10,7 @@ import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
 import com.hadi.striff.annotations.LogExecutionTime;
+import com.hadi.striff.diagram.SyntheticModuleSupport;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -79,6 +80,11 @@ public class ExtractedRelationships {
      */
     private void extractAssociations(final Component component, OOPSourceCodeModel model) {
         if (component.componentType().isBaseComponent()) {
+            return;
+        }
+
+        // Skip module-level components - their relations will be created by SyntheticModuleAugmenter
+        if (SyntheticModuleSupport.isModuleLevelComponent(component)) {
             return;
         }
 
@@ -212,11 +218,15 @@ public class ExtractedRelationships {
     }
 
     /**
-     * Validates if a relation is between two base components and not
-     * self-referencing.
+     * Validates if a relation is valid.
+     * - Target component must be a base component
+     * - Not self-referencing
+     * - Original component can be a base component OR a module-level component (FUNCTION or MODULE_FIELD)
      */
     private boolean isValidRelation(ComponentRelation relation) {
-        return relation.originalComponent().componentType().isBaseComponent()
+        boolean originalComponentIsValid = relation.originalComponent().componentType().isBaseComponent()
+                || SyntheticModuleSupport.isModuleLevelComponent(relation.originalComponent());
+        return originalComponentIsValid
                 && relation.targetComponent().componentType().isBaseComponent()
                 && !relation.originalComponent().equals(relation.targetComponent());
     }
