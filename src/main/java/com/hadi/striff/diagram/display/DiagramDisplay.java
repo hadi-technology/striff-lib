@@ -222,10 +222,8 @@ public class DiagramDisplay {
                 return pick(override.syntheticStereotypeFontColor(), diagramCS.syntheticStereotypeFontColor());
             }
         };
-        Set<String> pkgs = pkgColorMappings().stream()
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-        return new DiagramDisplay(mergedScheme, pkgs);
+        // Preserve existing package colors when merging
+        return new DiagramDisplay(mergedScheme, this.pkgColorsMap.asMap());
     }
 
     private static String pick(String overrideValue, String baseValue) {

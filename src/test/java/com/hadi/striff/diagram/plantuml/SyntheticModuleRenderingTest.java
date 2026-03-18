@@ -117,7 +117,7 @@ public class SyntheticModuleRenderingTest {
             qualifiedNames.add(matcher.group(1));
         }
         assertTrue("Qualified names: " + qualifiedNames,
-                qualifiedNames.contains(SyntheticModuleSupport.syntheticUniqueName("src.main")));
+                qualifiedNames.contains("module-src-main"));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class SyntheticModuleRenderingTest {
                 Set.of(syntheticDiagram));
 
         String svg = new PUMLDiagram(data).svgText();
-        assertTrue(svg.toLowerCase().contains("fill=\"#abcdef66\""));
-        assertTrue(svg.contains("data-qualified-name=\"SyntheticModule_util\""));
+        assertTrue(svg.toLowerCase().contains("fill=\"#abcdef\""));
+        assertTrue(svg.contains("data-qualified-name=\"module-util\""));
     }
 }
