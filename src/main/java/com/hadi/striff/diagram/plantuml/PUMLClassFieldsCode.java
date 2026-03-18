@@ -72,8 +72,13 @@ final class PUMLClassFieldsCode {
                 cmpPUMLStr += displayName + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += displayName + "\"";
+                cmpPUMLStr += displayName;
             }
+
+            // Insert change summary if applicable (before closing quote)
+            String changeSummary = generateChangeSummary(cmp);
+            cmpPUMLStr += changeSummary + "\"";
+
             // Insert class generics if required
             if (cmp.codeFragment() != null) {
                 cmpPUMLStr += (cmp.codeFragment());
@@ -242,11 +247,54 @@ final class PUMLClassFieldsCode {
                 || (childCmp.componentType().isVariableComponent()
                         && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
             childCmpDisplayText = childCmp.codeFragment();
+            // Truncate long method signatures but preserve return type
+            if (childCmp.componentType().isMethodComponent() && childCmpDisplayText != null) {
+                childCmpDisplayText = truncateMethodSignature(childCmpDisplayText);
+            }
         }
         if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT) {
             childCmpDisplayText = childCmp.name();
         }
         return childCmpDisplayText;
+    }
+
+    /**
+     * Truncates long method signatures to "methodName(...) : ReturnType" format.
+     * Short signatures like "ping() : String" are preserved as-is.
+     */
+    private String truncateMethodSignature(String signature) {
+        if (signature == null || signature.isEmpty()) {
+            return signature;
+        }
+
+        // Find the method name and opening parenthesis
+        int openParenIndex = signature.indexOf('(');
+        if (openParenIndex == -1) {
+            return signature;  // Not a method signature, return as-is
+        }
+
+        // Check if there are parameters (content between parentheses)
+        int closeParenIndex = signature.indexOf(')', openParenIndex);
+        if (closeParenIndex == -1) {
+            return signature;  // Malformed signature, return as-is
+        }
+
+        // If there are parameters between ( and ), truncate to (... )
+        if (closeParenIndex > openParenIndex + 1) {
+            // Extract method name and return type
+            String methodName = signature.substring(0, openParenIndex);
+            String rest = signature.substring(closeParenIndex + 1);
+
+            // Check for return type (format: " : ReturnType")
+            if (rest.trim().startsWith(":")) {
+                return methodName + "(...)" + rest;
+            } else {
+                // No return type, just truncate parameters
+                return methodName + "(...)";
+            }
+        }
+
+        return signature;  // Short signature, return as-is
     }
 
     private String visibilitySymbol(DiagramComponent childCmp) {
@@ -322,5 +370,54 @@ final class PUMLClassFieldsCode {
         }
         text += " " + backgroundColorText + headerColor;
         return text + " ";
+    }
+
+    /**
+     * Generates a change summary for the component showing added/deleted/modified children.
+     * Format: " [ <color:#color>+count</color> ... ]"
+     */
+    private String generateChangeSummary(DiagramComponent cmp) {
+        StringBuilder summary = new StringBuilder();
+
+        int addedCount = 0;
+        int deletedCount = 0;
+        int modifiedCount = 0;
+
+        // Count changes among the component's children
+        for (String childName : cmp.children()) {
+            if (addedComponents.contains(childName)) {
+                addedCount++;
+            }
+            if (deletedComponents.contains(childName)) {
+                deletedCount++;
+            }
+            if (modifiedComponents.contains(childName)) {
+                modifiedCount++;
+            }
+        }
+
+        // Build the summary string
+        if (addedCount > 0 || deletedCount > 0 || modifiedCount > 0) {
+            summary.append(" [ ");
+            if (addedCount > 0) {
+                String addedColor = this.diagramDisplay.colorScheme().addedComponentColor();
+                summary.append("<color:").append(addedColor).append(">+").append(addedCount).append("</color> ");
+            }
+            if (deletedCount > 0) {
+                String deletedColor = this.diagramDisplay.colorScheme().deletedComponentColor();
+                summary.append("<color:").append(deletedColor).append(">-").append(deletedCount).append("</color> ");
+            }
+            if (modifiedCount > 0) {
+                String modifiedColor = this.diagramDisplay.colorScheme().modifiedComponentColor();
+                summary.append("<color:").append(modifiedColor).append(">+").append(modifiedCount).append("</color> ");
+            }
+            // Remove trailing space before closing bracket
+            if (summary.charAt(summary.length() - 1) == ' ') {
+                summary.setLength(summary.length() - 1);
+            }
+            summary.append("]");
+        }
+
+        return summary.toString();
     }
 }

@@ -137,7 +137,12 @@ public class DiagramComponent {
 
     @JsonProperty("package")
     private String packageName() {
-        return this.cmp.pkg().toString();
+        if (this.cmp.pkg() == null) {
+            return "";
+        }
+        // Use name() instead of toString() to avoid the "name: path" format
+        // Convert package path separators from "/" to "." for serialization
+        return this.cmp.pkg().name().replace("/", ".");
     }
 
     @JsonIgnore
