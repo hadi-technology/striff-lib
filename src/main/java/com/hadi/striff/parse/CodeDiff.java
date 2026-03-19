@@ -34,7 +34,7 @@ public class CodeDiff {
             newerModelCopy.getComponent(oldCmp.uniqueName()).ifPresentOrElse(
                     newCmp -> oldCmp.children().stream()
                             .filter(child -> !newCmp.children().contains(child))
-                            .forEach(newCmp.children()::add),
+                            .forEach(newCmp::insertChildComponent),
                     () -> newerModelCopy.insertComponent(oldCmp));
         });
         this.mergedModel = newerModelCopy;
