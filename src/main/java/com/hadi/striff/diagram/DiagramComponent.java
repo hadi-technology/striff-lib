@@ -160,6 +160,16 @@ public class DiagramComponent {
         return this.cmp.module();
     }
 
+    @JsonProperty("cyclo")
+    public int cyclo() {
+        return this.cmp.cyclo();
+    }
+
+    @JsonIgnore
+    public Set<ComponentReference> internalDependencies() {
+        return this.cmp.internalDependencies();
+    }
+
     @Override
     public int hashCode() {
         return this.uniqueName().hashCode();
