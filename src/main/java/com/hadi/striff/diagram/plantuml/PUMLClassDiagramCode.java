@@ -99,7 +99,8 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()
                 + "\nskinparam packageFontName " + colorScheme.packageFontName()
                 + "\nskinparam packageFontStyle " + colorScheme.packageFontStyle()
-                + "\nskinparam stereotypeFontColor " + colorScheme.syntheticStereotypeFontColor();
+                + "\nskinparam stereotypeFontColor " + colorScheme.syntheticStereotypeFontColor()
+                + "\nskinparam classStereotypeFontColor " + colorScheme.syntheticStereotypeFontColor();
     }
 
     private String diagramDecoratorsText(PUMLDiagramData data, DiagramDecoratorPlacement placement) {

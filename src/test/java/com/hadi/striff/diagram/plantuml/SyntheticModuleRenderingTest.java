@@ -157,9 +157,15 @@ public class SyntheticModuleRenderingTest {
         assertTrue(svg.contains("synthetic"));
         // Check for lighter dark red module circle (#B22222 firebrick)
         assertTrue(svg.contains("#b22222"));
-        // The stereotype text should be plain «synthetic» (HTML encoded as &#171;synthetic&#187;)
-        // NOT the colored version with #color codes
+        // The stereotype text should be light gray (#999999) NOT black (#000000)
+        // The stereotype text element should have fill="#999999"
+        assertTrue("Stereotype text should be light gray #999999", svg.contains("#999999"));
+        // The stereotype text should be «synthetic» (HTML encoded as &#171;synthetic&#187;)
         assertTrue(svg.contains("&#171;synthetic&#187;"));
+        // Verify the stereotype text element has the light gray color
+        // Pattern: <text ... fill="#999999"...>&#171;synthetic&#187;</text>
+        assertTrue("Stereotype text element should have light gray color",
+                svg.matches(".*fill=\"#999999\".*&#171;synthetic&#187;.*"));
     }
 
     @Test
