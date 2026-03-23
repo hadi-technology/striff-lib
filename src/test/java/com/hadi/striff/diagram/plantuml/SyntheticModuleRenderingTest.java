@@ -47,8 +47,8 @@ public class SyntheticModuleRenderingTest {
                 Set.of(syntheticDiagram));
 
         String puml = new PUMLClassFieldsCode(data).value(Set.of(syntheticDiagram));
-        assertTrue(puml.contains("<< (M,#8B0000)>><<#999999>synthetic>>"));
-        // The synthetic stereotype is now colored with the synthetic color
+        // Module circle with lighter dark red, plain synthetic text (no color codes in text)
+        assertTrue(puml.contains("<< (M,#B22222)>><<synthetic>>"));
         assertTrue(puml.contains("synthetic"));
         assertTrue(puml.contains("doThing()"));
     }
@@ -137,10 +137,7 @@ public class SyntheticModuleRenderingTest {
         syntheticDiagram.putAugmentation("synthetic", true);
         syntheticDiagram.putAugmentation("syntheticDisplayName", "util");
 
-        DiagramDisplay display = new DiagramDisplay(
-                DiagramColorSchemeOverride.from(new LightDiagramColorScheme())
-                        .setSyntheticStereotypeFontColor("#abcdef"),
-                Set.of(""));
+        DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), Set.of(""));
         PUMLDiagramData data = new PUMLDiagramData(
                 new RelationsMap(),
                 new RelationsMap(),
@@ -158,10 +155,11 @@ public class SyntheticModuleRenderingTest {
         System.out.println(svg);
         System.out.println("=== END SVG OUTPUT ===");
         assertTrue(svg.contains("synthetic"));
-        // Check for dark red module circle (#8B0000)
-        assertTrue(svg.contains("#8b0000"));
-        // Check for custom synthetic text color
-        assertTrue(svg.contains("#abcdef"));
+        // Check for lighter dark red module circle (#B22222 firebrick)
+        assertTrue(svg.contains("#b22222"));
+        // The stereotype text should be plain «synthetic» (HTML encoded as &#171;synthetic&#187;)
+        // NOT the colored version with #color codes
+        assertTrue(svg.contains("&#171;synthetic&#187;"));
     }
 
     @Test
