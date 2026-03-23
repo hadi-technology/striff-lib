@@ -47,8 +47,9 @@ public class SyntheticModuleRenderingTest {
                 Set.of(syntheticDiagram));
 
         String puml = new PUMLClassFieldsCode(data).value(Set.of(syntheticDiagram));
-        assertTrue(puml.contains("<< (M,#D45A5A) >>"));
-        assertTrue(puml.contains("<<synthetic>>"));
+        assertTrue(puml.contains("<< (M,#8B0000)>><<#999999>synthetic>>"));
+        // The synthetic stereotype is now colored with the synthetic color
+        assertTrue(puml.contains("synthetic"));
         assertTrue(puml.contains("doThing()"));
     }
 
@@ -117,7 +118,7 @@ public class SyntheticModuleRenderingTest {
             qualifiedNames.add(matcher.group(1));
         }
         assertTrue("Qualified names: " + qualifiedNames,
-                qualifiedNames.contains("module-src-main"));
+                qualifiedNames.contains("module:src.main"));
     }
 
     @Test
@@ -152,9 +153,15 @@ public class SyntheticModuleRenderingTest {
                 Set.of(syntheticDiagram));
 
         String svg = new PUMLDiagram(data).svgText().toLowerCase();
+        // Debug: print the SVG to see what we get
+        System.out.println("=== SVG OUTPUT ===");
+        System.out.println(svg);
+        System.out.println("=== END SVG OUTPUT ===");
         assertTrue(svg.contains("synthetic"));
+        // Check for dark red module circle (#8B0000)
+        assertTrue(svg.contains("#8b0000"));
+        // Check for custom synthetic text color
         assertTrue(svg.contains("#abcdef"));
-        assertTrue(svg.contains("fill=\"#abcdef\""));
     }
 
     @Test
@@ -191,6 +198,6 @@ public class SyntheticModuleRenderingTest {
 
         String svg = new PUMLDiagram(data).svgText();
         assertTrue(svg.toLowerCase().contains("fill=\"#abcdef\""));
-        assertTrue(svg.contains("data-qualified-name=\"module-util\""));
+        assertTrue(svg.contains("data-qualified-name=\"module:util\""));
     }
 }

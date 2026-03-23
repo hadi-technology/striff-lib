@@ -123,8 +123,13 @@ Striff supports extension points that can add components or decorate PlantUML ou
 
 * `DiagramAugmenter` runs during model construction and can add components or attach
   metadata to existing components (via `DiagramComponent.putAugmentation(...)`).
-* `ClassDecorator` and `DiagramDecorator` run during PlantUML generation and can
-  inject extra PUML at specific insertion points.
+* `ClassDecorator` runs during PlantUML generation and injects PUML inside class
+  blocks at specific insertion points.
+* `PackageDecorator` runs during PlantUML generation and injects PUML inside a
+  specific package block. Use this for package-local notes or overlays that must
+  stay scoped to one namespace.
+* `DiagramDecorator` runs during PlantUML generation and injects diagram-global
+  PUML such as legends or skinparams.
 * Architecture details and examples: `architecture/adr-002-spi-extensions.md`
 
 Register implementations using Java `ServiceLoader`:
@@ -132,6 +137,7 @@ Register implementations using Java `ServiceLoader`:
 ```
 src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramAugmenter
 src/main/resources/META-INF/services/com.hadi.striff.spi.ClassDecorator
+src/main/resources/META-INF/services/com.hadi.striff.spi.PackageDecorator
 src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramDecorator
 ```
 

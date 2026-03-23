@@ -3,6 +3,7 @@ package com.hadi.striff.diagram;
 import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadi.clarpse.sourcemodel.Package;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +68,10 @@ public final class SyntheticModuleSupport {
             if (sourceFile != null && !sourceFile.trim().isEmpty()) {
                 synthetic.setSourceFilePath(sourceFile);
             }
+            Package pkg = modulePackage(model, entry.getValue());
+            if (pkg != null) {
+                synthetic.setPkg(pkg);
+            }
             syntheticByModule.put(moduleKey, synthetic);
         }
         return syntheticByModule;
@@ -97,6 +102,23 @@ public final class SyntheticModuleSupport {
             String sourceFile = child.sourceFile();
             if (sourceFile != null && !sourceFile.trim().isEmpty()) {
                 return sourceFile;
+            }
+        }
+        return null;
+    }
+
+    private static Package modulePackage(OOPSourceCodeModel model, Collection<String> children) {
+        if (model == null || children == null || children.isEmpty()) {
+            return null;
+        }
+        for (String childName : children) {
+            Component child = model.getComponent(childName).orElse(null);
+            if (child == null) {
+                continue;
+            }
+            Package pkg = child.pkg();
+            if (pkg != null) {
+                return pkg;
             }
         }
         return null;

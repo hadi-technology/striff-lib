@@ -86,7 +86,8 @@ final class PUMLClassFieldsCode {
             if (cmp.augmentation("synthetic").isPresent()
                     && Boolean.TRUE.equals(cmp.augmentation("synthetic").get())) {
                 String syntheticColor = this.diagramDisplay.colorScheme().syntheticStereotypeFontColor();
-                cmpPUMLStr += " << (M," + syntheticColor + ") >><<synthetic>>";
+                // Module circle with dark red, and synthetic text with configured color
+                cmpPUMLStr += " << (M,#8B0000)>><<" + syntheticColor + ">synthetic>>";
             }
 
             // Insert background color tag

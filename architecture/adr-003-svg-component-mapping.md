@@ -1,43 +1,54 @@
-# ADR-003: Stable SVG Component Mapping via Canonical PUML IDs
+# ADR-003: Stable SVG Component Mapping via Post-Processing
 
 ## Status
 Accepted
 
 ## Context
 Striff needs a reliable way to map SVG elements produced by PlantUML back to
-`DiagramComponent` entries. The previous approach relied on PlantUML’s
-`data-qualified-name` matching human-readable component names. That broke down
-for names containing characters PlantUML normalizes (for example, `:` becomes
-`.`) and for names affected by package qualification rules.
+`DiagramComponent` entries. PlantUML generates `data-qualified-name` attributes
+in SVG output, but uses hyphenated IDs (e.g., `com-example-MyClass`) instead of
+the original unique names (e.g., `com.example.MyClass`). This mismatch causes
+problems for:
 
-For greenfield use, we want a deterministic, reversible mapping that does not
-depend on PlantUML’s internal normalization or rendering details, while keeping
-`data-qualified-name` human-readable for consumers.
+- Synthetic modules with colons (`module:cron` becomes `module-cron`)
+- Classes with dots (`com.example.MyClass` becomes `com-example-MyClass`)
+- Browser extension that needs to match SVG elements against API component IDs
+
+We need SVG `data-qualified-name` attributes to exactly match `DiagramComponent.uniqueName()`
+so the browser extension can reliably map between the visual diagram and the API.
 
 ## Decision
-We generate a canonical, PUML-safe ID from `DiagramComponent.uniqueName()` and
-use that ID in the PUML source. The ID is computed as a URL-safe Base64 encoding
-of the UTF-8 unique name, prefixed with `cmp_`.
+Use PlantUML's hyphenated IDs internally, then post-process the SVG to replace
+`data-qualified-name` attribute values with the original `uniqueName`.
 
-After SVG generation, we post-process the SVG and rewrite every
-`data-qualified-name` attribute back to the original `uniqueName` by decoding
-that canonical ID. This keeps SVG attributes human-readable and ensures they map
-1:1 to `DiagramComponent.uniqueName()`.
+### Implementation Details
 
-Implementation details:
-- `PUMLHelper.pumlId(uniqueName)` returns the canonical ID.
-- `PUMLHelper.decodePumlId(pumlId)` reverses it.
-- `PUMLDiagram.stripQualifiedPumlIds(...)` replaces qualified IDs and then
-  decodes `data-qualified-name` back to `uniqueName`.
+1. **PUML ID Generation**: `PUMLHelper.pumlId(uniqueName)` replaces `.` and `:` with `-`
+   - `com.example.MyClass` → `com-example-MyClass`
+   - `module:cron` → `module-cron`
+
+2. **SVG Post-Processing**: `PUMLDiagram.stripQualifiedPumlIds()` does two things:
+   - Strips qualified package prefixes from text content (e.g., `com.example.com-example-MyClass` → `com-example-MyClass`)
+   - Replaces `data-qualified-name` attributes with original uniqueNames:
+     - `data-qualified-name="com-example-MyClass"` → `data-qualified-name="com.example.MyClass"`
+     - `data-qualified-name="module-cron"` → `data-qualified-name="module:cron"`
+
+### Examples
+
+| Component Type | uniqueName | PlantUML ID | Final data-qualified-name |
+|----------------|------------|-------------|---------------------------|
+| Regular class | `com.example.MyClass` | `com-example-MyClass` | `com.example.MyClass` |
+| Nested class | `Outer.Inner` | `Outer-Inner` | `Outer.Inner` |
+| Synthetic module | `module:cron` | `module-cron` | `module:cron` |
+| Synthetic module | `module:src.main` | `module-src-main` | `module:src.main` |
 
 ## Consequences
-- SVG mapping is stable and deterministic; `data-qualified-name` equals
-  `DiagramComponent.uniqueName()`.
-- Internal PUML IDs are opaque and PUML-safe, reducing the risk of collisions or
-  normalization surprises.
-- This is a breaking change for any code that previously expected PlantUML’s
-  `data-qualified-name` format or hyphenated IDs.
+- SVG `data-qualified-name` attributes exactly match `DiagramComponent.uniqueName()`
+- Browser extension can reliably query elements by component ID
+- Internal PUML IDs remain stable (hyphenated format)
+- Simple string replacement post-processing is fast and predictable
+- This is a breaking change for any code that expected PlantUML's hyphenated format
 
 ## Notes
-If consumers need both representations, we can inject an additional attribute
-(e.g., `data-puml-id`) alongside `data-qualified-name` during SVG post-processing.
+- The original ADR proposed Base64 encoding with `cmp_` prefix, but that was never implemented
+- The simpler hyphen-replacement approach has proven sufficient for all real-world use cases

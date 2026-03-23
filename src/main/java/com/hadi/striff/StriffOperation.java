@@ -35,6 +35,7 @@ public class StriffOperation {
             throws IOException, PUMLDrawException, CompileException {
         LOGGER.info("Starting new operation with config: " + config);
         validateProjectFiles(originalPFs, newPFs, config.filesFilter());
+        filterConfigLanguages(config, originalPFs, newPFs);
         HashSet<CompileFailure> allFailures = new HashSet<>();
         LOGGER.info("Generating code diff metadata..");
         CodeDiff diffedModel = generateCodeDiff(originalPFs, newPFs, config, allFailures);
@@ -76,6 +77,63 @@ public class StriffOperation {
             originalFiles.filter(filesFilter);
             newFiles.filter(filesFilter);
         }
+    }
+
+    /**
+     * Filters the config languages to only include languages that have at least one file
+     * in either the original or new ProjectFiles. This optimization avoids attempting
+     * compilation for languages with no matching files.
+     *
+     * @param config The config to modify
+     * @param originalFiles The original project files
+     * @param newFiles The new project files
+     */
+    private static void filterConfigLanguages(StriffConfig config, ProjectFiles originalFiles, ProjectFiles newFiles) {
+        // Detect which languages have files in the ProjectFiles
+        Set<Lang> languagesInOriginal = detectLanguagesInProjectFiles(originalFiles);
+        Set<Lang> languagesInNew = detectLanguagesInProjectFiles(newFiles);
+        Set<Lang> languagesWithFiles = new HashSet<>(languagesInOriginal);
+        languagesWithFiles.addAll(languagesInNew);
+
+        LOGGER.info("Detected languages in original files: {}", languagesInOriginal);
+        LOGGER.info("Detected languages in new files: {}", languagesInNew);
+        LOGGER.info("Configured languages before filtering: {}", config.languages());
+
+        // Filter config languages to only include those with actual files
+        Set<Lang> filteredLanguages = config.languages().stream()
+                .filter(languagesWithFiles::contains)
+                .collect(Collectors.toSet());
+
+        if (filteredLanguages.isEmpty()) {
+            LOGGER.warn("No languages have matching files in the filtered project. Configured languages: "
+                    + config.languages() + ", Languages with files: " + languagesWithFiles);
+        } else if (filteredLanguages.size() < config.languages().size()) {
+            Set<Lang> skippedLanguages = new HashSet<>(config.languages());
+            skippedLanguages.removeAll(filteredLanguages);
+            LOGGER.info("Skipping compilation for languages with no matching files: " + skippedLanguages);
+            config.setLanguages(filteredLanguages);
+            LOGGER.info("Configured languages after filtering: {}", config.languages());
+        } else {
+            LOGGER.info("All configured languages have files, no filtering needed.");
+        }
+    }
+
+    /**
+     * Detects which languages have at least one file in the given ProjectFiles.
+     * This is done by checking file extensions against known language extensions.
+     *
+     * @param projectFiles The project files to analyze
+     * @return Set of languages that have at least one file
+     */
+    private static Set<Lang> detectLanguagesInProjectFiles(ProjectFiles projectFiles) {
+        Set<Lang> languagesFound = new HashSet<>();
+        for (ProjectFile file : projectFiles.files()) {
+            Lang lang = Lang.langFromExtn(file.extension());
+            if (lang != null) {
+                languagesFound.add(lang);
+            }
+        }
+        return languagesFound;
     }
 
     private boolean filterFilesExistInProjects(ProjectFiles originalPFs, ProjectFiles newPFs,

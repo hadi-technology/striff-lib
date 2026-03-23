@@ -6,6 +6,7 @@ import com.hadi.striff.diagram.display.DiagramDisplay;
 import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.spi.ClassDecorator;
 import com.hadi.striff.spi.DiagramDecorator;
+import com.hadi.striff.spi.PackageDecorator;
 import com.hadi.striff.spi.SpiLoader;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class PUMLDiagramData {
     private final Set<DiagramComponent> diagramCmps;
     private final List<ClassDecorator> classDecorators;
     private final List<DiagramDecorator> diagramDecorators;
+    private final List<PackageDecorator> packageDecorators;
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
@@ -38,6 +40,7 @@ public class PUMLDiagramData {
         this.diagramCmps = diagramCmps;
         this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
         this.diagramDecorators = SpiLoader.loadOrdered(DiagramDecorator.class, DiagramDecorator::order);
+        this.packageDecorators = SpiLoader.loadOrdered(PackageDecorator.class, PackageDecorator::order);
     }
 
     public RelationsMap diagramRels() {
@@ -82,5 +85,9 @@ public class PUMLDiagramData {
 
     public List<DiagramDecorator> diagramDecorators() {
         return diagramDecorators;
+    }
+
+    public List<PackageDecorator> packageDecorators() {
+        return packageDecorators;
     }
 }

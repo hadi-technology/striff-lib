@@ -12,6 +12,8 @@ import com.hadi.striff.diagram.partition.PartitionStrategy;
 import com.hadi.striff.diagram.plantuml.PUMLDrawException;
 import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.parse.CodeDiff;
+import com.hadi.striff.spi.DiagramDisplayOverlay;
+import com.hadi.striff.spi.SpiLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,7 +81,7 @@ public class StriffOutput {
             for (Set<DiagramComponent> currPartition : cmpPartitions) {
                 this.insertDiagram(
                         new StriffDiagram(codeDiff, currPartition, diagramRels,
-                                resolveDiagramDisplay(config, this.cmpPkgs(currPartition)),
+                                resolveDiagramDisplay(config, this.cmpPkgs(currPartition), currPartition),
                                 config));
             }
         } else if (placementStrategy == PartitionPlacement.CONDENSED) {
@@ -88,7 +90,7 @@ public class StriffOutput {
 
             this.insertDiagram(
                     new StriffDiagram(codeDiff, condensedPartition, diagramRels,
-                            resolveDiagramDisplay(config, this.cmpPkgs(condensedPartition)), config));
+                            resolveDiagramDisplay(config, this.cmpPkgs(condensedPartition), condensedPartition), config));
         } else {
             throw new IllegalArgumentException("Placement strategy " + placementStrategy + " is not supported!");
         }
@@ -108,9 +110,17 @@ public class StriffOutput {
         }
     }
 
-    private DiagramDisplay resolveDiagramDisplay(StriffConfig config, Set<String> pkgs) {
+    private DiagramDisplay resolveDiagramDisplay(StriffConfig config, Set<String> pkgs, Set<DiagramComponent> components) {
         DiagramDisplay baseDisplay = new DiagramDisplay(config.colorScheme(), pkgs);
-        return baseDisplay.merge(config.displayOverride());
+        DiagramDisplay display = baseDisplay.merge(config.displayOverride());
+        for (DiagramDisplayOverlay overlay : SpiLoader.loadOrdered(
+                DiagramDisplayOverlay.class, DiagramDisplayOverlay::order)) {
+            DiagramDisplay overlaid = overlay.overlay(display, components);
+            if (overlaid != null) {
+                display = overlaid;
+            }
+        }
+        return display;
     }
 
     @JsonProperty("diagrams")
