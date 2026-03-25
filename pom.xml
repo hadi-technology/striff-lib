@@ -5,7 +5,7 @@
 	<groupId>io.github.hadi-technology</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>3.5.7</version>
+	<version>3.6.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadi-tech/striff-lib</url>
@@ -17,7 +17,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<aspectj.version>1.9.7</aspectj.version>
 		<clarpse.groupId>io.github.hadi-technology</clarpse.groupId>
-		<clarpse.version>9.2.5</clarpse.version>
+		<clarpse.version>9.5.0</clarpse.version>
 	</properties>
 	<licenses>
 		<license>
