@@ -40,6 +40,22 @@ public class StriffOutput {
 
     public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<CompileFailure> compileFailures)
             throws PUMLDrawException, IOException {
+        // Short-circuit: if no components in either model, skip all processing
+        boolean hasOldComponents = codeDiff.oldModel().components().count() > 0;
+        boolean hasNewComponents = codeDiff.newModel().components().count() > 0;
+
+        if (!hasOldComponents && !hasNewComponents) {
+            LOGGER.info("No components found in old or new models, skipping diagram generation.");
+            if (config.filesFilter().isEmpty()) {
+                compileFailures.forEach(failure -> this.compileWarnings.add(failure.file().path()));
+            } else {
+                compileFailures.stream()
+                        .filter(failure -> config.filesFilter().contains(failure.file().path()))
+                        .forEach(failure -> this.compileWarnings.add(failure.file().path()));
+            }
+            return;
+        }
+
         StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter(), config.enableAugmenters());
         generateDiagrams(codeDiff, sDM.diagramRels(), partitionConfig(sDM, config), config);
         if (config.filesFilter().isEmpty()) {

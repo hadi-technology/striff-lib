@@ -85,8 +85,10 @@ final class PUMLClassFieldsCode {
             // Insert synthetic module stereotypes if applicable
             if (cmp.augmentation("synthetic").isPresent()
                     && Boolean.TRUE.equals(cmp.augmentation("synthetic").get())) {
-                // Module circle with lighter dark red (#B22222 firebrick), plain synthetic text
-                cmpPUMLStr += " << (M,#B22222)>><<synthetic>>";
+                // Module circle with color from colorScheme
+                // The stereotype text color is controlled globally by skinparam stereotypeFontColor
+                String syntheticColor = this.diagramDisplay.colorScheme().syntheticStereotypeFontColor();
+                cmpPUMLStr += " << (M," + syntheticColor + ")>><<synthetic>>";
             }
 
             // Insert background color tag
@@ -111,7 +113,8 @@ final class PUMLClassFieldsCode {
                             .componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT
                             || diagramComponent
                                     .componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT
-                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.FIELD)
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.FIELD
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.MODULE_FIELD)
                     .collect(Collectors.toSet());
             // Insert PUML text for field children
             boolean zeroFields = true;
@@ -258,8 +261,10 @@ final class PUMLClassFieldsCode {
 
     /**
      * Truncates long method signatures to "methodName(...) : ReturnType" format.
-     * Short signatures like "ping() : String" are preserved as-is.
+     * Short signatures like "ping() : String" or "foo(int x) : String" are preserved as-is.
      */
+    private static final int PARAM_TRUNCATE_THRESHOLD = 40;
+
     private String truncateMethodSignature(String signature) {
         if (signature == null || signature.isEmpty()) {
             return signature;
@@ -277,8 +282,9 @@ final class PUMLClassFieldsCode {
             return signature;  // Malformed signature, return as-is
         }
 
-        // If there are parameters between ( and ), truncate to (... )
-        if (closeParenIndex > openParenIndex + 1) {
+        // If parameters exceed threshold, truncate to (... )
+        int paramLength = closeParenIndex - openParenIndex - 1;
+        if (paramLength > PARAM_TRUNCATE_THRESHOLD) {
             // Extract method name and return type
             String methodName = signature.substring(0, openParenIndex);
             String rest = signature.substring(closeParenIndex + 1);

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,11 +55,32 @@ public class StriffOperation {
             HashSet<CompileFailure> allFailures) throws CompileException {
         OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         OOPSourceCodeModel newModel = new OOPSourceCodeModel();
+        Set<String> filesFilter = config.filesFilter();
+        // Pass null instead of empty set to analyze all files
+        Collection<String> pathsToAnalyze;
+        String pathsToAnalyzeStr;
+        if (filesFilter.isEmpty()) {
+            pathsToAnalyze = null;
+            pathsToAnalyzeStr = "null (all files)";
+        } else {
+            pathsToAnalyze = filesFilter;
+            pathsToAnalyzeStr = String.valueOf(filesFilter);
+        }
+        LOGGER.info("pathsToAnalyze: {}, filesFilter size: {}", pathsToAnalyzeStr, filesFilter.size());
         for (Lang currLang : config.languages()) {
-            CompileResult oldCR = new ClarpseProject(originalPFs, currLang).result();
-            CompileResult newCR = new ClarpseProject(newPFs, currLang).result();
+            LOGGER.info("Processing language: {}", currLang);
+            CompileResult oldCR = new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result();
+            CompileResult newCR = new ClarpseProject(newPFs, currLang, pathsToAnalyze).result();
+
+            long oldComponentCount = oldCR.model().components().count();
+            long newComponentCount = newCR.model().components().count();
+            LOGGER.info("Old model components: {}, New model components: {}", oldComponentCount, newComponentCount);
+
             allFailures.addAll(Stream.concat(newCR.failures().stream(),
                     oldCR.failures().stream()).collect(Collectors.toSet()));
+            if (!allFailures.isEmpty()) {
+                LOGGER.info("Compile failures for {}: {}", currLang, allFailures.size());
+            }
             oldModel.merge(oldCR.model());
             newModel.merge(newCR.model());
         }
@@ -71,11 +93,6 @@ public class StriffOperation {
         LOGGER.info("Validating input project files..");
         if (!filterFilesExistInProjects(originalFiles, newFiles, filesFilter)) {
             throw new IllegalArgumentException("One or more filter file paths are invalid: " + filesFilter + ".");
-        }
-        if (!filesFilter.isEmpty()) {
-            LOGGER.info("Filter files list is not empty, filtering down project files..");
-            originalFiles.filter(filesFilter);
-            newFiles.filter(filesFilter);
         }
     }
 

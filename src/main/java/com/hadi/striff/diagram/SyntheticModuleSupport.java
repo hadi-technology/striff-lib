@@ -34,6 +34,18 @@ public final class SyntheticModuleSupport {
         return uniqueName != null && uniqueName.startsWith(SYNTHETIC_PREFIX);
     }
 
+    /**
+     * Checks if the given component is a synthetic module.
+     * A synthetic module is a fabricated class-like component that acts as a container
+     * for module-level functions and fields.
+     *
+     * @param component the component to check
+     * @return true if the component is a synthetic module
+     */
+    public static boolean isSyntheticModule(Component component) {
+        return component != null && isSyntheticUniqueName(component.uniqueName());
+    }
+
     public static String moduleKey(Component component) {
         if (component == null) {
             throw new IllegalStateException("Module-level component is null.");

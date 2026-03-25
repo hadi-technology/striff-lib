@@ -90,28 +90,15 @@ public class ExtractedRelationships {
                     }
 
                     // Create the relation from synthetic module to target
-                    ComponentRelation relation = new ComponentRelation();
-                    try {
-                        setRelationField(relation, "originalComponent", synthetic);
-                        setRelationField(relation, "targetComponent", target);
-                        setRelationField(relation, "targetComponentRelationMultiplicity",
-                                new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE));
-                        setRelationField(relation, "associationType", associationType);
-
-                        this.relationMap.insertRelation(relation);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to create synthetic module relation: {}", e.getMessage());
-                    }
+                    ComponentRelation relation = ComponentRelation.forSyntheticModule(
+                            synthetic,
+                            target,
+                            new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
+                            associationType);
+                    this.relationMap.insertRelation(relation);
                 }
             }
         });
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setRelationField(Object obj, String fieldName, Object value) throws Exception {
-        java.lang.reflect.Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, value);
     }
 
     /**

@@ -102,7 +102,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBorderThickness() {
-        return "0";
+        return "1.0";
     }
 
     @Override
@@ -172,6 +172,6 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String syntheticStereotypeFontColor() {
-        return "#999999";
+        return "#C0C0C0";
     }
 }

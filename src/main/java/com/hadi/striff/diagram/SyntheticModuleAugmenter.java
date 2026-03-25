@@ -106,28 +106,14 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
                 }
 
                 // Create the relation from synthetic module to target
-                ComponentRelation relation = new ComponentRelation();
-                try {
-                    // Use reflection to bypass validation for synthetic modules
-                    setRelationField(relation, "originalComponent", synthetic);
-                    setRelationField(relation, "targetComponent", target);
-                    setRelationField(relation, "targetComponentRelationMultiplicity",
-                            new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE));
-                    setRelationField(relation, "associationType", associationType);
-
-                    diff.extractedRels().insertRelation(relation);
-                } catch (Exception e) {
-                    LOGGER.error("Failed to create relation from synthetic module: {}", e.getMessage());
-                }
+                ComponentRelation relation = ComponentRelation.forSyntheticModule(
+                        synthetic,
+                        target,
+                        new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
+                        associationType);
+                diff.extractedRels().insertRelation(relation);
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setRelationField(Object obj, String fieldName, Object value) throws Exception {
-        java.lang.reflect.Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, value);
     }
 
     @Override

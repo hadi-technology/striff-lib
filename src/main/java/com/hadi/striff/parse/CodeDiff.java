@@ -26,6 +26,19 @@ public class CodeDiff {
     public CodeDiff(OOPSourceCodeModel olderModel, OOPSourceCodeModel newerModel) {
         this.oldModel = olderModel;
         this.newModel = newerModel;
+
+        // Short-circuit: if no components in either model, skip processing
+        boolean hasOldComponents = olderModel.components().count() > 0;
+        boolean hasNewComponents = newerModel.components().count() > 0;
+
+        if (!hasOldComponents && !hasNewComponents) {
+            LOGGER.info("No components in old or new models, skipping diff/merge/relationship extraction.");
+            this.changeSet = new ChangeSet(olderModel, newerModel.copy());
+            this.mergedModel = newerModel.copy();
+            this.relationsMap = new RelationsMap();
+            return;
+        }
+
         OOPSourceCodeModel newerModelCopy = newerModel.copy();
         this.changeSet = new ChangeSet(olderModel, newerModelCopy);
         // Inefficient way to merge the given sets of components..

@@ -96,6 +96,7 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam groupInheritance 2"
                 + "\nskinparam titleFontName " + colorScheme.titleFontName()
                 + "\nskinparam packageBorderColor " + colorScheme.packageBorderColor()
+                + "\nskinparam packageBorderThickness " + colorScheme.packageBorderThickness()
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()
                 + "\nskinparam packageFontName " + colorScheme.packageFontName()
                 + "\nskinparam packageFontStyle " + colorScheme.packageFontStyle()

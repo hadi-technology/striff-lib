@@ -47,8 +47,8 @@ public class SyntheticModuleRenderingTest {
                 Set.of(syntheticDiagram));
 
         String puml = new PUMLClassFieldsCode(data).value(Set.of(syntheticDiagram));
-        // Module circle with lighter dark red, plain synthetic text (no color codes in text)
-        assertTrue(puml.contains("<< (M,#B22222)>><<synthetic>>"));
+        // Module circle with synthetic color from colorScheme (#C0C0C0), plain synthetic text
+        assertTrue(puml.contains("<< (M,#C0C0C0)>><<synthetic>>"));
         assertTrue(puml.contains("synthetic"));
         assertTrue(puml.contains("doThing()"));
     }
@@ -155,17 +155,16 @@ public class SyntheticModuleRenderingTest {
         System.out.println(svg);
         System.out.println("=== END SVG OUTPUT ===");
         assertTrue(svg.contains("synthetic"));
-        // Check for lighter dark red module circle (#B22222 firebrick)
-        assertTrue(svg.contains("#b22222"));
-        // The stereotype text should be light gray (#999999) NOT black (#000000)
-        // The stereotype text element should have fill="#999999"
-        assertTrue("Stereotype text should be light gray #999999", svg.contains("#999999"));
+        // Check for silver module circle (#C0C0C0)
+        assertTrue(svg.contains("#c0c0c0"));
+        // The stereotype text should be silver (#C0C0C0) from the colorScheme
+        assertTrue("Stereotype text should be silver #C0C0C0", svg.contains("#c0c0c0"));
         // The stereotype text should be «synthetic» (HTML encoded as &#171;synthetic&#187;)
         assertTrue(svg.contains("&#171;synthetic&#187;"));
-        // Verify the stereotype text element has the light gray color
-        // Pattern: <text ... fill="#999999"...>&#171;synthetic&#187;</text>
-        assertTrue("Stereotype text element should have light gray color",
-                svg.matches(".*fill=\"#999999\".*&#171;synthetic&#187;.*"));
+        // Verify the stereotype text element has the silver color
+        // Pattern: <text ... fill="#C0C0C0"...>&#171;synthetic&#187;</text>
+        assertTrue("Stereotype text element should have silver color",
+                svg.matches(".*fill=\"#c0c0c0\".*&#171;synthetic&#187;.*"));
     }
 
     @Test
