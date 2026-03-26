@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Augments the diagram model by adding synthetic modules for module-level functions and fields.
