@@ -31,6 +31,16 @@ public final class ChangeSet {
 
     public ChangeSet(OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel) {
         LOGGER.info("Generating changeset between old and new code models..");
+
+        // Short-circuit: if no components in either model, skip relationship extraction
+        boolean hasOldComponents = oldModel.components().count() > 0;
+        boolean hasNewComponents = newModel.components().count() > 0;
+
+        if (!hasOldComponents && !hasNewComponents) {
+            LOGGER.info("No components in old or new models, skipping changeset analysis.");
+            return;
+        }
+
         RelationsMap oldExtractedRels = new ExtractedRelationships(oldModel).result();
         RelationsMap newExtractedRels = new ExtractedRelationships(newModel).result();
 

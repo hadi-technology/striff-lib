@@ -2,7 +2,7 @@ package com.hadi.striff.diagram;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hadi.clarpse.compiler.ProjectFile;
+import com.hadi.clarpse.compiler.CompileFailure;
 import com.hadi.striff.StriffConfig;
 import com.hadi.striff.diagram.display.DiagramDisplay;
 import com.hadi.striff.diagram.display.OutputMode;
@@ -12,6 +12,8 @@ import com.hadi.striff.diagram.partition.PartitionStrategy;
 import com.hadi.striff.diagram.plantuml.PUMLDrawException;
 import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.parse.CodeDiff;
+import com.hadi.striff.spi.DiagramDisplayOverlay;
+import com.hadi.striff.spi.SpiLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,16 +38,32 @@ public class StriffOutput {
         this(codeDiff, config, Collections.emptySet());
     }
 
-    public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<ProjectFile> compileFailures)
+    public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<CompileFailure> compileFailures)
             throws PUMLDrawException, IOException {
+        // Short-circuit: if no components in either model, skip all processing
+        boolean hasOldComponents = codeDiff.oldModel().components().count() > 0;
+        boolean hasNewComponents = codeDiff.newModel().components().count() > 0;
+
+        if (!hasOldComponents && !hasNewComponents) {
+            LOGGER.info("No components found in old or new models, skipping diagram generation.");
+            if (config.filesFilter().isEmpty()) {
+                compileFailures.forEach(failure -> this.compileWarnings.add(failure.file().path()));
+            } else {
+                compileFailures.stream()
+                        .filter(failure -> config.filesFilter().contains(failure.file().path()))
+                        .forEach(failure -> this.compileWarnings.add(failure.file().path()));
+            }
+            return;
+        }
+
         StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter(), config.enableAugmenters());
         generateDiagrams(codeDiff, sDM.diagramRels(), partitionConfig(sDM, config), config);
         if (config.filesFilter().isEmpty()) {
-            compileFailures.forEach(failure -> this.compileWarnings.add(failure.path()));
+            compileFailures.forEach(failure -> this.compileWarnings.add(failure.file().path()));
         } else {
             compileFailures.stream()
-                    .filter(failure -> config.filesFilter().contains(failure.path()))
-                    .forEach(failure -> this.compileWarnings.add(failure.path()));
+                    .filter(failure -> config.filesFilter().contains(failure.file().path()))
+                    .forEach(failure -> this.compileWarnings.add(failure.file().path()));
         }
     }
 
@@ -79,7 +97,7 @@ public class StriffOutput {
             for (Set<DiagramComponent> currPartition : cmpPartitions) {
                 this.insertDiagram(
                         new StriffDiagram(codeDiff, currPartition, diagramRels,
-                                resolveDiagramDisplay(config, this.cmpPkgs(currPartition)),
+                                resolveDiagramDisplay(config, this.cmpPkgs(currPartition), currPartition),
                                 config));
             }
         } else if (placementStrategy == PartitionPlacement.CONDENSED) {
@@ -88,7 +106,7 @@ public class StriffOutput {
 
             this.insertDiagram(
                     new StriffDiagram(codeDiff, condensedPartition, diagramRels,
-                            resolveDiagramDisplay(config, this.cmpPkgs(condensedPartition)), config));
+                            resolveDiagramDisplay(config, this.cmpPkgs(condensedPartition), condensedPartition), config));
         } else {
             throw new IllegalArgumentException("Placement strategy " + placementStrategy + " is not supported!");
         }
@@ -108,9 +126,17 @@ public class StriffOutput {
         }
     }
 
-    private DiagramDisplay resolveDiagramDisplay(StriffConfig config, Set<String> pkgs) {
+    private DiagramDisplay resolveDiagramDisplay(StriffConfig config, Set<String> pkgs, Set<DiagramComponent> components) {
         DiagramDisplay baseDisplay = new DiagramDisplay(config.colorScheme(), pkgs);
-        return baseDisplay.merge(config.displayOverride());
+        DiagramDisplay display = baseDisplay.merge(config.displayOverride());
+        for (DiagramDisplayOverlay overlay : SpiLoader.loadOrdered(
+                DiagramDisplayOverlay.class, DiagramDisplayOverlay::order)) {
+            DiagramDisplay overlaid = overlay.overlay(display, components);
+            if (overlaid != null) {
+                display = overlaid;
+            }
+        }
+        return display;
     }
 
     @JsonProperty("diagrams")

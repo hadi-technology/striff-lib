@@ -69,18 +69,32 @@ public class StriffDiagramModel {
                 changeSet.keyRelationsComponents(),
                 changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
         if (!sourceFilesFilter.isEmpty()) {
-            unfilteredCoreCmps = unfilteredCoreCmps.stream().filter(
-                    cmp -> sourceFilesFilter.contains(codeDiff.mergedModel().getComponent(cmp).get().sourceFile()))
+            unfilteredCoreCmps = unfilteredCoreCmps.stream()
+                    .filter(cmp -> {
+                        var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
+                        return cmpOpt.isPresent() && sourceFilesFilter.contains(cmpOpt.get().sourceFile());
+                    })
                     .collect(Collectors.toSet());
         }
         unfilteredCoreCmps.forEach(diagramComponent -> {
-            if (codeDiff.mergedModel().getComponent(diagramComponent).get().componentType().isBaseComponent()) {
+            var cmpOpt = codeDiff.mergedModel().getComponent(diagramComponent);
+            if (cmpOpt.isEmpty()) {
+                LOGGER.debug("Component {} not found in merged model, skipping", diagramComponent);
+                return;
+            }
+            Component cmp = cmpOpt.get();
+            if (cmp.componentType().isBaseComponent()) {
                 diagramCmpNames.add(diagramComponent);
             } else {
-                DiagramComponent parentComponent = new DiagramComponent(
-                        codeDiff.mergedModel().parentBaseCmp(diagramComponent), codeDiff.mergedModel());
-                if (parentComponent != null) {
-                    diagramCmpNames.add(parentComponent.uniqueName());
+                try {
+                    Component parentBaseCmp = codeDiff.mergedModel().parentBaseCmp(diagramComponent);
+                    if (parentBaseCmp != null) {
+                        diagramCmpNames.add(parentBaseCmp.uniqueName());
+                    }
+                } catch (IllegalArgumentException e) {
+                    // Component has no parent (e.g., module-level function/field)
+                    // Skip it as it will be handled by synthetic module support
+                    LOGGER.debug("Skipping component with no parent: {}", diagramComponent);
                 }
             }
         });

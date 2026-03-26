@@ -15,14 +15,10 @@ import com.hadi.striff.parse.CodeDiff;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Represents a Striff diagram.
@@ -68,20 +64,14 @@ public class StriffDiagram {
     }
 
     /**
-     * Returns the compressed SVG code as a GZIP + Base64-encoded string.
+     * Returns the SVG code as a Base64-encoded string.
      */
-    @JsonProperty("compressedSVG")
-    public String compressedSVG() throws IOException {
+    @JsonProperty("base64encodedSVGCode")
+    public String base64encodedSVGCode() {
         if (svgCode == null) {
             return null;
         }
-        // Compress the SVG string with GZIP
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream)) {
-            gzipStream.write(svgCode.getBytes(Charsets.UTF_8));
-        }
-        // Encode the compressed bytes in Base64
-        return Base64.getEncoder().encodeToString(byteStream.toByteArray());
+        return Base64.getEncoder().encodeToString(svgCode.getBytes(Charsets.UTF_8));
     }
 
     /**
@@ -122,18 +112,5 @@ public class StriffDiagram {
     @JsonProperty("size")
     public int size() {
         return this.diagramComponents.size();
-    }
-
-    public static String decompressAndDecodeSvg(String compressedSvg) throws IOException {
-        byte[] compressedBytes = Base64.getDecoder().decode(compressedSvg);
-        try (GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(compressedBytes))) {
-            StringBuilder decompressedSvg = new StringBuilder();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = gzipInputStream.read(buffer)) > 0) {
-                decompressedSvg.append(new String(buffer, 0, len, Charsets.UTF_8));
-            }
-            return decompressedSvg.toString();
-        }
     }
 }

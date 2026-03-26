@@ -37,6 +37,7 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
     private String addedRelationColor;
     private String deletedRelationColor;
     private String deletedComponentColor;
+    private String syntheticStereotypeFontColor;
 
     private DiagramColorSchemeOverride(DiagramColorScheme base) {
         if (base == null) {
@@ -377,6 +378,16 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
     @Override
     public String deletedComponentColor() {
         return pick(deletedComponentColor, base.deletedComponentColor());
+    }
+
+    public DiagramColorSchemeOverride setSyntheticStereotypeFontColor(String syntheticStereotypeFontColor) {
+        this.syntheticStereotypeFontColor = syntheticStereotypeFontColor;
+        return this;
+    }
+
+    @Override
+    public String syntheticStereotypeFontColor() {
+        return pick(syntheticStereotypeFontColor, base.syntheticStereotypeFontColor());
     }
 
     private static String pick(String overrideValue, String baseValue) {

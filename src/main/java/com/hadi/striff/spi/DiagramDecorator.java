@@ -8,6 +8,10 @@ public interface DiagramDecorator {
 
     List<String> decorateDiagram(DiagramDisplay display);
 
+    default DiagramDecoratorPlacement placement() {
+        return DiagramDecoratorPlacement.AFTER_RELATIONS;
+    }
+
     default int order() {
         return 100;
     }

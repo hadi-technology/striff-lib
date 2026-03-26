@@ -43,12 +43,15 @@ The SPI interfaces are in `com.hadi.striff.spi`:
 * `DiagramAugmenter`: runs during model construction and may add components or
   attach metadata via `DiagramComponent.putAugmentation(...)`.
 * `ClassDecorator`: injects PlantUML inside class blocks at defined insertion points.
+* `PackageDecorator`: injects PlantUML inside a package block with access to the
+  current package and the full diagram component set.
 * `DiagramDecorator`: injects PlantUML at the diagram level.
 
 Registration uses `META-INF/services/...` entries:
 ```
 META-INF/services/com.hadi.striff.spi.DiagramAugmenter
 META-INF/services/com.hadi.striff.spi.ClassDecorator
+META-INF/services/com.hadi.striff.spi.PackageDecorator
 META-INF/services/com.hadi.striff.spi.DiagramDecorator
 ```
 
@@ -130,6 +133,30 @@ public class LegendDecorator implements DiagramDecorator {
 }
 ```
 
+### PackageDecorator
+Attach a note inside one package block:
+```java
+package com.example.striff.spi;
+
+import com.hadi.striff.spi.PackageDecorator;
+import com.hadi.striff.spi.PackageDecoratorContext;
+
+import java.util.List;
+
+public class NoteDecorator implements PackageDecorator {
+    @Override
+    public List<String> decoratePackage(PackageDecoratorContext context) {
+        if (!"com.acme.orders".equals(context.packagePath())) {
+            return List.of();
+        }
+        return List.of(
+                "note right of OrderService",
+                "Package-local note",
+                "end note");
+    }
+}
+```
+
 ### ServiceLoader registration
 ```
 META-INF/services/com.hadi.striff.spi.DiagramAugmenter
@@ -137,6 +164,9 @@ com.example.striff.spi.MetricsAugmenter
 
 META-INF/services/com.hadi.striff.spi.ClassDecorator
 com.example.striff.spi.BannerDecorator
+
+META-INF/services/com.hadi.striff.spi.PackageDecorator
+com.example.striff.spi.NoteDecorator
 
 META-INF/services/com.hadi.striff.spi.DiagramDecorator
 com.example.striff.spi.LegendDecorator
@@ -147,6 +177,8 @@ com.example.striff.spi.LegendDecorator
   are not in the change set, then render the metric delta inside class boxes.
 * **Compliance overlays**: inject “restricted” labels on classes in certain packages
   without modifying core diagram logic.
+* **Scoped review notes**: render a note inside the package block that owns the
+  target component instead of attaching all notes at diagram scope.
 * **Security review**: decorate diagrams with a legend and special colors for
   components that interact with external systems.
 * **Team conventions**: apply a uniform banner or watermark via a diagram decorator.

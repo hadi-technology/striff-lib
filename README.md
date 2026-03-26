@@ -1,5 +1,5 @@
 # [striff-lib](https://striff.io)
-[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technologies-violet.svg)](https://hadi.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-tech/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![codecov](https://codecov.io/github/hadi-technology/striff-lib/graph/badge.svg?token=drpjBh8hfF)](https://codecov.io/github/hadi-technology/striff-lib) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technologies-violet.svg)](https://hadi.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-technology/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 ### Architectural Diagrams, Made For Code Reviews.
@@ -43,7 +43,6 @@ List<StriffDiagram> striffs = new StriffOperation(
         oldFiles, newFiles, new StriffConfig()).result().diagrams();
 for (StriffDiagram diagram : striffs) {
   String svg = diagram.svg();               // null if metadata-only
-  String compressed = diagram.compressedSVG();
   int size = diagram.size();                // number of components
   var pkgs = diagram.containedPkgs();       // packages included
   var components = diagram.cmps();          // DiagramComponent set
@@ -60,8 +59,8 @@ Parsing is performed per language configured in `StriffConfig.setLanguages(...)`
 
 Supported languages (via Clarpse):
 * Java
-* TypeScript (Coming Soon)
-* Python (Coming Soon)
+* TypeScript
+* Python
 * C# (Coming Soon)
 * Go (Coming Soon)
 
@@ -123,8 +122,13 @@ Striff supports extension points that can add components or decorate PlantUML ou
 
 * `DiagramAugmenter` runs during model construction and can add components or attach
   metadata to existing components (via `DiagramComponent.putAugmentation(...)`).
-* `ClassDecorator` and `DiagramDecorator` run during PlantUML generation and can
-  inject extra PUML at specific insertion points.
+* `ClassDecorator` runs during PlantUML generation and injects PUML inside class
+  blocks at specific insertion points.
+* `PackageDecorator` runs during PlantUML generation and injects PUML inside a
+  specific package block. Use this for package-local notes or overlays that must
+  stay scoped to one namespace.
+* `DiagramDecorator` runs during PlantUML generation and injects diagram-global
+  PUML such as legends or skinparams.
 * Architecture details and examples: `architecture/adr-002-spi-extensions.md`
 
 Register implementations using Java `ServiceLoader`:
@@ -132,6 +136,7 @@ Register implementations using Java `ServiceLoader`:
 ```
 src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramAugmenter
 src/main/resources/META-INF/services/com.hadi.striff.spi.ClassDecorator
+src/main/resources/META-INF/services/com.hadi.striff.spi.PackageDecorator
 src/main/resources/META-INF/services/com.hadi.striff.spi.DiagramDecorator
 ```
 
@@ -147,7 +152,7 @@ StriffConfig config = new StriffConfig()
 
 ### Examples
 * Library usage: `src/test/java/striff/test/model/StriffAPITest.java`
-* API usage: see striff-api tests (e.g., `src/test/java/com/hadi/striff/IntegrationTest.java`)
+* More examples: See `src/test/java/` for usage examples and regression tests.
 
 ### Contributing
 * Build: `mvn clean package assembly:single`

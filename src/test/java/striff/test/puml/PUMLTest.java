@@ -50,8 +50,8 @@ public class PUMLTest {
 						.setOutputMode(OutputMode.DEFAULT)
 						.setLanguages(List.of(Lang.JAVA)))
 				.result().diagrams();
-		assertFalse(diagrams.get(0).svg().contains("data-qualified-name=\"com-test-ClassA\""));
-		assertTrue(diagrams.get(0).svg().contains("data-qualified-name=\"com-test-ClassB\""));
+		assertFalse(diagrams.get(0).svg().contains("data-qualified-name=\"com.test.ClassA\""));
+		assertTrue(diagrams.get(0).svg().contains("data-qualified-name=\"com.test.ClassB\""));
 	}
 
 	@Test
@@ -99,7 +99,7 @@ public class PUMLTest {
 						.setLanguages(List.of(Lang.JAVA)))
 				.result().diagrams();
 		assertTrue(diagrams.get(0).svg().contains("data-qualified-name=\"Outer\"")
-				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer-Inner\""));
+				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer.Inner\""));
 	}
 
 	@Test
@@ -120,8 +120,8 @@ public class PUMLTest {
 						.setLanguages(List.of(Lang.JAVA)))
 				.result().diagrams();
 		assertTrue(diagrams.get(0).svg().contains("data-qualified-name=\"Outer\"")
-				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer2-Inner\"")
+				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer2.Inner\"")
 				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer2\"")
-				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer-Inner\""));
+				&& diagrams.get(0).svg().contains("data-qualified-name=\"Outer.Inner\""));
 	}
 }
