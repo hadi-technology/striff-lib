@@ -1,10 +1,10 @@
 package com.hadi.striff.diagram.display;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Map of source code packages to the color they should appear with.
@@ -19,12 +19,31 @@ public class DiagramDisplay {
         this.diagramCS = diagramCS;
     }
 
+    public DiagramDisplay(DiagramColorScheme diagramCS, Map<String, String> pkgColors) {
+        this.pkgColorsMap = new PkgColorsMap(pkgColors);
+        this.diagramCS = diagramCS;
+    }
+
     public DiagramColorScheme colorScheme() {
         return this.diagramCS;
     }
 
     public List<java.util.Map.Entry<String, String>> pkgColorMappings() {
         return new ArrayList<>(this.pkgColorsMap.mappings());
+    }
+
+    public DiagramDisplay withPackageColors(Map<String, String> pkgColors) {
+        if (pkgColors == null || pkgColors.isEmpty()) {
+            return this;
+        }
+        Map<String, String> mergedPkgColors = new LinkedHashMap<>(this.pkgColorsMap.asMap());
+        for (Map.Entry<String, String> entry : pkgColors.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null || entry.getValue().isBlank()) {
+                continue;
+            }
+            mergedPkgColors.put(entry.getKey(), entry.getValue());
+        }
+        return new DiagramDisplay(this.diagramCS, mergedPkgColors);
     }
 
     public DiagramDisplay merge(DiagramDisplayOverride override) {
@@ -196,11 +215,14 @@ public class DiagramDisplay {
             public String deletedComponentColor() {
                 return pick(override.deletedComponentColor(), diagramCS.deletedComponentColor());
             }
+
+            @Override
+            public String syntheticStereotypeFontColor() {
+                return pick(override.syntheticStereotypeFontColor(), diagramCS.syntheticStereotypeFontColor());
+            }
         };
-        Set<String> pkgs = pkgColorMappings().stream()
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-        return new DiagramDisplay(mergedScheme, pkgs);
+        // Preserve existing package colors when merging
+        return new DiagramDisplay(mergedScheme, this.pkgColorsMap.asMap());
     }
 
     private static String pick(String overrideValue, String baseValue) {

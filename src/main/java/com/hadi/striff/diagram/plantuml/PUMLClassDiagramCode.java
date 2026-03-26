@@ -2,6 +2,7 @@ package com.hadi.striff.diagram.plantuml;
 
 import com.hadi.striff.diagram.display.DiagramColorScheme;
 import com.hadi.striff.spi.DiagramDecorator;
+import com.hadi.striff.spi.DiagramDecoratorPlacement;
 
 import java.util.List;
 
@@ -12,13 +13,15 @@ final class PUMLClassDiagramCode {
     private final String code;
 
     PUMLClassDiagramCode(PUMLDiagramData data) {
-        String diagramDecorations = diagramDecoratorsText(data);
+        String beforeDecorations = diagramDecoratorsText(data, DiagramDecoratorPlacement.BEFORE_CONTENT);
+        String afterDecorations = diagramDecoratorsText(data, DiagramDecoratorPlacement.AFTER_RELATIONS);
         this.code = PLANT_UML_BEGIN_STRING
                 + plantUMLStyleBlock(data.diagramDisplay().colorScheme())
                 + plantUMLSkinParamText(data.diagramDisplay().colorScheme())
-                + "\n" + diagramDecorations + new PUMLPackageCode(data).value()
+                + "\n" + beforeDecorations + new PUMLPackageCode(data).value()
                 + "\n"
                 + new PUMLClassRelationsCode(data).value()
+                + "\n" + afterDecorations
                 + PLANT_UML_END_STRING;
     }
 
@@ -93,14 +96,20 @@ final class PUMLClassDiagramCode {
                 + "\nskinparam groupInheritance 2"
                 + "\nskinparam titleFontName " + colorScheme.titleFontName()
                 + "\nskinparam packageBorderColor " + colorScheme.packageBorderColor()
+                + "\nskinparam packageBorderThickness " + colorScheme.packageBorderThickness()
                 + "\nskinparam packageFontColor " + colorScheme.packageFontColor()
                 + "\nskinparam packageFontName " + colorScheme.packageFontName()
-                + "\nskinparam packageFontStyle " + colorScheme.packageFontStyle();
+                + "\nskinparam packageFontStyle " + colorScheme.packageFontStyle()
+                + "\nskinparam stereotypeFontColor " + colorScheme.syntheticStereotypeFontColor()
+                + "\nskinparam classStereotypeFontColor " + colorScheme.syntheticStereotypeFontColor();
     }
 
-    private String diagramDecoratorsText(PUMLDiagramData data) {
+    private String diagramDecoratorsText(PUMLDiagramData data, DiagramDecoratorPlacement placement) {
         StringBuilder builder = new StringBuilder();
         for (DiagramDecorator decorator : data.diagramDecorators()) {
+            if (decorator.placement() != placement) {
+                continue;
+            }
             List<String> extra = decorator.decorateDiagram(data.diagramDisplay());
             if (extra == null || extra.isEmpty()) {
                 continue;

@@ -58,15 +58,37 @@ final class PUMLClassFieldsCode {
             // packages explicitly ourselves)
             cmpPUMLStr += PUMLHelper.pumlId(cmp.uniqueName()) + " as \"";
             // Insert cmp display name
+            String displayName = cmp.componentName();
+            if (cmp.augmentation("syntheticDisplayName").isPresent()) {
+                displayName = cmp.augmentation("syntheticDisplayName").get().toString();
+            } else if (cmp.module() != null && !cmp.module().isEmpty()) {
+                // Strip module prefix from display name if redundant (e.g., "Module.ModuleName" -> "ModuleName")
+                String module = cmp.module();
+                if (displayName.startsWith(module + ".")) {
+                    displayName = displayName.substring(module.length() + 1);
+                }
+            }
+            // Insert change summary if applicable (inside quotes, after display name)
+            String changeSummary = generateChangeSummary(cmp);
             if (largeComponent) {
-                cmpPUMLStr += cmp.componentName() + " <b><color:"
+                cmpPUMLStr += displayName + changeSummary + " <b><color:"
                         + this.diagramDisplay.colorScheme().classFontColor() + ">(...)\"";
             } else {
-                cmpPUMLStr += cmp.componentName() + "\"";
+                cmpPUMLStr += displayName + changeSummary + "\"";
             }
+
             // Insert class generics if required
             if (cmp.codeFragment() != null) {
                 cmpPUMLStr += (cmp.codeFragment());
+            }
+
+            // Insert synthetic module stereotypes if applicable
+            if (cmp.augmentation("synthetic").isPresent()
+                    && Boolean.TRUE.equals(cmp.augmentation("synthetic").get())) {
+                // Module circle with color from colorScheme
+                // The stereotype text color is controlled globally by skinparam stereotypeFontColor
+                String syntheticColor = this.diagramDisplay.colorScheme().syntheticStereotypeFontColor();
+                cmpPUMLStr += " << (M," + syntheticColor + ")>><<synthetic>>";
             }
 
             // Insert background color tag
@@ -91,7 +113,8 @@ final class PUMLClassFieldsCode {
                             .componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT
                             || diagramComponent
                                     .componentType() == OOPSourceModelConstants.ComponentType.INTERFACE_CONSTANT
-                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.FIELD)
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.FIELD
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.MODULE_FIELD)
                     .collect(Collectors.toSet());
             // Insert PUML text for field children
             boolean zeroFields = true;
@@ -184,6 +207,7 @@ final class PUMLClassFieldsCode {
     private String childComponentPUMLText(DiagramComponent childCmp) {
         String childCmpPUMLStr = "";
         if ((childCmp.componentType() == OOPSourceModelConstants.ComponentType.METHOD)
+                || (childCmp.componentType() == OOPSourceModelConstants.ComponentType.FUNCTION)
                 || childCmp.componentType().isVariableComponent()) {
             if (!childCmp.componentType().isBaseComponent()) {
                 // if the field/method is abstract or static, add the {abstract}/{static}
@@ -224,11 +248,57 @@ final class PUMLClassFieldsCode {
                 || (childCmp.componentType().isVariableComponent()
                         && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
             childCmpDisplayText = childCmp.codeFragment();
+            // Truncate long method signatures but preserve return type
+            if (childCmp.componentType().isMethodComponent() && childCmpDisplayText != null) {
+                childCmpDisplayText = truncateMethodSignature(childCmpDisplayText);
+            }
         }
         if (childCmp.componentType() == OOPSourceModelConstants.ComponentType.ENUM_CONSTANT) {
             childCmpDisplayText = childCmp.name();
         }
         return childCmpDisplayText;
+    }
+
+    /**
+     * Truncates long method signatures to "methodName(...) : ReturnType" format.
+     * Short signatures like "ping() : String" or "foo(int x) : String" are preserved as-is.
+     */
+    private static final int PARAM_TRUNCATE_THRESHOLD = 40;
+
+    private String truncateMethodSignature(String signature) {
+        if (signature == null || signature.isEmpty()) {
+            return signature;
+        }
+
+        // Find the method name and opening parenthesis
+        int openParenIndex = signature.indexOf('(');
+        if (openParenIndex == -1) {
+            return signature;  // Not a method signature, return as-is
+        }
+
+        // Check if there are parameters (content between parentheses)
+        int closeParenIndex = signature.indexOf(')', openParenIndex);
+        if (closeParenIndex == -1) {
+            return signature;  // Malformed signature, return as-is
+        }
+
+        // If parameters exceed threshold, truncate to (... )
+        int paramLength = closeParenIndex - openParenIndex - 1;
+        if (paramLength > PARAM_TRUNCATE_THRESHOLD) {
+            // Extract method name and return type
+            String methodName = signature.substring(0, openParenIndex);
+            String rest = signature.substring(closeParenIndex + 1);
+
+            // Check for return type (format: " : ReturnType")
+            if (rest.trim().startsWith(":")) {
+                return methodName + "(...)" + rest;
+            } else {
+                // No return type, just truncate parameters
+                return methodName + "(...)";
+            }
+        }
+
+        return signature;  // Short signature, return as-is
     }
 
     private String visibilitySymbol(DiagramComponent childCmp) {
@@ -304,5 +374,54 @@ final class PUMLClassFieldsCode {
         }
         text += " " + backgroundColorText + headerColor;
         return text + " ";
+    }
+
+    /**
+     * Generates a change summary for the component showing added/deleted/modified children.
+     * Format: " [ <color:#color>+count</color> ... ]"
+     */
+    private String generateChangeSummary(DiagramComponent cmp) {
+        StringBuilder summary = new StringBuilder();
+
+        int addedCount = 0;
+        int deletedCount = 0;
+        int modifiedCount = 0;
+
+        // Count changes among the component's children
+        for (String childName : cmp.children()) {
+            if (addedComponents.contains(childName)) {
+                addedCount++;
+            }
+            if (deletedComponents.contains(childName)) {
+                deletedCount++;
+            }
+            if (modifiedComponents.contains(childName)) {
+                modifiedCount++;
+            }
+        }
+
+        // Build the summary string
+        if (addedCount > 0 || deletedCount > 0 || modifiedCount > 0) {
+            summary.append(" [ ");
+            if (addedCount > 0) {
+                String addedColor = this.diagramDisplay.colorScheme().addedComponentColor();
+                summary.append("<color:").append(addedColor).append(">+").append(addedCount).append("</color> ");
+            }
+            if (deletedCount > 0) {
+                String deletedColor = this.diagramDisplay.colorScheme().deletedComponentColor();
+                summary.append("<color:").append(deletedColor).append(">-").append(deletedCount).append("</color> ");
+            }
+            if (modifiedCount > 0) {
+                String modifiedColor = this.diagramDisplay.colorScheme().modifiedComponentColor();
+                summary.append("<color:").append(modifiedColor).append(">+").append(modifiedCount).append("</color> ");
+            }
+            // Remove trailing space before closing bracket
+            if (summary.charAt(summary.length() - 1) == ' ') {
+                summary.setLength(summary.length() - 1);
+            }
+            summary.append("]");
+        }
+
+        return summary.toString();
     }
 }

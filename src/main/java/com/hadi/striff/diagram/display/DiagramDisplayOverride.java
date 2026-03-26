@@ -35,6 +35,7 @@ public class DiagramDisplayOverride {
     private String addedRelationColor;
     private String deletedRelationColor;
     private String deletedComponentColor;
+    private String syntheticStereotypeFontColor;
 
     public String defaultFontName() {
         return defaultFontName;
@@ -330,6 +331,15 @@ public class DiagramDisplayOverride {
 
     public DiagramDisplayOverride setDeletedComponentColor(String deletedComponentColor) {
         this.deletedComponentColor = deletedComponentColor;
+        return this;
+    }
+
+    public String syntheticStereotypeFontColor() {
+        return syntheticStereotypeFontColor;
+    }
+
+    public DiagramDisplayOverride setSyntheticStereotypeFontColor(String syntheticStereotypeFontColor) {
+        this.syntheticStereotypeFontColor = syntheticStereotypeFontColor;
         return this;
     }
 }

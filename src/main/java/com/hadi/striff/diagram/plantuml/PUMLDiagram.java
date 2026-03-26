@@ -38,7 +38,6 @@ public class PUMLDiagram {
                 LOGGER.debug("Generated diagram text:\n" + diagramStr);
                 throw new PUMLDrawException("A PUML syntax error occurred while generating this "
                         + "diagram!");
-
             }
         }
         return diagramStr;
@@ -63,6 +62,14 @@ public class PUMLDiagram {
             }
 
             updatedSvg = updatedSvg.replace(qualifiedId, pumlId);
+
+            // Also replace data-qualified-name attributes with the original uniqueName
+            // PlantUML generates data-qualified-name="com-example-MyClass"
+            // We need data-qualified-name="com.example.MyClass" to match API componentId
+            updatedSvg = updatedSvg.replace(
+                    "data-qualified-name=\"" + pumlId + "\"",
+                    "data-qualified-name=\"" + component.uniqueName() + "\""
+            );
         }
         return updatedSvg;
     }

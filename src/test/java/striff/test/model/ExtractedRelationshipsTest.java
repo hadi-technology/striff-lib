@@ -445,6 +445,10 @@ public class ExtractedRelationshipsTest {
                 OOPSourceModelConstants.AccessModifiers.PRIVATE.name().toLowerCase());
         Component structB = setupComponent("structB", "structB", codeModel,
                 OOPSourceModelConstants.ComponentType.STRUCT);
+        // Insert all components into model AFTER setting all properties
+        codeModel.insertComponent(structA);
+        codeModel.insertComponent(structAField);
+        codeModel.insertComponent(structB);
         ComponentRelation expectedRelation = new ComponentRelation(
                 structA,
                 structB, null,
@@ -466,6 +470,10 @@ public class ExtractedRelationshipsTest {
                 OOPSourceModelConstants.AccessModifiers.PUBLIC.name().toLowerCase());
         Component structB = setupComponent("structB", "structB", codeModel,
                 OOPSourceModelConstants.ComponentType.STRUCT);
+        // Insert all components into model AFTER setting all properties
+        codeModel.insertComponent(structA);
+        codeModel.insertComponent(structAField);
+        codeModel.insertComponent(structB);
         ComponentRelation expectedRelation = new ComponentRelation(
                 structA,
                 structB, null,
@@ -485,6 +493,10 @@ public class ExtractedRelationshipsTest {
         classAMethod.insertCmpRef(new SimpleTypeReference("classB"));
         Component classB = setupComponent("classB", "classB", codeModel,
                 OOPSourceModelConstants.ComponentType.CLASS);
+        // Insert all components into model AFTER setting all properties
+        codeModel.insertComponent(classA);
+        codeModel.insertComponent(classAMethod);
+        codeModel.insertComponent(classB);
         ComponentRelation expectedRelation = new ComponentRelation(
                 classA,
                 classB, null,
@@ -501,6 +513,9 @@ public class ExtractedRelationshipsTest {
         classA.insertCmpRef(new TypeExtensionReference("classB"));
         Component classB = setupComponent("classB", "classB", codeModel,
                 OOPSourceModelConstants.ComponentType.CLASS);
+        // Insert all components into model AFTER setting all properties
+        codeModel.insertComponent(classA);
+        codeModel.insertComponent(classB);
         ComponentRelation expectedRelation = new ComponentRelation(
                 classA,
                 classB, null,
@@ -517,6 +532,9 @@ public class ExtractedRelationshipsTest {
         classA.insertCmpRef(new TypeImplementationReference("classB"));
         Component classB = setupComponent("classB", "classB", codeModel,
                 OOPSourceModelConstants.ComponentType.CLASS);
+        // Insert all components into model AFTER setting all properties
+        codeModel.insertComponent(classA);
+        codeModel.insertComponent(classB);
         ComponentRelation expectedRelation = new ComponentRelation(
                 classA,
                 classB, null,
@@ -532,7 +550,7 @@ public class ExtractedRelationshipsTest {
         cmp.setName(name);
         cmp.setComponentName(componentName);
         cmp.setComponentType(type);
-        codeModel.insertComponent(cmp);
+        // Don't insert yet - caller must insert after setting all properties
         return cmp;
     }
 }

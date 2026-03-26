@@ -2,6 +2,7 @@ package com.hadi.striff.extractor;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hadi.clarpse.sourcemodel.Component;
+import com.hadi.striff.diagram.SyntheticModuleSupport;
 import com.hadi.striff.extractor.DiagramConstants.ComponentAssociation;
 
 /**
@@ -29,6 +30,38 @@ public class ComponentRelation implements Comparable<ComponentRelation> {
     }
 
     public ComponentRelation() {
+    }
+
+    /**
+     * Creates a ComponentRelation for a synthetic module, bypassing the base component
+     * validation for the original component. This is used internally when creating
+     * relations from synthetic modules to their dependencies.
+     *
+     * @param originalComponent the synthetic module component
+     * @param targetComponent the target component (must be a base component)
+     * @param targetComponentRelationMultiplicity the multiplicity
+     * @param associationType the association type
+     * @return a new ComponentRelation instance
+     */
+    public static ComponentRelation forSyntheticModule(
+            Component originalComponent,
+            Component targetComponent,
+            ComponentAssociationMultiplicity targetComponentRelationMultiplicity,
+            ComponentAssociation associationType) {
+        ComponentRelation relation = new ComponentRelation();
+        if (!targetComponent.componentType().isBaseComponent()) {
+            throw new IllegalArgumentException(
+                    "Target component " + targetComponent.uniqueName() + " is not a base component!");
+        }
+        if (!SyntheticModuleSupport.isSyntheticModule(originalComponent)) {
+            throw new IllegalArgumentException(
+                    "Original component " + originalComponent.uniqueName() + " is not a synthetic module!");
+        }
+        relation.originalComponent = originalComponent;
+        relation.targetComponent = targetComponent;
+        relation.targetComponentRelationMultiplicity = targetComponentRelationMultiplicity;
+        relation.associationType = associationType;
+        return relation;
     }
 
     public ComponentRelation(Component originalCmp, Component targetCmp) {

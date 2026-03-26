@@ -50,6 +50,8 @@ public interface DiagramColorScheme {
 
     String dropShadows();
 
+    String syntheticStereotypeFontColor();
+
     String packageFontColor();
 
     String arrowThickness();

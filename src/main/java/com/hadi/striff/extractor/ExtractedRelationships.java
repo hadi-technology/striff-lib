@@ -10,6 +10,7 @@ import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.AccessModifiers;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
 import com.hadi.striff.annotations.LogExecutionTime;
+import com.hadi.striff.diagram.SyntheticModuleSupport;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,6 +29,76 @@ public class ExtractedRelationships {
         sourceCodeModel.components()
                 .filter(this::isRelevantComponent)
                 .forEach(component -> processComponentRelations(component, sourceCodeModel));
+
+        // Create synthetic modules and fold module-level relations
+        createSyntheticModulesAndRelations(sourceCodeModel);
+    }
+
+    /**
+     * Creates synthetic modules for module-level components and folds their relations.
+     */
+    private void createSyntheticModulesAndRelations(OOPSourceCodeModel sourceCodeModel) {
+        Set<Component> moduleLevelComponents = sourceCodeModel.components()
+                .filter(SyntheticModuleSupport::isModuleLevelComponent)
+                .collect(java.util.stream.Collectors.toSet());
+
+        if (moduleLevelComponents.isEmpty()) {
+            return;
+        }
+
+        SyntheticModuleSupport.syntheticComponentsByModule(sourceCodeModel).forEach((moduleKey, synthetic) -> {
+            // Create relations from module-level components to the synthetic module
+            Set<Component> modulesComps = sourceCodeModel.components()
+                    .filter(SyntheticModuleSupport::isModuleLevelComponent)
+                    .filter(cmp -> moduleKey.equals(cmp.module()))
+                    .collect(java.util.stream.Collectors.toSet());
+
+            for (Component moduleLevelCmp : modulesComps) {
+                Set<ComponentReference> references = new LinkedHashSet<>(moduleLevelCmp.internalDependencies());
+
+                for (ComponentReference ref : references) {
+                    if (!sourceCodeModel.containsComponent(ref.invokedComponent())) {
+                        continue;
+                    }
+
+                    Component target = sourceCodeModel.getComponent(ref.invokedComponent()).orElse(null);
+                    if (target == null) {
+                        continue;
+                    }
+
+                    // If target is not a base component, try to get its parent
+                    if (!target.componentType().isBaseComponent()) {
+                        try {
+                            target = sourceCodeModel.parentBaseCmp(target.uniqueName());
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.debug("No parent base component for reference target: {}", ref.invokedComponent());
+                            continue;
+                        }
+                    }
+
+                    if (target == null || target.equals(synthetic)) {
+                        continue;
+                    }
+
+                    // Determine the association type
+                    DiagramConstants.ComponentAssociation associationType;
+                    if (moduleLevelCmp.componentType() == ComponentType.FIELD
+                            || moduleLevelCmp.componentType() == ComponentType.MODULE_FIELD) {
+                        associationType = DiagramConstants.ComponentAssociation.COMPOSITION;
+                    } else {
+                        associationType = DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
+                    }
+
+                    // Create the relation from synthetic module to target
+                    ComponentRelation relation = ComponentRelation.forSyntheticModule(
+                            synthetic,
+                            target,
+                            new ComponentAssociationMultiplicity(DiagramConstants.DefaultClassMultiplicities.NONE),
+                            associationType);
+                    this.relationMap.insertRelation(relation);
+                }
+            }
+        });
     }
 
     /**
@@ -79,6 +150,11 @@ public class ExtractedRelationships {
      */
     private void extractAssociations(final Component component, OOPSourceCodeModel model) {
         if (component.componentType().isBaseComponent()) {
+            return;
+        }
+
+        // Skip module-level components - their relations will be created by SyntheticModuleAugmenter
+        if (SyntheticModuleSupport.isModuleLevelComponent(component)) {
             return;
         }
 
@@ -212,11 +288,15 @@ public class ExtractedRelationships {
     }
 
     /**
-     * Validates if a relation is between two base components and not
-     * self-referencing.
+     * Validates if a relation is valid.
+     * - Target component must be a base component
+     * - Not self-referencing
+     * - Original component can be a base component OR a module-level component (FUNCTION or MODULE_FIELD)
      */
     private boolean isValidRelation(ComponentRelation relation) {
-        return relation.originalComponent().componentType().isBaseComponent()
+        boolean originalComponentIsValid = relation.originalComponent().componentType().isBaseComponent()
+                || SyntheticModuleSupport.isModuleLevelComponent(relation.originalComponent());
+        return originalComponentIsValid
                 && relation.targetComponent().componentType().isBaseComponent()
                 && !relation.originalComponent().equals(relation.targetComponent());
     }

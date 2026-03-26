@@ -63,7 +63,19 @@ public class DiagramComponent {
         return Optional.ofNullable(augmentations.get(key));
     }
 
+    /**
+     * Returns an unmodifiable list of child component names.
+     * If the internal list is empty but the underlying component has children,
+     * those are wrapped in an unmodifiable list as well.
+     *
+     * @return unmodifiable list of child component names
+     */
     public List<String> children() {
+        if (this.children.isEmpty() && !this.cmp.children().isEmpty()) {
+            // If the internal list is empty but the underlying component has children,
+            // return an unmodifiable view of the component's children
+            return Collections.unmodifiableList(new ArrayList<>(this.cmp.children()));
+        }
         return Collections.unmodifiableList(this.children);
     }
 
@@ -132,7 +144,12 @@ public class DiagramComponent {
 
     @JsonProperty("package")
     private String packageName() {
-        return this.cmp.pkg().toString();
+        if (this.cmp.pkg() == null) {
+            return "";
+        }
+        // Use name() instead of toString() to avoid the "name: path" format
+        // Convert package path separators from "/" to "." for serialization
+        return this.cmp.pkg().name().replace("/", ".");
     }
 
     @JsonIgnore
@@ -143,6 +160,21 @@ public class DiagramComponent {
     @JsonProperty("componentName")
     public String componentName() {
         return this.cmp.componentName();
+    }
+
+    @JsonIgnore
+    public String module() {
+        return this.cmp.module();
+    }
+
+    @JsonProperty("cyclo")
+    public int cyclo() {
+        return this.cmp.cyclo();
+    }
+
+    @JsonIgnore
+    public Set<ComponentReference> internalDependencies() {
+        return this.cmp.internalDependencies();
     }
 
     @Override
