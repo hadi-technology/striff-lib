@@ -1,6 +1,5 @@
 package com.hadi.striff.diagram;
 
-import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.striff.parse.CodeDiff;
 import com.hadi.striff.spi.DiagramAugmenter;

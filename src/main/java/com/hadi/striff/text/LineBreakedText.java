@@ -1,7 +1,5 @@
 package com.hadi.striff.text;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * A piece of text with line breaks in it. Assumes input Text object does not
  * have any existing line breaks.
@@ -21,7 +19,10 @@ public class LineBreakedText implements Text {
     public String value() {
         String input = this.text.value();
         if (input == null || input.length() <= maxCharsPerLine) {
-            return input == null ? "" : input;
+            if (input == null) {
+                return "";
+            }
+            return input;
         }
         // Simple word wrap implementation
         StringBuilder result = new StringBuilder();
