@@ -19,6 +19,11 @@ import static org.junit.Assert.*;
 /**
  * Integration tests for trending GitHub repositories.
  * Tests striff-lib against real-world codebases to identify parsing issues.
+ *
+ * NOTE: For TypeScript and Python, the compilers read files directly from disk,
+ * not from in-memory ProjectFile content. Therefore, "old" and "new" states
+ * will appear identical since both reference the same unmodified disk files.
+ * This test primarily verifies that files can be parsed without errors.
  */
 public class TrendingRepoIntegrationTest {
 
@@ -71,7 +76,7 @@ public class TrendingRepoIntegrationTest {
 
     private void testRepo(String repoName, Lang lang, String extension) throws Exception {
         Path repoPath = Paths.get(TEST_REPO_BASE, repoName);
-        
+
         if (!Files.exists(repoPath)) {
             System.out.println("Skipping " + repoName + " - repo not cloned yet");
             return;
@@ -94,8 +99,12 @@ public class TrendingRepoIntegrationTest {
 
         System.out.println("Testing " + repoName + " with " + sourceFiles.size() + " files...");
 
-        // Create "old" state
-        ProjectFiles oldFiles = new ProjectFiles();
+        // For TypeScript, we need to use the actual repo directory so the
+        // TypeScript compiler can find tsconfig.json and resolve files on disk
+        ProjectFiles oldFiles = (lang == Lang.TYPESCRIPT)
+                ? new ProjectFiles(repoPath.toString())
+                : new ProjectFiles();
+
         for (Path file : sourceFiles) {
             String content = Files.readString(file);
             String relativePath = repoPath.relativize(file).toString();
@@ -103,7 +112,10 @@ public class TrendingRepoIntegrationTest {
         }
 
         // Create "new" state with slight modifications
-        ProjectFiles newFiles = new ProjectFiles();
+        ProjectFiles newFiles = (lang == Lang.TYPESCRIPT)
+                ? new ProjectFiles(repoPath.toString())
+                : new ProjectFiles();
+
         for (Path file : sourceFiles.subList(0, Math.min(5, sourceFiles.size()))) {
             String content = Files.readString(file);
             // Add a comment to simulate a change
