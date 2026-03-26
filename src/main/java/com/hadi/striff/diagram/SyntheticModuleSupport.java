@@ -43,7 +43,7 @@ public final class SyntheticModuleSupport {
      * @return true if the component is a synthetic module
      */
     public static boolean isSyntheticModule(Component component) {
-        return component != null && isSyntheticUniqueName(component.uniqueName());
+        return component != null && isSyntheticUniqueName(component.componentName());
     }
 
     public static String moduleKey(Component component) {
