@@ -7,9 +7,7 @@ import com.hadi.striff.spi.DiagramAugmenter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Augments the diagram model by adding synthetic modules for module-level functions and fields.
