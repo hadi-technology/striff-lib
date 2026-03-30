@@ -16,6 +16,7 @@ final class PUMLClassDiagramCode {
         String beforeDecorations = diagramDecoratorsText(data, DiagramDecoratorPlacement.BEFORE_CONTENT);
         String afterDecorations = diagramDecoratorsText(data, DiagramDecoratorPlacement.AFTER_RELATIONS);
         this.code = PLANT_UML_BEGIN_STRING
+                + layoutPragma(data.layoutEngine())
                 + plantUMLStyleBlock(data.diagramDisplay().colorScheme())
                 + plantUMLSkinParamText(data.diagramDisplay().colorScheme())
                 + "\n" + beforeDecorations + new PUMLPackageCode(data).value()
@@ -27,6 +28,13 @@ final class PUMLClassDiagramCode {
 
     public String code() {
         return this.code;
+    }
+
+    private String layoutPragma(LayoutEngine layoutEngine) {
+        if (layoutEngine == LayoutEngine.SMETANA) {
+            return "!pragma layout smetana\n";
+        }
+        return "";
     }
 
     private String plantUMLStyleBlock(DiagramColorScheme colorScheme) {

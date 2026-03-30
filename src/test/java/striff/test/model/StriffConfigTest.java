@@ -3,6 +3,7 @@ package striff.test.model;
 import com.hadi.clarpse.compiler.Lang;
 import com.hadi.striff.StriffConfig;
 import com.hadi.striff.diagram.display.OutputMode;
+import com.hadi.striff.diagram.plantuml.LayoutEngine;
 import org.junit.Test;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class StriffConfigTest {
         StriffConfig sC = new StriffConfig();
         assertEquals(Lang.supportedLanguages().size(), sC.languages().size());
         assertEquals(OutputMode.DEFAULT, sC.outputMode());
+        assertEquals(LayoutEngine.GRAPHVIZ, sC.layoutEngine());
         assertEquals(0, sC.filesFilter().size());
     }
 
