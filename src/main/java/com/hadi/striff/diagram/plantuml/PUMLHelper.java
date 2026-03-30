@@ -34,7 +34,6 @@ public class PUMLHelper {
      * representing a PlantUML compliant class diagram code.
      */
     public static byte[] generateDiagram(String source) throws IOException, PUMLDrawException {
-        System.setProperty("java.awt.headless", "true");
         final SourceStringReader reader = new SourceStringReader(source);
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             reader.outputImage(os, new FileFormatOption(FileFormat.SVG));
