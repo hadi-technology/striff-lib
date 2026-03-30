@@ -58,7 +58,7 @@ public class PUMLDiagram {
             if (packageName.isEmpty()) {
                 qualifiedId = " ." + pumlId;
             } else {
-                qualifiedId = packageName + "." + pumlId;
+                qualifiedId = PUMLHelper.packageAlias(packageName) + "." + pumlId;
             }
 
             updatedSvg = updatedSvg.replace(qualifiedId, pumlId);
@@ -68,6 +68,10 @@ public class PUMLDiagram {
             // We need data-qualified-name="com.example.MyClass" to match API componentId
             updatedSvg = updatedSvg.replace(
                     "data-qualified-name=\"" + pumlId + "\"",
+                    "data-qualified-name=\"" + component.uniqueName() + "\""
+            );
+            updatedSvg = updatedSvg.replace(
+                    "data-qualified-name=\"" + qualifiedId + "\"",
                     "data-qualified-name=\"" + component.uniqueName() + "\""
             );
         }

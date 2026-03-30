@@ -41,7 +41,7 @@ public class PackageDecoratorPlacementTest {
         String output = buildPlantUmlString(classLoader);
 
         String packageBlock = packageBlock(output, "com.sample.b");
-        int packageStart = output.indexOf("package com.sample.b");
+        int packageStart = output.indexOf("package \"com.sample.b\"");
         int noteIndex = packageBlock.indexOf("note right of B");
         int sentinelIndex = packageBlock.indexOf("PACKAGE_SENTINEL");
 
@@ -128,7 +128,7 @@ public class PackageDecoratorPlacementTest {
     }
 
     private static String packageBlock(String puml, String packageName) {
-        String packageKeyword = "package " + packageName;
+        String packageKeyword = "package \"" + packageName + "\"";
         int start = puml.indexOf(packageKeyword);
         if (start < 0) {
             throw new AssertionError("Package block not found for " + packageName);

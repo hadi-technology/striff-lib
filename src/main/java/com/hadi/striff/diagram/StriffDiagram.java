@@ -52,7 +52,7 @@ public class StriffDiagram {
                     codeDiff.changeSet().deletedRelations(), diagramDisplay,
                     codeDiff.mergedModel(), codeDiff.changeSet().addedComponents(),
                     codeDiff.changeSet().deletedComponents(), codeDiff.changeSet().modifiedComponents(),
-                    diagramComponents)).svgText();
+                    diagramComponents, config.layoutEngine())).svgText();
         }
         this.diagramRels = diagramRels;
         this.changeSet = codeDiff.changeSet();
