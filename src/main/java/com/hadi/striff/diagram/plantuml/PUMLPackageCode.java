@@ -29,10 +29,12 @@ public class PUMLPackageCode {
             if (entry.getKey() == null || entry.getKey().isEmpty()) {
                 stringBuffer.append("package \" \"");
             } else {
-                stringBuffer.append("package ");
+                stringBuffer.append("package \"")
+                        .append(entry.getKey())
+                        .append("\" as ")
+                        .append(PUMLHelper.packageAlias(entry.getKey()));
             }
-            stringBuffer.append(entry.getKey())
-                        .append(" ")
+            stringBuffer.append(" ")
                         .append(entry.getValue())
                         .append(" {\n")
                         .append(new PUMLClassFieldsCode(data).value(pkgBaseCmps))

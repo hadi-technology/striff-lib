@@ -24,6 +24,11 @@ public class PUMLHelper {
         return namespace + "." + id;
     }
 
+    public static String packageAlias(String packagePath) {
+        String sanitized = packagePath.replaceAll("[^A-Za-z0-9_]", "_");
+        return "pkg_" + sanitized + "_" + Integer.toUnsignedString(packagePath.hashCode(), 16);
+    }
+
     /**
      * Invokes PlantUML to draw the class diagram based on the source string
      * representing a PlantUML compliant class diagram code.

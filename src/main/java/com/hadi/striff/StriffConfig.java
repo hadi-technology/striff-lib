@@ -5,6 +5,7 @@ import com.hadi.striff.diagram.display.DiagramColorScheme;
 import com.hadi.striff.diagram.display.DiagramDisplayOverride;
 import com.hadi.striff.diagram.display.LightDiagramColorScheme;
 import com.hadi.striff.diagram.display.OutputMode;
+import com.hadi.striff.diagram.plantuml.LayoutEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +38,7 @@ public class StriffConfig {
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
     private DiagramDisplayOverride displayOverride = null;
     private boolean enableAugmenters = true;
+    private LayoutEngine layoutEngine = LayoutEngine.SMETANA;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
      */
@@ -95,6 +97,12 @@ public class StriffConfig {
         this.enableAugmenters = enableAugmenters;
         return this;
     }
+
+    public StriffConfig setLayoutEngine(LayoutEngine layoutEngine) {
+        this.layoutEngine = layoutEngine;
+        return this;
+    }
+
     public OutputMode outputMode() {
         return this.outputMode;
     }
@@ -114,6 +122,11 @@ public class StriffConfig {
     public boolean enableAugmenters() {
         return this.enableAugmenters;
     }
+
+    public LayoutEngine layoutEngine() {
+        return this.layoutEngine;
+    }
+
     public Set<Lang> languages() {
         return this.languages;
     }

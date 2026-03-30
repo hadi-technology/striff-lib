@@ -46,7 +46,7 @@ final class PUMLClassRelationsCode {
                         // Insert original component name
                         this.tempStrBuilder
                                 .append("\"")
-                                .append(PUMLHelper.pumlQualifiedId(currCmpRel.originalComponent()))
+                                .append(PUMLHelper.pumlId(currCmpRel.originalComponent().uniqueName()))
                                 .append("\" ");
                         // Insert BtoA multiplicity if it's not a standard 0-1 multiplicity
                         ComponentAssociationMultiplicity bToAMultiplicity = reverseRel
@@ -109,7 +109,7 @@ final class PUMLClassRelationsCode {
                         // Insert target component name
                         this.tempStrBuilder
                                 .append("\"")
-                                .append(PUMLHelper.pumlQualifiedId(currCmpRel.targetComponent()))
+                                .append(PUMLHelper.pumlId(currCmpRel.targetComponent().uniqueName()))
                                 .append("\" ");
                         this.tempStrBuilder.append("\n");
                     }
