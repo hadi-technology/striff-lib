@@ -45,16 +45,15 @@ public class StriffAPITest {
 	 * Generates striffs based on a Pull Request in GitHub. Ensure
 	 * the source code refs exist and are still available before running.
 	 */
-	@Ignore
 	@Test
 	public void testDemonstrateStriffAPIWithPR() throws Exception {
-		String baseRepoOwner = "hadi-tech";
-		String repoName = "...";
+		String baseRepoOwner = "Zir0-93";
+		String repoName = "striff-lib";
 		Lang language = Lang.JAVA;
 		ProjectFiles oldFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "...", language);
+				baseRepoOwner, repoName, "master", language);
 		ProjectFiles newFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "...", language);
+				baseRepoOwner, repoName, "rand-cahnges", language);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, new StriffConfig()).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());
