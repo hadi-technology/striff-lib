@@ -25,10 +25,19 @@ public class PUMLDiagramData {
     private final List<ClassDecorator> classDecorators;
     private final List<DiagramDecorator> diagramDecorators;
     private final List<PackageDecorator> packageDecorators;
+    private final LayoutEngine layoutEngine;
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps) {
+        this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
+                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ);
+    }
+
+    public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
+            DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
+            Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
+            LayoutEngine layoutEngine) {
         this.diagramRels = diagramRels;
         this.addedRels = addedRels;
         this.deletedRels = deletedRels;
@@ -41,6 +50,7 @@ public class PUMLDiagramData {
         this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
         this.diagramDecorators = SpiLoader.loadOrdered(DiagramDecorator.class, DiagramDecorator::order);
         this.packageDecorators = SpiLoader.loadOrdered(PackageDecorator.class, PackageDecorator::order);
+        this.layoutEngine = layoutEngine;
     }
 
     public RelationsMap diagramRels() {
@@ -89,5 +99,9 @@ public class PUMLDiagramData {
 
     public List<PackageDecorator> packageDecorators() {
         return packageDecorators;
+    }
+
+    public LayoutEngine layoutEngine() {
+        return layoutEngine;
     }
 }
