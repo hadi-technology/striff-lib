@@ -18,7 +18,7 @@ public class StriffConfigTest {
         StriffConfig sC = new StriffConfig();
         assertEquals(Lang.supportedLanguages().size(), sC.languages().size());
         assertEquals(OutputMode.DEFAULT, sC.outputMode());
-        assertEquals(LayoutEngine.GRAPHVIZ, sC.layoutEngine());
+        assertEquals(LayoutEngine.SMETANA, sC.layoutEngine());
         assertEquals(0, sC.filesFilter().size());
     }
 

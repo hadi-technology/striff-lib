@@ -38,7 +38,7 @@ public class StriffConfig {
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
     private DiagramDisplayOverride displayOverride = null;
     private boolean enableAugmenters = true;
-    private LayoutEngine layoutEngine = LayoutEngine.GRAPHVIZ;
+    private LayoutEngine layoutEngine = LayoutEngine.SMETANA;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
      */
