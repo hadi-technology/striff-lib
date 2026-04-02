@@ -15,12 +15,16 @@ public final class StriffComponentDocText implements Text {
 
     @Override
     public String value() {
-        return new BoldedLineText(
-                new LineBreakedText(
-                        new NormalizedSpaceText(
-                                new PlantUMLFriendlyText(
-                                        new DocCommentCharacterStrippedText(
-                                                new HtmlTagsStrippedText(
-                                                        new DefaultText(this.text.trim()))))), lineLength)).value();
+        Text normalizedDocText = new PlantUMLFriendlyText(
+                new HtmlTagsStrippedText(
+                        new InlineCodeMarkedText(
+                                new DocCommentCharacterStrippedText(
+                                        new DefaultText(this.text.trim())))));
+        return new InlineCodeBackgroundText(
+                new BoldedLineText(
+                        new LineBreakedText(
+                                new NormalizedSpaceText(normalizedDocText),
+                                lineLength)))
+                .value();
     }
 }

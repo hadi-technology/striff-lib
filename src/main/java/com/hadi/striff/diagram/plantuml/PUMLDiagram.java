@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 public class PUMLDiagram {
 
@@ -73,6 +74,10 @@ public class PUMLDiagram {
             updatedSvg = updatedSvg.replace(
                     "data-qualified-name=\"" + qualifiedId + "\"",
                     "data-qualified-name=\"" + component.uniqueName() + "\""
+            );
+            updatedSvg = updatedSvg.replaceAll(
+                    "data-qualified-name=\"[^\"]*\\." + java.util.regex.Pattern.quote(pumlId) + "\"",
+                    Matcher.quoteReplacement("data-qualified-name=\"" + component.uniqueName() + "\"")
             );
         }
         return updatedSvg;

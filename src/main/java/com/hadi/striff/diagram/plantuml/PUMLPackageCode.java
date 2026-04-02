@@ -6,7 +6,11 @@ import com.hadi.striff.diagram.display.DiagramDisplay;
 import com.hadi.striff.spi.PackageDecorator;
 import com.hadi.striff.spi.PackageDecoratorContext;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,30 +22,83 @@ public class PUMLPackageCode {
     }
 
     private String generate(PUMLDiagramData data) {
-        StringBuffer stringBuffer = new StringBuffer();
         DiagramDisplay diagramDisplay = data.diagramDisplay();
         Set<DiagramComponent> diagramCmps = data.diagramCmps();
-        diagramDisplay.pkgColorMappings().forEach(entry -> {
+        Map<String, PackageNode> nodes = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : diagramDisplay.pkgColorMappings()) {
+            String packagePath = entry.getKey();
             Set<DiagramComponent> pkgBaseCmps =
-                diagramCmps.stream().filter(cmp -> ComponentHelper.packagePath(cmp.pkg()).equals(
-                    entry.getKey()) && cmp.componentType().isBaseComponent())
-                                 .collect(Collectors.toSet());
-            if (entry.getKey() == null || entry.getKey().isEmpty()) {
-                stringBuffer.append("package \" \"");
+                    diagramCmps.stream()
+                            .filter(cmp -> ComponentHelper.packagePath(cmp.pkg()).equals(packagePath)
+                                    && cmp.componentType().isBaseComponent())
+                            .collect(Collectors.toSet());
+            nodes.put(packagePath, new PackageNode(packagePath, entry.getValue(), pkgBaseCmps));
+        }
+
+        List<PackageNode> roots = buildTree(nodes);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (PackageNode root : roots) {
+            appendNode(stringBuilder, data, root);
+        }
+        return stringBuilder.toString();
+    }
+
+    private List<PackageNode> buildTree(Map<String, PackageNode> nodes) {
+        List<PackageNode> roots = new ArrayList<>();
+        for (PackageNode node : nodes.values()) {
+            PackageNode parent = parentOf(node.packagePath, nodes);
+            if (parent == null) {
+                roots.add(node);
             } else {
-                stringBuffer.append("package \"")
-                        .append(entry.getKey())
-                        .append("\" as ")
-                        .append(PUMLHelper.packageAlias(entry.getKey()));
+                parent.children.add(node);
             }
-            stringBuffer.append(" ")
-                        .append(entry.getValue())
-                        .append(" {\n")
-                        .append(new PUMLClassFieldsCode(data).value(pkgBaseCmps))
-                        .append(packageDecoratorsText(data, entry.getKey(), pkgBaseCmps))
-                        .append("}\n");
-        });
-        return stringBuffer.toString();
+        }
+        Comparator<PackageNode> byPath = Comparator.comparing(pkg -> pkg.packagePath);
+        roots.sort(byPath);
+        for (PackageNode node : nodes.values()) {
+            node.children.sort(byPath);
+        }
+        return roots;
+    }
+
+    private PackageNode parentOf(String packagePath, Map<String, PackageNode> nodes) {
+        if (packagePath == null || packagePath.isEmpty()) {
+            return null;
+        }
+        String bestParent = null;
+        for (String candidate : nodes.keySet()) {
+            if (candidate == null || candidate.isEmpty() || candidate.equals(packagePath)) {
+                continue;
+            }
+            if (packagePath.startsWith(candidate + ".")
+                    && (bestParent == null || candidate.length() > bestParent.length())) {
+                bestParent = candidate;
+            }
+        }
+        if (bestParent == null) {
+            return null;
+        }
+        return nodes.get(bestParent);
+    }
+
+    private void appendNode(StringBuilder builder, PUMLDiagramData data, PackageNode node) {
+        if (node.packagePath == null || node.packagePath.isEmpty()) {
+            builder.append("package \" \"");
+        } else {
+            builder.append("package \"")
+                    .append(node.packagePath)
+                    .append("\" as ")
+                    .append(PUMLHelper.packageAlias(node.packagePath));
+        }
+        builder.append(" ")
+                .append(node.color)
+                .append(" {\n")
+                .append(new PUMLClassFieldsCode(data).value(node.packageComponents))
+                .append(packageDecoratorsText(data, node.packagePath, node.packageComponents));
+        for (PackageNode child : node.children) {
+            appendNode(builder, data, child);
+        }
+        builder.append("}\n");
     }
 
     private String packageDecoratorsText(PUMLDiagramData data, String packagePath, Set<DiagramComponent> packageComponents) {
@@ -68,5 +125,18 @@ public class PUMLPackageCode {
 
     public String value() {
         return this.code;
+    }
+
+    private static final class PackageNode {
+        private final String packagePath;
+        private final String color;
+        private final Set<DiagramComponent> packageComponents;
+        private final List<PackageNode> children = new ArrayList<>();
+
+        private PackageNode(String packagePath, String color, Set<DiagramComponent> packageComponents) {
+            this.packagePath = packagePath;
+            this.color = color;
+            this.packageComponents = packageComponents;
+        }
     }
 }
