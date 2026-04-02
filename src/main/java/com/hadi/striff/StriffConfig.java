@@ -6,8 +6,8 @@ import com.hadi.striff.diagram.display.DiagramDisplayOverride;
 import com.hadi.striff.diagram.display.LightDiagramColorScheme;
 import com.hadi.striff.diagram.display.OutputMode;
 import com.hadi.striff.diagram.plantuml.LayoutEngine;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class StriffConfig {
 
-    private static final Logger LOGGER = LogManager.getLogger(StriffConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StriffConfig.class);
 
     private OutputMode outputMode = OutputMode.DEFAULT;
     /**
@@ -60,7 +60,7 @@ public class StriffConfig {
         this.filesFilter = filesFilter.stream()
                 .filter(file -> Lang.supportedSourceFileExtns().stream().anyMatch(file::endsWith))
                 .collect(Collectors.toSet());
-        LOGGER.info("Setting list of filter files to: " + this.filesFilter + ".");
+        LOGGER.info("Setting list of filter files to: {}.", this.filesFilter);
         return this;
     }
 

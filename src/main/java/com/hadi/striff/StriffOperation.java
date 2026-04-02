@@ -12,8 +12,8 @@ import com.hadi.striff.annotations.LogExecutionTime;
 import com.hadi.striff.diagram.StriffOutput;
 import com.hadi.striff.diagram.plantuml.PUMLDrawException;
 import com.hadi.striff.parse.CodeDiff;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -23,18 +23,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Entry point for Stiff diagram generation.
+ * Entry point for Striff diagram generation.
  */
 public class StriffOperation {
 
-    private static final Logger LOGGER = LogManager.getLogger(StriffOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StriffOperation.class);
 
     private final StriffOutput striffOutput;
 
+    /**
+     * Creates a Striff generation operation for the provided original and updated
+     * source trees.
+     *
+     * @param originalPFs original project files
+     * @param newPFs updated project files
+     * @param config generation configuration
+     * @throws IOException if rendered diagram output cannot be produced
+     * @throws PUMLDrawException if PlantUML cannot render the requested diagram
+     * @throws CompileException if source parsing fails
+     */
     @LogExecutionTime
     public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config)
             throws IOException, PUMLDrawException, CompileException {
-        LOGGER.info("Starting new operation with config: " + config);
+        LOGGER.info("Starting new operation with config: {}", config);
         validateProjectFiles(originalPFs, newPFs, config.filesFilter());
         filterConfigLanguages(config, originalPFs, newPFs);
         HashSet<CompileFailure> allFailures = new HashSet<>();
@@ -127,7 +138,7 @@ public class StriffOperation {
         } else if (filteredLanguages.size() < config.languages().size()) {
             Set<Lang> skippedLanguages = new HashSet<>(config.languages());
             skippedLanguages.removeAll(filteredLanguages);
-            LOGGER.info("Skipping compilation for languages with no matching files: " + skippedLanguages);
+            LOGGER.info("Skipping compilation for languages with no matching files: {}", skippedLanguages);
             config.setLanguages(filteredLanguages);
             LOGGER.info("Configured languages after filtering: {}", config.languages());
         } else {
@@ -159,6 +170,11 @@ public class StriffOperation {
                 .map(ProjectFile::path).collect(Collectors.toSet()).containsAll(filesFilter);
     }
 
+    /**
+     * Returns the generated Striff output for this operation.
+     *
+     * @return diagram output and compile warnings
+     */
     public StriffOutput result() {
         return this.striffOutput;
     }

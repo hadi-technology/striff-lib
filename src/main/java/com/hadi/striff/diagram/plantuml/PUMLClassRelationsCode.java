@@ -6,6 +6,9 @@ import com.hadi.striff.diagram.display.DiagramDisplay;
 import com.hadi.striff.extractor.ComponentAssociationMultiplicity;
 import com.hadi.striff.extractor.ComponentRelation;
 import com.hadi.striff.extractor.RelationsMap;
+import com.hadi.striff.spi.RelationDecorator;
+
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +19,7 @@ final class PUMLClassRelationsCode {
     private final RelationsMap addedRels;
     private final RelationsMap deletedRels;
     private final DiagramDisplay diagramDisplay;
+    private final List<RelationDecorator> relationDecorators;
     private StringBuilder tempStrBuilder;
 
     PUMLClassRelationsCode(PUMLDiagramData data) {
@@ -24,6 +28,7 @@ final class PUMLClassRelationsCode {
         this.addedRels = data.addedRels();
         this.deletedRels = data.deletedRels();
         this.diagramDisplay = data.diagramDisplay();
+        this.relationDecorators = data.relationDecorators();
         genCode();
     }
 
@@ -112,7 +117,23 @@ final class PUMLClassRelationsCode {
                                 .append(PUMLHelper.pumlId(currCmpRel.targetComponent().uniqueName()))
                                 .append("\" ");
                         this.tempStrBuilder.append("\n");
+                        appendRelationDecorations(currCmpRel, reverseRel);
                     }
+                }
+            }
+        }
+    }
+
+    private void appendRelationDecorations(ComponentRelation relation, ComponentRelation reverseRelation) {
+        for (RelationDecorator decorator : relationDecorators) {
+            List<String> extra = decorator.decorateRelation(relation, reverseRelation, diagramDisplay);
+            if (extra == null || extra.isEmpty()) {
+                continue;
+            }
+            for (String line : extra) {
+                tempStrBuilder.append(line);
+                if (!line.endsWith("\n")) {
+                    tempStrBuilder.append("\n");
                 }
             }
         }

@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -165,5 +166,45 @@ public class StriffOperationIntegrationTest {
         assertTrue("Expected ClassA in modified components",
                 diagram.changeSet().modifiedComponents().contains("com.sample.ClassA"));
         assertFalse("Expected components", diagram.cmps().isEmpty());
+    }
+
+    @Test
+    public void rejectsInvalidFileFilterPaths() {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setFilesFilter(List.of("/Missing.java"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new StriffOperation(oldFiles, newFiles, config));
+    }
+
+    @Test
+    public void maxComponentsPerDiagramCapLimitsRenderedComponents() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        newFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setMaxComponentsPerDiagram(1);
+
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+        StriffDiagram diagram = output.diagrams().get(0);
+        assertTrue("Expected metadata to still include all selected components",
+                diagram.cmps().size() > 1);
+        assertNull("Expected SVG rendering to be skipped when the component cap is exceeded", diagram.svg());
     }
 }

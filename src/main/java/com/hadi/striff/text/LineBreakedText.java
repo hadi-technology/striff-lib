@@ -18,10 +18,13 @@ public class LineBreakedText implements Text {
     @Override
     public String value() {
         String input = this.text.value();
-        if (input == null || input.length() <= maxCharsPerLine) {
-            if (input == null) {
-                return "";
-            }
+        if (input == null || input.isBlank()) {
+            return "";
+        }
+        if (input.contains("\n")) {
+            return input;
+        }
+        if (input.length() <= maxCharsPerLine) {
             return input;
         }
         // Simple word wrap implementation

@@ -3,8 +3,8 @@ package com.hadi.striff.diagram.plantuml;
 import com.hadi.striff.annotations.LogExecutionTime;
 import com.hadi.striff.diagram.ComponentHelper;
 import com.hadi.striff.diagram.DiagramComponent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +17,7 @@ public class PUMLDiagram {
     private final Set<DiagramComponent> diagramComponents;
     private final int size;
     private final String svgText;
-    private static final Logger LOGGER = LogManager.getLogger(PUMLDiagram.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PUMLDiagram.class);
 
     @LogExecutionTime
     public PUMLDiagram(PUMLDiagramData data) throws IOException, PUMLDrawException {

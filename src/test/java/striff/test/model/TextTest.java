@@ -22,6 +22,16 @@ public class TextTest {
     }
 
     @Test
+    public void lineBreakedTextHandlesEdgeCases() {
+        assertTrue(new LineBreakedText(new DefaultText(""), 10).value().equals(""));
+        assertTrue(new LineBreakedText(new DefaultText("     "), 10).value().equals(""));
+        assertTrue(new LineBreakedText(new DefaultText("supercalifragilistic"), 5).value()
+                .equals("supercalifragilistic"));
+        assertTrue(new LineBreakedText(new DefaultText("word\nwrapped"), 6).value()
+                .equals("word\nwrapped"));
+    }
+
+    @Test
     public void striffComponentDocTextTest() throws Exception {
         String value = new StriffComponentDocText("/**\n" +
                                                     " * A test case defines the fixture to run multiple tests. To define a test case<br/>\n" +

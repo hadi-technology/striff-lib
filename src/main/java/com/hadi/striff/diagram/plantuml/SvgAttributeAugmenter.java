@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import com.hadi.striff.diagram.DiagramComponent;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +59,7 @@ public class SvgAttributeAugmenter {
 
         // Build a map of simple class names to original uniqueNames
         // SVG contains class names in text elements, we need to map them back to original uniqueNames
-        java.util.Map<String, String> simpleNameToUniqueName = new java.util.HashMap<>();
+        Map<String, String> simpleNameToUniqueName = new HashMap<>();
         for (DiagramComponent component : components) {
             if (component == null || component.uniqueName() == null) {
                 continue;
@@ -85,7 +87,8 @@ public class SvgAttributeAugmenter {
         // Process SVG to find entity groups and add data-qualified-name attributes
         String augmented = augmentEntityGroups(svg, simpleNameToUniqueName);
 
-        LOGGER.info("Augmented SVG with data-qualified-name attributes, name map keys: {}", simpleNameToUniqueName.keySet());
+        LOGGER.debug("Augmented SVG with data-qualified-name attributes for {} names",
+                simpleNameToUniqueName.size());
 
         return augmented;
     }
@@ -97,12 +100,12 @@ public class SvgAttributeAugmenter {
      * @param simpleNameToUniqueName Map of simple names to original uniqueNames
      * @return The augmented SVG string
      */
-    private static String augmentEntityGroups(String svg, java.util.Map<String, String> simpleNameToUniqueName) {
+    private static String augmentEntityGroups(String svg, Map<String, String> simpleNameToUniqueName) {
         Matcher matcher = ENTITY_GROUP_PATTERN.matcher(svg);
         StringBuffer result = new StringBuffer();
         int count = 0;
 
-        LOGGER.info("Processing SVG, looking for {} entity groups", simpleNameToUniqueName.size());
+        LOGGER.debug("Processing SVG, looking for {} entity groups", simpleNameToUniqueName.size());
 
         while (matcher.find()) {
             String groupStart = matcher.group(1); // <g ...>
@@ -114,7 +117,7 @@ public class SvgAttributeAugmenter {
             String qualifiedName = null;
             if (className != null) {
                 qualifiedName = simpleNameToUniqueName.get(className);
-                LOGGER.info("Found class name '{}' -> qualified name '{}'", className, qualifiedName);
+                LOGGER.debug("Found class name '{}' -> qualified name '{}'", className, qualifiedName);
             }
 
             // Build replacement with data-qualified-name attribute
@@ -136,7 +139,7 @@ public class SvgAttributeAugmenter {
 
             replacement.append(groupContent).append(groupEnd);
 
-            matcher.appendReplacement(result, replacement.toString());
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement.toString()));
         }
         matcher.appendTail(result);
 
@@ -201,13 +204,13 @@ public class SvgAttributeAugmenter {
                 }
             }
             if (text.contains("-") || text.contains("module:")) {
-                LOGGER.info("Filtered out text: '{}'", text);
+                LOGGER.debug("Filtered out text: '{}'", text);
             }
         }
         if (bestCandidate != null) {
-            LOGGER.info("Extracted class name: '{}' from group content", bestCandidate);
+            LOGGER.debug("Extracted class name: '{}' from group content", bestCandidate);
         } else {
-            LOGGER.warn("No valid class name found in group content (first 200 chars): {}",
+            LOGGER.debug("No valid class name found in group content (first 200 chars): {}",
                     groupContent.substring(0, Math.min(200, groupContent.length())));
         }
         return bestCandidate;

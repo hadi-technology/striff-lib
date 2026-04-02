@@ -44,6 +44,7 @@ public class DiagramDisplayOverrideTest {
         assertFalse(baseOutput.contains("#123456"));
         assertTrue(mergedOutput.contains("#123456"));
         assertTrue(mergedOutput.contains(new LightDiagramColorScheme().classBorderColor()));
+        assertEquals(baseDisplay.pkgColorMappings(), mergedDisplay.pkgColorMappings());
 
         assertEquals(baseOutput, buildPlantUmlString(baseDisplay.merge(null), model, diff, diagramCmps));
     }

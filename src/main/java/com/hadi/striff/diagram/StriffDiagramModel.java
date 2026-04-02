@@ -7,8 +7,8 @@ import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.parse.CodeDiff;
 import com.hadi.striff.spi.DiagramAugmenter;
 import com.hadi.striff.spi.SpiLoader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +26,7 @@ public class StriffDiagramModel {
 
     private final Set<DiagramComponent> diagramCmps = new HashSet<>();
     private RelationsMap diagramRels = new RelationsMap();
-    private static final Logger LOGGER = LogManager.getLogger(StriffDiagramModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StriffDiagramModel.class);
 
     public StriffDiagramModel(CodeDiff codeDiff) {
         this(codeDiff, Collections.emptySet());
@@ -43,7 +43,7 @@ public class StriffDiagramModel {
         Set<String> targetCmpNames = codeDiff.mergedModel().components()
                 .filter(cmp -> sourceFilesFilter.contains(cmp.sourceFile())).map(Component::uniqueName)
                 .collect(Collectors.toSet());
-        LOGGER.debug("The following components will be analyzed: " + targetCmpNames);
+        LOGGER.debug("The following components will be analyzed: {}", targetCmpNames);
         getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
                 cmpName -> this.diagramCmps.add(new DiagramComponent(
                         cmpName, codeDiff.mergedModel())));
