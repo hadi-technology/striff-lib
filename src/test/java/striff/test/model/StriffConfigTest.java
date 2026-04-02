@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
 public class StriffConfigTest {
 
@@ -28,5 +29,11 @@ public class StriffConfigTest {
                 .setOutputMode(OutputMode.DEFAULT).setFilesFilter(List.of(new String[] { "src.java",
                         "lol.cakes" }));
         assertFalse(sC.filesFilter().contains("lol.cakes"));
+    }
+
+    @Test
+    public void testMaxComponentsPerDiagramMustBePositive() {
+        assertThrows(IllegalArgumentException.class, () -> new StriffConfig().setMaxComponentsPerDiagram(0));
+        assertThrows(IllegalArgumentException.class, () -> new StriffConfig().setMaxComponentsPerDiagram(-1));
     }
 }

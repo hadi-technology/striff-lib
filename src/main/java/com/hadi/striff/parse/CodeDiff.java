@@ -4,8 +4,8 @@ import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.striff.ChangeSet;
 import com.hadi.striff.extractor.ExtractedRelationships;
 import com.hadi.striff.extractor.RelationsMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the product of merging multiple {@link OOPSourceCodeModel} together.
@@ -17,7 +17,7 @@ public class CodeDiff {
     private final OOPSourceCodeModel newModel;
     private final ChangeSet changeSet;
     private final RelationsMap relationsMap;
-    private static final Logger LOGGER = LogManager.getLogger(CodeDiff.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CodeDiff.class);
 
     /**
      * Merges the newer source code mergedModel onto the older source code

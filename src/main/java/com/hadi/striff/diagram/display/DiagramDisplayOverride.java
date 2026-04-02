@@ -1,5 +1,9 @@
 package com.hadi.striff.diagram.display;
 
+/**
+ * Nullable style overrides that can be applied on top of an existing
+ * {@link DiagramColorScheme}.
+ */
 public class DiagramDisplayOverride {
 
     private String defaultFontName;
@@ -341,5 +345,43 @@ public class DiagramDisplayOverride {
     public DiagramDisplayOverride setSyntheticStereotypeFontColor(String syntheticStereotypeFontColor) {
         this.syntheticStereotypeFontColor = syntheticStereotypeFontColor;
         return this;
+    }
+
+    public DiagramColorScheme applyTo(DiagramColorScheme base) {
+        return DiagramColorSchemeOverride.from(base)
+                .setDefaultFontName(defaultFontName)
+                .setBackgroundColor(backgroundColor)
+                .setDefaultClassHeaderColor(defaultClassHeaderColor)
+                .setClassArrowFontName(classArrowFontName)
+                .setClassArrowColor(classArrowColor)
+                .setObjectColorBackground(objectColorBackground)
+                .setClassFontSize(classFontSize)
+                .setClassArrowFontColor(classArrowFontColor)
+                .setClassArrowFontSize(classArrowFontSize)
+                .setLegendBackgroundColor(legendBackgroundColor)
+                .setModifiedComponentColor(modifiedComponentColor)
+                .setMinClassWidth(minClassWidth)
+                .setClassFontColor(classFontColor)
+                .setClassFontName(classFontName)
+                .setZoomOutIconColor(zoomOutIconColor)
+                .setClassBorderThickness(classBorderThickness)
+                .setClassAttributeFontName(classAttributeFontName)
+                .setTitleFontColor(titleFontColor)
+                .setPackageBackgroundColor(packageBackgroundColor)
+                .setTitleFontName(titleFontName)
+                .setClassHeaderBackgroundColor(classHeaderBackgroundColor)
+                .setPackageBorderColor(packageBorderColor)
+                .setPackageBorderThickness(packageBorderThickness)
+                .setDropShadows(dropShadows)
+                .setPackageFontColor(packageFontColor)
+                .setArrowThickness(arrowThickness)
+                .setPackageFontName(packageFontName)
+                .setPackageFontStyle(packageFontStyle)
+                .setClassBorderColor(classBorderColor)
+                .setAddedComponentColor(addedComponentColor)
+                .setAddedRelationColor(addedRelationColor)
+                .setDeletedRelationColor(deletedRelationColor)
+                .setDeletedComponentColor(deletedComponentColor)
+                .setSyntheticStereotypeFontColor(syntheticStereotypeFontColor);
     }
 }

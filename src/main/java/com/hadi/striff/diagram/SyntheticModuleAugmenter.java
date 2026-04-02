@@ -5,8 +5,8 @@ import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.striff.ChangeSet;
 import com.hadi.striff.parse.CodeDiff;
 import com.hadi.striff.spi.DiagramAugmenter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class SyntheticModuleAugmenter implements DiagramAugmenter {
 
-    private static final Logger LOGGER = LogManager.getLogger(SyntheticModuleAugmenter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyntheticModuleAugmenter.class);
 
     @Override
     public void augment(CodeDiff diff, Set<DiagramComponent> components) {

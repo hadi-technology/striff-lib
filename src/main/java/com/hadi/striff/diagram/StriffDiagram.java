@@ -2,7 +2,6 @@ package com.hadi.striff.diagram;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Charsets;
 import com.hadi.striff.ChangeSet;
 import com.hadi.striff.StriffConfig;
 import com.hadi.striff.annotations.LogExecutionTime;
@@ -12,10 +11,11 @@ import com.hadi.striff.diagram.plantuml.PUMLDiagramData;
 import com.hadi.striff.diagram.plantuml.PUMLDrawException;
 import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.parse.CodeDiff;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class StriffDiagram {
 
-    private static final Logger LOGGER = LogManager.getLogger(StriffDiagram.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StriffDiagram.class);
     private final Set<String> containedPkgs = new HashSet<>();
     private String svgCode;
     private final Set<DiagramComponent> diagramComponents;
@@ -71,7 +71,7 @@ public class StriffDiagram {
         if (svgCode == null) {
             return null;
         }
-        return Base64.getEncoder().encodeToString(svgCode.getBytes(Charsets.UTF_8));
+        return Base64.getEncoder().encodeToString(svgCode.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

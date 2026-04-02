@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public final class SinglePartitionStrategy implements PartitionStrategy {
 
-    List<Set<DiagramComponent>> partitions = new ArrayList<>();
+    private final List<Set<DiagramComponent>> partitions = new ArrayList<>();
 
     public SinglePartitionStrategy(StriffDiagramModel striffDiagramModel) {
         this.partitions.add(striffDiagramModel.diagramCmps());

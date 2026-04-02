@@ -15,8 +15,8 @@ import com.hadi.striff.parse.CodeDiff;
 import com.hadi.striff.spi.DiagramDisplayOverlay;
 import com.hadi.striff.spi.SpiLoader;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class StriffOutput {
 
     @JsonIgnore
-    private static final Logger LOGGER = LogManager.getLogger(StriffOutput.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StriffOutput.class);
 
     private final Set<String> compileWarnings = new HashSet<>();
     private final List<StriffDiagram> diagrams = new ArrayList<>();
@@ -38,6 +38,15 @@ public class StriffOutput {
         this(codeDiff, config, Collections.emptySet());
     }
 
+    /**
+     * Creates diagram output and compile warnings for the supplied code diff.
+     *
+     * @param codeDiff parsed differences between the original and updated models
+     * @param config generation configuration
+     * @param compileFailures compile warnings gathered during parsing
+     * @throws PUMLDrawException if PlantUML rendering fails
+     * @throws IOException if diagram serialization fails
+     */
     public StriffOutput(CodeDiff codeDiff, StriffConfig config, Set<CompileFailure> compileFailures)
             throws PUMLDrawException, IOException {
         // Short-circuit: if no components in either model, skip all processing
@@ -85,13 +94,13 @@ public class StriffOutput {
             RelationsMap diagramRels, Pair<PartitionStrategy, PartitionPlacement> partitionConf,
             StriffConfig config) throws IOException, PUMLDrawException {
 
-        LOGGER.info("Generating diagram with partition conf: " + partitionConf);
+        LOGGER.info("Generating diagram with partition conf: {}", partitionConf);
 
         PartitionPlacement placementStrategy = partitionConf.getRight();
         PartitionStrategy partitionStrategy = partitionConf.getLeft();
 
         List<Set<DiagramComponent>> cmpPartitions = partitionStrategy.apply();
-        LOGGER.info(cmpPartitions.size() + " partitions were generated.");
+        LOGGER.info("{} partitions were generated.", cmpPartitions.size());
 
         if (placementStrategy == PartitionPlacement.ONE_PER_DIAGRAM) {
             for (Set<DiagramComponent> currPartition : cmpPartitions) {
@@ -111,7 +120,7 @@ public class StriffOutput {
             throw new IllegalArgumentException("Placement strategy " + placementStrategy + " is not supported!");
         }
 
-        LOGGER.info(this.diagrams.size() + " StriffDiagram objects were generated.");
+        LOGGER.info("{} StriffDiagram objects were generated.", this.diagrams.size());
     }
 
     private Set<String> cmpPkgs(Set<DiagramComponent> cmps) {
@@ -139,11 +148,23 @@ public class StriffOutput {
         return display;
     }
 
+    /**
+     * Returns generated diagrams. The list is never {@code null}; it may be empty
+     * when no renderable components were produced.
+     *
+     * @return generated Striff diagrams
+     */
     @JsonProperty("diagrams")
     public List<StriffDiagram> diagrams() {
         return this.diagrams;
     }
 
+    /**
+     * Returns compile warnings collected during parsing. The set is never
+     * {@code null}; it may be empty when no warnings were produced.
+     *
+     * @return compile warning file paths
+     */
     @JsonProperty("compileWarnings")
     public Set<String> compileWarnings() {
         return this.compileWarnings;

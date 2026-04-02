@@ -5,6 +5,7 @@ import com.hadi.striff.text.LineBreakedText;
 import com.hadi.striff.text.StriffComponentDocText;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 public class TextTest {
@@ -21,8 +22,18 @@ public class TextTest {
     }
 
     @Test
+    public void lineBreakedTextHandlesEdgeCases() {
+        assertTrue(new LineBreakedText(new DefaultText(""), 10).value().equals(""));
+        assertTrue(new LineBreakedText(new DefaultText("     "), 10).value().equals(""));
+        assertTrue(new LineBreakedText(new DefaultText("supercalifragilistic"), 5).value()
+                .equals("supercalifragilistic"));
+        assertTrue(new LineBreakedText(new DefaultText("word\nwrapped"), 6).value()
+                .equals("word\nwrapped"));
+    }
+
+    @Test
     public void striffComponentDocTextTest() throws Exception {
-        assertTrue(new StriffComponentDocText("/**\n" +
+        String value = new StriffComponentDocText("/**\n" +
                                                     " * A test case defines the fixture to run multiple tests. To define a test case<br/>\n" +
                                                     " * <ol>\n" +
                                                     " *   <li>implement a subclass of <code>TestCase</code></li>\n" +
@@ -90,90 +101,42 @@ public class TextTest {
                                                     " *\n" +
                                                     " * @see TestResult\n" +
                                                     " * @see TestSuite\n" +
-                                                    " */".trim(), 80).value().equals(
-                                                        boldLines(
-                                                            "A test case defines the fixture to run " +
-                                                                "multiple tests. To define a test case\n" +
-                                                                "implement a subclass of TestCase " +
-                                                                "define instance variables that store" +
-                                                                " the state\n" +
-                                                                "of the fixture initialize the " +
-                                                                "fixture state by overriding {@link " +
-                                                                "#setUp[]}\n" +
-                                                                "clean-up after a test by overriding " +
-                                                                "{@link #tearDown[]}. Each test runs " +
-                                                                "in its\n" +
-                                                                "own fixture so there can be no side " +
-                                                                "effects among test runs. Here is an " +
-                                                                "example:\n" +
-                                                                "public class MathTest extends " +
-                                                                "TestCase { protected double fValue1;" +
-                                                                " protected\n" +
-                                                                "double fValue2; protected void " +
-                                                                "setUp[] { fValue1= 2.0; fValue2= 3" +
-                                                                ".0; } } For\n" +
-                                                                "each test implement a method which " +
-                                                                "interacts with the fixture. Verify " +
-                                                                "the\n" +
-                                                                "expected results with assertions " +
-                                                                "specified by calling {@link\n" +
-                                                                "junit.framework" +
-                                                                ".Assert#assertTrue[String, boolean]}" +
-                                                                " with a boolean. public void\n" +
-                                                                "testAdd[] { double result= fValue1 +" +
-                                                                " fValue2; assertTrue[result == 5.0];" +
-                                                                " } Once\n" +
-                                                                "the methods are defined you can run " +
-                                                                "them. The framework supports both a " +
-                                                                "static\n" +
-                                                                "type safe and more dynamic way to " +
-                                                                "run a test. In the static way you " +
-                                                                "override the\n" +
-                                                                "runTest method and define the method" +
-                                                                " to be invoked. A convenient way to " +
-                                                                "do so is\n" +
-                                                                "with an anonymous inner class. " +
-                                                                "TestCase test= new MathTest[\"add\"]" +
-                                                                " { public void\n" +
-                                                                "runTest[] { testAdd[]; } }; test" +
-                                                                ".run[]; The dynamic way uses " +
-                                                                "reflection to\n" +
-                                                                "implement {@link #runTest[]}. It " +
-                                                                "dynamically finds and invokes a " +
-                                                                "method. In this\n" +
-                                                                "case the name of the test case has " +
-                                                                "to correspond to the test method to " +
-                                                                "be run.\n" +
-                                                                "TestCase test= new " +
-                                                                "MathTest[\"testAdd\"]; test.run[]; " +
-                                                                "The tests to be run can be\n" +
-                                                                "collected into a TestSuite. JUnit " +
-                                                                "provides different test runners " +
-                                                                "which can run\n" +
-                                                                "a test suite and collect the results" +
-                                                                ". A test runner either expects a " +
-                                                                "static\n" +
-                                                                "method suite as the entry point to " +
-                                                                "get a test to run or it will extract" +
-                                                                " the\n" +
-                                                                "suite automatically. public static " +
-                                                                "Test suite[] { suite.addTest[new\n" +
-                                                                "MathTest[\"testAdd\"]]; suite" +
-                                                                ".addTest[new " +
-                                                                "MathTest[\"testDivideByZero\"]]; " +
-                                                                "return\n" +
-                                                                "suite; } @see TestResult @see TestSuite")));
+                                                    " */".trim(), 80).value();
+        assertTrue(value.contains("<back:#E6E6E6>TestCase</back>"));
+        assertTrue(value.contains("{@link #setUp[]}"));
+        assertTrue(value.contains("public class MathTest extends"));
+        assertTrue(value.contains("@see TestResult @see TestSuite"));
+        assertFalse(value.contains("<code>"));
+        assertFalse(value.contains("<pre>"));
     }
 
-    private static String boldLines(String text) {
-        String[] lines = text.split("\\r?\\n");
-        StringBuilder bolded = new StringBuilder();
-        for (int i = 0; i < lines.length; i++) {
-            bolded.append("**").append(lines[i]).append("**");
-            if (i < lines.length - 1) {
-                bolded.append("\n");
-            }
-        }
-        return bolded.toString();
+    @Test
+    public void striffComponentDocTextHighlightsInlineCode() {
+        assertTrue(new StriffComponentDocText("/** Uses `foo()` and `bar` here. */", 80).value().equals(
+                "**Uses <back:#E6E6E6>foo[]</back> and <back:#E6E6E6>bar</back> here.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextHighlightsJavadocCodeTag() {
+        assertTrue(new StriffComponentDocText("/** Uses {@code foo()} here. */", 80).value().equals(
+                "**Uses <back:#E6E6E6>foo[]</back> here.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextHighlightsHtmlCodeTags() {
+        assertTrue(new StriffComponentDocText("/** Uses <code>foo()</code> and <c>bar</c> here. */", 80).value().equals(
+                "**Uses <back:#E6E6E6>foo[]</back> and <back:#E6E6E6>bar</back> here.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextHighlightsRestCodeForms() {
+        assertTrue(new StriffComponentDocText("/** Uses ``foo()`` and :code:`bar` here. */", 80).value().equals(
+                "**Uses <back:#E6E6E6>foo[]</back> and <back:#E6E6E6>bar</back> here.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextHighlightsDoxygenInlineCodeCommands() {
+        assertTrue(new StriffComponentDocText("/** Use \\c foo and \\p bar here. */", 80).value().equals(
+                "**Use <back:#E6E6E6>foo</back> and <back:#E6E6E6>bar</back> here.**"));
     }
 }

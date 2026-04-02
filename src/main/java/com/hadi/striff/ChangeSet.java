@@ -10,8 +10,8 @@ import com.hadi.striff.extractor.RelationsMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 public final class ChangeSet {
 
     @JsonIgnore
-    private static final Logger LOGGER = LogManager.getLogger(ChangeSet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeSet.class);
 
     private final RelationsMap deletedRelations = new RelationsMap();
     private final RelationsMap addedRelations = new RelationsMap();
@@ -48,13 +48,13 @@ public final class ChangeSet {
         newModel.components()
                 .filter(cmp -> !oldModel.containsComponent(cmp.uniqueName()))
                 .forEach(cmp -> this.addedComponents.add(cmp.uniqueName()));
-        LOGGER.info("Found " + this.addedComponents.size() + " added components.");
+        LOGGER.info("Found {} added components.", this.addedComponents.size());
 
         // List of deleted components
         oldModel.components()
                 .filter(cmp -> !newModel.containsComponent(cmp.uniqueName()))
                 .forEach(cmp -> this.deletedComponents.add(cmp.uniqueName()));
-        LOGGER.info("Found " + this.deletedComponents.size() + " deleted components.");
+        LOGGER.info("Found {} deleted components.", this.deletedComponents.size());
 
         // New relationships
         newExtractedRels.allRels().forEach(relation -> {
@@ -63,7 +63,7 @@ public final class ChangeSet {
                 this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
             }
         });
-        LOGGER.info("Found " + this.addedRelations.size() + " added relations.");
+        LOGGER.info("Found {} added relations.", this.addedRelations.size());
 
         // Deleted relationships
         oldExtractedRels.allRels().forEach(relation -> {
@@ -72,7 +72,7 @@ public final class ChangeSet {
                 this.addKeyRelComponents(relation.originalComponent(), relation.targetComponent());
             }
         });
-        LOGGER.info("Found " + this.deletedRelations.size() + " deleted relations.");
+        LOGGER.info("Found {} deleted relations.", this.deletedRelations.size());
 
         // Modified components
         newModel.components().filter(cmp -> oldModel.containsComponent(cmp.uniqueName()))
@@ -82,7 +82,7 @@ public final class ChangeSet {
                     this.modifiedComponents.add(cmp.uniqueName());
                 }
             });
-        LOGGER.info("Found " + this.modifiedComponents.size() + " modified components.");
+        LOGGER.info("Found {} modified components.", this.modifiedComponents.size());
     }
 
     private void addKeyRelComponents(Component... keyRelCmps) {

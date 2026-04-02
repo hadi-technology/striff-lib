@@ -14,6 +14,7 @@ import com.hadi.striff.diagram.display.LightDiagramColorScheme;
 import com.hadi.striff.diagram.plantuml.LayoutEngine;
 import com.hadi.striff.diagram.plantuml.PUMLDiagram;
 import com.hadi.striff.diagram.plantuml.PUMLDiagramData;
+import com.hadi.striff.diagram.plantuml.PUMLDiagramText;
 import com.hadi.striff.parse.CodeDiff;
 import org.junit.Test;
 
@@ -40,6 +41,14 @@ public class PackageRenderingSvgTest {
         assertSingleVisiblePackageLabel(LayoutEngine.SMETANA);
     }
 
+    @Test
+    public void nestedPackagesRenderAsNestedBlocksInPlantUml() throws Exception {
+        String plantUml = buildPlantUmlText();
+        String rootBlock = packageBlock(plantUml, "com.hadi.striff");
+
+        assertTrue(rootBlock.contains("package \"com.hadi.striff.diagram\" as "));
+    }
+
     private static void assertSingleVisiblePackageLabel(LayoutEngine layoutEngine) throws Exception {
         String svg = buildSvg(layoutEngine);
         Set<String> visibleText = extractVisibleText(svg);
@@ -55,18 +64,33 @@ public class PackageRenderingSvgTest {
     }
 
     private static String buildSvg(LayoutEngine layoutEngine) throws Exception {
+        PUMLDiagramData data = buildPackageData(layoutEngine,
+                "package pkgRoot.pkgMid.pkgLeaf; public class A { }",
+                "package pkgRoot.pkgMid.pkgLeaf; public class B { }");
+        return new PUMLDiagram(data).svgText();
+    }
+
+    private static String buildPlantUmlText() throws Exception {
+        PUMLDiagramData data = buildPackageData(LayoutEngine.SMETANA,
+                "package com.hadi.striff; public class RootType { }",
+                "package com.hadi.striff.diagram; public class ChildType { }");
+        return PUMLDiagramText.build(data);
+    }
+
+    private static PUMLDiagramData buildPackageData(LayoutEngine layoutEngine, String... sources) throws Exception {
         ProjectFiles oldFiles = new ProjectFiles();
 
         ProjectFiles newFiles = new ProjectFiles();
-        newFiles.insertFile(new ProjectFile("/A.java", "package pkgRoot.pkgMid.pkgLeaf; public class A { }"));
-        newFiles.insertFile(new ProjectFile("/B.java", "package pkgRoot.pkgMid.pkgLeaf; public class B { }"));
+        for (int i = 0; i < sources.length; i++) {
+            newFiles.insertFile(new ProjectFile("/File" + i + ".java", sources[i]));
+        }
 
         CodeDiff diff = codeDiff(oldFiles, newFiles);
         StriffDiagramModel model = new StriffDiagramModel(diff, Set.of());
         Set<DiagramComponent> diagramCmps = model.diagramCmps();
         DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), cmpPkgs(diagramCmps));
 
-        PUMLDiagramData data = new PUMLDiagramData(
+        return new PUMLDiagramData(
                 model.diagramRels(),
                 diff.changeSet().addedRelations(),
                 diff.changeSet().deletedRelations(),
@@ -77,8 +101,6 @@ public class PackageRenderingSvgTest {
                 diff.changeSet().modifiedComponents(),
                 diagramCmps,
                 layoutEngine);
-
-        return new PUMLDiagram(data).svgText();
     }
 
     private static Set<String> extractVisibleText(String svg) {
@@ -100,5 +122,27 @@ public class PackageRenderingSvgTest {
         return cmps.stream()
                 .map(cmp -> ComponentHelper.packagePath(cmp.pkg()))
                 .collect(Collectors.toSet());
+    }
+
+    private static String packageBlock(String puml, String packageName) {
+        String packageKeyword = "package \"" + packageName + "\"";
+        int start = puml.indexOf(packageKeyword);
+        if (start < 0) {
+            throw new AssertionError("Package block not found for " + packageName);
+        }
+        int open = puml.indexOf('{', start);
+        int depth = 1;
+        for (int i = open + 1; i < puml.length(); i++) {
+            char ch = puml.charAt(i);
+            if (ch == '{') {
+                depth++;
+            } else if (ch == '}') {
+                depth--;
+                if (depth == 0) {
+                    return puml.substring(start, i + 1);
+                }
+            }
+        }
+        throw new AssertionError("Unclosed package block for " + packageName);
     }
 }

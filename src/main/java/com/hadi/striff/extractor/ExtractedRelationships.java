@@ -1,7 +1,7 @@
 package com.hadi.striff.extractor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hadi.clarpse.reference.ComponentReference;
 import com.hadi.clarpse.sourcemodel.Component;
@@ -22,7 +22,7 @@ import java.util.Set;
 public class ExtractedRelationships {
 
     private final RelationsMap relationMap = new RelationsMap();
-    private static final Logger LOGGER = LogManager.getLogger(ExtractedRelationships.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractedRelationships.class);
 
     @LogExecutionTime
     public ExtractedRelationships(final OOPSourceCodeModel sourceCodeModel) {

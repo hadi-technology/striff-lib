@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public class PkgColorsMap {
 
-    String[] pkgColors = {
+    private static final String[] PKG_COLORS = {
         "#f0fffa",
         "#f0fffd",
         "#f9fff0",
@@ -30,7 +30,7 @@ public class PkgColorsMap {
         "#fdecd5"
     };
 
-    static final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
+    private static final String DEFAULT_PKG_COLOR = LightDiagramColorScheme.PACKAGE_BG_COLOR;
 
     private final Map<String, String> pkgColorMap = new LinkedHashMap<>();
 
@@ -42,7 +42,7 @@ public class PkgColorsMap {
         List<String> sortedPkgs = new ArrayList<>(pkgs);
         Collections.sort(sortedPkgs);
         for (int i = 0; i < sortedPkgs.size(); i++) {
-            String currColor = this.pkgColors[i % this.pkgColors.length];
+            String currColor = PKG_COLORS[i % PKG_COLORS.length];
             this.pkgColorMap.put(sortedPkgs.get(i), currColor);
         }
     }
