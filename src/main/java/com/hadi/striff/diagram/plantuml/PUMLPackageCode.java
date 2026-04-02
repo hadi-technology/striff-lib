@@ -53,7 +53,9 @@ public class PUMLPackageCode {
                 parent.children.add(node);
             }
         }
-        Comparator<PackageNode> byPath = Comparator.comparing(pkg -> pkg.packagePath);
+        Comparator<PackageNode> byPath = Comparator.comparing(
+                pkg -> pkg.packagePath,
+                Comparator.nullsFirst(String::compareTo));
         roots.sort(byPath);
         for (PackageNode node : nodes.values()) {
             node.children.sort(byPath);

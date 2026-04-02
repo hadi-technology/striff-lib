@@ -16,6 +16,8 @@ import com.hadi.striff.diagram.plantuml.PUMLDiagramText;
 import com.hadi.striff.parse.CodeDiff;
 import org.junit.Test;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,36 @@ public class PUMLDeterminismTest {
         assertTrue(first.contains("@startuml"));
         assertTrue(first.contains("class A as \"A"));
         assertTrue(first.contains("class B as \"B\""));
+    }
+
+    @Test
+    public void testPlantUmlTextAllowsNullPackageKeyInDisplayMap() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/A.java", "public class A { }"));
+
+        CodeDiff diff = codeDiff(oldFiles, newFiles);
+        StriffDiagramModel model = new StriffDiagramModel(diff, Set.of());
+        Set<DiagramComponent> diagramCmps = model.diagramCmps();
+        Map<String, String> pkgColors = new LinkedHashMap<>();
+        pkgColors.put(null, "#f0fffa");
+        DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), pkgColors);
+
+        PUMLDiagramData data = new PUMLDiagramData(
+                model.diagramRels(),
+                diff.changeSet().addedRelations(),
+                diff.changeSet().deletedRelations(),
+                display,
+                diff.mergedModel(),
+                diff.changeSet().addedComponents(),
+                diff.changeSet().deletedComponents(),
+                diff.changeSet().modifiedComponents(),
+                diagramCmps);
+
+        String puml = PUMLDiagramText.build(data);
+
+        assertTrue(puml.contains("@startuml"));
+        assertTrue(!puml.isBlank());
     }
 
     private static String buildPlantUmlString() throws Exception {
