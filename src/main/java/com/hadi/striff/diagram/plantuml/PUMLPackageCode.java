@@ -24,7 +24,7 @@ public class PUMLPackageCode {
     private String generate(PUMLDiagramData data) {
         DiagramDisplay diagramDisplay = data.diagramDisplay();
         Set<DiagramComponent> diagramCmps = data.diagramCmps();
-        Map<String, PackageNode> nodes = new LinkedHashMap<>();
+        Map<String, RawPackageNode> nodes = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : diagramDisplay.pkgColorMappings()) {
             String packagePath = entry.getKey();
             Set<DiagramComponent> pkgBaseCmps =
@@ -32,38 +32,65 @@ public class PUMLPackageCode {
                             .filter(cmp -> ComponentHelper.packagePath(cmp.pkg()).equals(packagePath)
                                     && cmp.componentType().isBaseComponent())
                             .collect(Collectors.toSet());
-            nodes.put(packagePath, new PackageNode(packagePath, entry.getValue(), pkgBaseCmps));
+            ensureNodeWithAncestors(nodes, packagePath);
+            RawPackageNode node = nodes.get(packagePath);
+            node.color = entry.getValue();
+            node.packageComponents = pkgBaseCmps;
         }
 
         List<PackageNode> roots = buildTree(nodes);
         StringBuilder stringBuilder = new StringBuilder();
         for (PackageNode root : roots) {
-            appendNode(stringBuilder, data, root);
+            appendNode(stringBuilder, data, root, null);
         }
         return stringBuilder.toString();
     }
 
-    private List<PackageNode> buildTree(Map<String, PackageNode> nodes) {
-        List<PackageNode> roots = new ArrayList<>();
-        for (PackageNode node : nodes.values()) {
-            PackageNode parent = parentOf(node.packagePath, nodes);
+    private void ensureNodeWithAncestors(Map<String, RawPackageNode> nodes, String packagePath) {
+        if (packagePath == null || packagePath.isEmpty()) {
+            nodes.computeIfAbsent(packagePath, RawPackageNode::new);
+            return;
+        }
+        int start = 0;
+        while (start < packagePath.length()) {
+            int nextDot = packagePath.indexOf('.', start);
+            String prefix = nextDot < 0 ? packagePath : packagePath.substring(0, nextDot);
+            if (nextDot >= 0) {
+                prefix = packagePath.substring(0, nextDot);
+            } else {
+                prefix = packagePath;
+            }
+            nodes.computeIfAbsent(prefix, RawPackageNode::new);
+            if (nextDot < 0) {
+                break;
+            }
+            start = nextDot + 1;
+        }
+    }
+
+    private List<PackageNode> buildTree(Map<String, RawPackageNode> nodes) {
+        List<RawPackageNode> roots = new ArrayList<>();
+        for (RawPackageNode node : nodes.values()) {
+            RawPackageNode parent = parentOf(node.packagePath, nodes);
             if (parent == null) {
                 roots.add(node);
             } else {
                 parent.children.add(node);
             }
         }
-        Comparator<PackageNode> byPath = Comparator.comparing(
+        Comparator<RawPackageNode> byPath = Comparator.comparing(
                 pkg -> pkg.packagePath,
                 Comparator.nullsFirst(String::compareTo));
         roots.sort(byPath);
-        for (PackageNode node : nodes.values()) {
+        for (RawPackageNode node : nodes.values()) {
             node.children.sort(byPath);
         }
-        return roots;
+        return roots.stream()
+                .map(this::compress)
+                .collect(Collectors.toList());
     }
 
-    private PackageNode parentOf(String packagePath, Map<String, PackageNode> nodes) {
+    private RawPackageNode parentOf(String packagePath, Map<String, RawPackageNode> nodes) {
         if (packagePath == null || packagePath.isEmpty()) {
             return null;
         }
@@ -83,12 +110,28 @@ public class PUMLPackageCode {
         return nodes.get(bestParent);
     }
 
-    private void appendNode(StringBuilder builder, PUMLDiagramData data, PackageNode node) {
+    private PackageNode compress(RawPackageNode node) {
+        List<PackageNode> compressedChildren = node.children.stream()
+                .map(this::compress)
+                .collect(Collectors.toList());
+        boolean synthetic = node.color == null && (node.packageComponents == null || node.packageComponents.isEmpty());
+        if (synthetic && compressedChildren.size() == 1) {
+            return compressedChildren.get(0);
+        }
+        String color = node.color;
+        if (color == null) {
+            color = compressedChildren.isEmpty() ? "" : compressedChildren.get(0).color;
+        }
+        return new PackageNode(node.packagePath, color == null ? "" : color,
+                node.packageComponents == null ? Set.of() : node.packageComponents, compressedChildren);
+    }
+
+    private void appendNode(StringBuilder builder, PUMLDiagramData data, PackageNode node, String parentPackagePath) {
         if (node.packagePath == null || node.packagePath.isEmpty()) {
             builder.append("package \" \"");
         } else {
             builder.append("package \"")
-                    .append(node.packagePath)
+                    .append(displayLabel(node.packagePath, parentPackagePath))
                     .append("\" as ")
                     .append(PUMLHelper.packageAlias(node.packagePath));
         }
@@ -98,9 +141,20 @@ public class PUMLPackageCode {
                 .append(new PUMLClassFieldsCode(data).value(node.packageComponents))
                 .append(packageDecoratorsText(data, node.packagePath, node.packageComponents));
         for (PackageNode child : node.children) {
-            appendNode(builder, data, child);
+            appendNode(builder, data, child, node.packagePath);
         }
         builder.append("}\n");
+    }
+
+    private String displayLabel(String packagePath, String parentPackagePath) {
+        if (packagePath == null || packagePath.isEmpty() || parentPackagePath == null || parentPackagePath.isEmpty()) {
+            return packagePath;
+        }
+        String prefix = parentPackagePath + ".";
+        if (!packagePath.startsWith(prefix)) {
+            return packagePath;
+        }
+        return packagePath.substring(prefix.length());
     }
 
     private String packageDecoratorsText(PUMLDiagramData data, String packagePath, Set<DiagramComponent> packageComponents) {
@@ -133,12 +187,25 @@ public class PUMLPackageCode {
         private final String packagePath;
         private final String color;
         private final Set<DiagramComponent> packageComponents;
-        private final List<PackageNode> children = new ArrayList<>();
+        private final List<PackageNode> children;
 
-        private PackageNode(String packagePath, String color, Set<DiagramComponent> packageComponents) {
+        private PackageNode(String packagePath, String color, Set<DiagramComponent> packageComponents,
+                List<PackageNode> children) {
             this.packagePath = packagePath;
             this.color = color;
             this.packageComponents = packageComponents;
+            this.children = children;
+        }
+    }
+
+    private static final class RawPackageNode {
+        private final String packagePath;
+        private String color;
+        private Set<DiagramComponent> packageComponents = Set.of();
+        private final List<RawPackageNode> children = new ArrayList<>();
+
+        private RawPackageNode(String packagePath) {
+            this.packagePath = packagePath;
         }
     }
 }
