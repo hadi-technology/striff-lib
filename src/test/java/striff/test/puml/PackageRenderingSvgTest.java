@@ -46,7 +46,55 @@ public class PackageRenderingSvgTest {
         String plantUml = buildPlantUmlText();
         String rootBlock = packageBlock(plantUml, "com.hadi.striff");
 
-        assertTrue(rootBlock.contains("package \"com.hadi.striff.diagram\" as "));
+        assertTrue(rootBlock.contains("package \"diagram\" as "));
+        assertFalse(rootBlock.contains("package \"com.hadi.striff.diagram\" as "));
+    }
+
+    @Test
+    public void nestedPackageChildLabelIsRelativeInSvg() throws Exception {
+        String svg = new PUMLDiagram(buildPackageData(LayoutEngine.SMETANA,
+                "package com.hadi.striff; public class RootType { }",
+                "package com.hadi.striff.diagram; public class ChildType { }")).svgText();
+        Set<String> visibleText = extractVisibleText(svg);
+
+        assertTrue("Expected root package label in SVG text: " + visibleText,
+                visibleText.contains("com.hadi.striff"));
+        assertTrue("Expected nested child package label in SVG text: " + visibleText,
+                visibleText.contains("diagram"));
+        assertFalse("Child package label should not repeat the full parent path: " + visibleText,
+                visibleText.contains("com.hadi.striff.diagram"));
+    }
+
+    @Test
+    public void syntheticAncestorsAreCompressedToHighestUsefulGroupingNode() throws Exception {
+        String plantUml = PUMLDiagramText.build(buildPackageData(LayoutEngine.SMETANA,
+                "package tests.test_tutorial.requests; public class RequestDoc { }",
+                "package tests.test_tutorial.responses; public class ResponseDoc { }"));
+        String groupedBlock = packageBlock(plantUml, "tests.test_tutorial");
+
+        assertTrue(groupedBlock.contains("package \"requests\" as "));
+        assertTrue(groupedBlock.contains("package \"responses\" as "));
+        assertFalse(plantUml.contains("package \"tests\" as "));
+        assertFalse(plantUml.contains("package \"test_tutorial\" as "));
+    }
+
+    @Test
+    public void syntheticAncestorGroupingUsesCompressedVisibleLabelInSvg() throws Exception {
+        String svg = new PUMLDiagram(buildPackageData(LayoutEngine.SMETANA,
+                "package tests.test_tutorial.requests; public class RequestDoc { }",
+                "package tests.test_tutorial.responses; public class ResponseDoc { }")).svgText();
+        Set<String> visibleText = extractVisibleText(svg);
+
+        assertTrue("Expected compressed synthetic parent package label in SVG text: " + visibleText,
+                visibleText.contains("tests.test_tutorial"));
+        assertTrue("Expected relative child package label in SVG text: " + visibleText,
+                visibleText.contains("requests"));
+        assertTrue("Expected relative child package label in SVG text: " + visibleText,
+                visibleText.contains("responses"));
+        assertFalse("Should not render an extra empty synthetic ancestor for 'tests': " + visibleText,
+                visibleText.contains("tests"));
+        assertFalse("Should not render an extra empty synthetic ancestor for 'test_tutorial': " + visibleText,
+                visibleText.contains("test_tutorial"));
     }
 
     private static void assertSingleVisiblePackageLabel(LayoutEngine layoutEngine) throws Exception {

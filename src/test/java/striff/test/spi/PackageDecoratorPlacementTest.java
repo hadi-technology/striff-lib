@@ -40,8 +40,9 @@ public class PackageDecoratorPlacementTest {
                 Thread.currentThread().getContextClassLoader());
         String output = buildPlantUmlString(classLoader);
 
-        String packageBlock = packageBlock(output, "com.sample.b");
-        int packageStart = output.indexOf("package \"com.sample.b\"");
+        String rootBlock = packageBlock(output, "com.sample");
+        String packageBlock = packageBlock(rootBlock, "b");
+        int packageStart = rootBlock.indexOf("package \"b\"");
         int noteIndex = packageBlock.indexOf("note right of B");
         int sentinelIndex = packageBlock.indexOf("PACKAGE_SENTINEL");
 

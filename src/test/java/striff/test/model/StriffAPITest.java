@@ -48,13 +48,13 @@ public class StriffAPITest {
 	@Ignore
 	@Test
 	public void testDemonstrateStriffAPIWithPR() throws Exception {
-		String baseRepoOwner = "Zir0-93";
-		String repoName = "striff-lib";
-		Lang language = Lang.JAVA;
+		String baseRepoOwner = "fastapi";
+		String repoName = "fastapi";
+		Lang language = Lang.PYTHON;
 		ProjectFiles oldFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "master", language);
+				baseRepoOwner, repoName, "1f442c4", language);
 		ProjectFiles newFiles = githubProjectFiles(
-				baseRepoOwner, repoName, "rand-cahnges", language);
+				baseRepoOwner, repoName, "pull/15269/head", language);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, new StriffConfig()).result().diagrams();
 		System.out.println("Total diagrams generated: " + striffs.size());
