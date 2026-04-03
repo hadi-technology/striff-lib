@@ -1,18 +1,22 @@
 package com.hadi.striff;
 
+import com.hadi.clarpse.compiler.CompileFailure;
 import com.hadi.clarpse.compiler.Lang;
 import com.hadi.clarpse.compiler.ProjectFile;
 import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.striff.parse.CodeDiff;
 import com.hadi.striff.diagram.StriffDiagram;
 import com.hadi.striff.diagram.StriffOutput;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -206,5 +210,52 @@ public class StriffOperationIntegrationTest {
         assertTrue("Expected metadata to still include all selected components",
                 diagram.cmps().size() > 1);
         assertNull("Expected SVG rendering to be skipped when the component cap is exceeded", diagram.svg());
+    }
+
+    @Test
+    public void fullPipelineExposesCodeDiffAndCompileFailures() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { private int x; }"));
+
+        StriffOperation operation = new StriffOperation(oldFiles, newFiles,
+                new StriffConfig().setLanguages(List.of(Lang.JAVA)));
+
+        assertNotNull("Expected codeDiff to be retained after full pipeline", operation.codeDiff());
+        assertNotNull("Expected compileFailures to be retained after full pipeline", operation.compileFailures());
+    }
+
+    @Test
+    public void renderOnlyConstructorRendersSavedCodeDiff() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { private int x; }"));
+
+        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
+        StriffOperation fullPipeline = new StriffOperation(oldFiles, newFiles, config);
+        CodeDiff savedCodeDiff = fullPipeline.codeDiff();
+        Set<CompileFailure> savedFailures = fullPipeline.compileFailures();
+
+        StriffOperation renderOnly = new StriffOperation(savedCodeDiff, config, savedFailures);
+        StriffOutput output = renderOnly.result();
+
+        assertFalse("Expected render-only output to contain diagrams", output.diagrams().isEmpty());
+        assertSame("Expected render-only operation to retain supplied CodeDiff", savedCodeDiff, renderOnly.codeDiff());
+        assertSame("Expected render-only operation to retain supplied compile failures", savedFailures,
+                renderOnly.compileFailures());
+    }
+
+    @Test
+    public void renderOnlyConstructorRejectsNullCodeDiff() {
+        assertThrows(NullPointerException.class,
+                () -> new StriffOperation(null, new StriffConfig(), Set.of()));
     }
 }

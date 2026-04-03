@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ public class StriffOperation {
 
     private final CodeDiff codeDiff;
     private final StriffOutput striffOutput;
-    private final HashSet<CompileFailure> compileFailures;
+    private final Set<CompileFailure> compileFailures;
 
     /**
      * Full pipeline: parse source files, compute a CodeDiff, and render diagrams.
@@ -87,10 +88,10 @@ public class StriffOperation {
      */
     @LogExecutionTime
     public StriffOperation(CodeDiff codeDiff, StriffConfig config,
-                           HashSet<CompileFailure> compileFailures)
+                           Set<CompileFailure> compileFailures)
             throws IOException, PUMLDrawException {
         LOGGER.info("Starting render-only operation from existing CodeDiff with config: {}", config);
-        this.codeDiff = codeDiff;
+        this.codeDiff = Objects.requireNonNull(codeDiff, "codeDiff must not be null");
         if (compileFailures == null) {
             this.compileFailures = new HashSet<>();
         } else {
@@ -129,7 +130,7 @@ public class StriffOperation {
      *
      * @return compile failures set, never null
      */
-    public HashSet<CompileFailure> compileFailures() {
+    public Set<CompileFailure> compileFailures() {
         return this.compileFailures;
     }
 
@@ -145,7 +146,7 @@ public class StriffOperation {
     @LogExecutionTime
     private static CodeDiff generateCodeDiff(ProjectFiles originalPFs, ProjectFiles newPFs,
             StriffConfig config,
-            HashSet<CompileFailure> allFailures) throws CompileException {
+            Set<CompileFailure> allFailures) throws CompileException {
         OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         Set<String> filesFilter = config.filesFilter();
