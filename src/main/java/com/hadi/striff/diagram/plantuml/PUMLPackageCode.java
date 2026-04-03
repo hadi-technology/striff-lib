@@ -54,7 +54,7 @@ public class PUMLPackageCode {
         int start = 0;
         while (start < packagePath.length()) {
             int nextDot = packagePath.indexOf('.', start);
-            String prefix = nextDot < 0 ? packagePath : packagePath.substring(0, nextDot);
+            String prefix;
             if (nextDot >= 0) {
                 prefix = packagePath.substring(0, nextDot);
             } else {
@@ -120,10 +120,20 @@ public class PUMLPackageCode {
         }
         String color = node.color;
         if (color == null) {
-            color = compressedChildren.isEmpty() ? "" : compressedChildren.get(0).color;
+            if (compressedChildren.isEmpty()) {
+                color = "";
+            } else {
+                color = compressedChildren.get(0).color;
+            }
         }
-        return new PackageNode(node.packagePath, color == null ? "" : color,
-                node.packageComponents == null ? Set.of() : node.packageComponents, compressedChildren);
+        if (color == null) {
+            color = "";
+        }
+        Set<DiagramComponent> packageComponents = node.packageComponents;
+        if (packageComponents == null) {
+            packageComponents = Set.of();
+        }
+        return new PackageNode(node.packagePath, color, packageComponents, compressedChildren);
     }
 
     private void appendNode(StringBuilder builder, PUMLDiagramData data, PackageNode node, String parentPackagePath) {
