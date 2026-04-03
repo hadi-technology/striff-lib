@@ -18,29 +18,43 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Entry point for Striff diagram generation.
+ *
+ * <p>Two construction modes are supported:</p>
+ * <ul>
+ *   <li><strong>Full pipeline</strong> — parses source files into OOP models, computes a
+ *       {@link CodeDiff}, runs SPI augmenters, and renders SVG diagrams.</li>
+ *   <li><strong>Render-only</strong> — accepts a pre-built {@link CodeDiff} and skips
+ *       parsing entirely. This allows a second render pass (e.g. with AI augmentation
+ *       enabled on a background thread) without re-parsing the source files.</li>
+ * </ul>
  */
 public class StriffOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StriffOperation.class);
 
+    private final CodeDiff codeDiff;
     private final StriffOutput striffOutput;
+    private final Set<CompileFailure> compileFailures;
 
     /**
-     * Creates a Striff generation operation for the provided original and updated
-     * source trees.
+     * Full pipeline: parse source files, compute a CodeDiff, and render diagrams.
+     *
+     * <p>After construction, call {@link #codeDiff()} and {@link #compileFailures()}
+     * to obtain the intermediate state needed for a subsequent render-only pass.</p>
      *
      * @param originalPFs original project files
-     * @param newPFs updated project files
-     * @param config generation configuration
-     * @throws IOException if rendered diagram output cannot be produced
+     * @param newPFs      updated project files
+     * @param config      generation configuration
+     * @throws IOException       if rendered diagram output cannot be produced
      * @throws PUMLDrawException if PlantUML cannot render the requested diagram
-     * @throws CompileException if source parsing fails
+     * @throws CompileException  if source parsing fails
      */
     @LogExecutionTime
     public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs, StriffConfig config)
@@ -48,22 +62,91 @@ public class StriffOperation {
         LOGGER.info("Starting new operation with config: {}", config);
         validateProjectFiles(originalPFs, newPFs, config.filesFilter());
         filterConfigLanguages(config, originalPFs, newPFs);
-        HashSet<CompileFailure> allFailures = new HashSet<>();
+        this.compileFailures = new HashSet<>();
         LOGGER.info("Generating code diff metadata..");
-        CodeDiff diffedModel = generateCodeDiff(originalPFs, newPFs, config, allFailures);
-        LOGGER.info("Generating striff output metadata.. ");
-        this.striffOutput = new StriffOutput(diffedModel, config, allFailures);
+        this.codeDiff = generateCodeDiff(originalPFs, newPFs, config, this.compileFailures);
+        LOGGER.info("Generating striff output metadata..");
+        this.striffOutput = new StriffOutput(this.codeDiff, config, this.compileFailures);
     }
 
+    /**
+     * Render-only: produce diagrams from an already-parsed {@link CodeDiff}.
+     *
+     * <p>This skips source parsing and language detection entirely. The caller is
+     * responsible for providing a valid CodeDiff (typically obtained from a prior
+     * full-pipeline construction via {@link #codeDiff()}).</p>
+     *
+     * <p>Primary use case: re-rendering the same parsed models with a different
+     * {@link StriffConfig} — for example, enabling AI augmentation on a background
+     * thread while the base diagram has already been returned to the client.</p>
+     *
+     * @param codeDiff        pre-built code diff from a prior full-pipeline run
+     * @param config          generation configuration (may differ from the original)
+     * @param compileFailures compile failures from the original parse pass
+     * @throws IOException       if rendered diagram output cannot be produced
+     * @throws PUMLDrawException if PlantUML cannot render the requested diagram
+     */
+    @LogExecutionTime
+    public StriffOperation(CodeDiff codeDiff, StriffConfig config,
+                           Set<CompileFailure> compileFailures)
+            throws IOException, PUMLDrawException {
+        LOGGER.info("Starting render-only operation from existing CodeDiff with config: {}", config);
+        this.codeDiff = Objects.requireNonNull(codeDiff, "codeDiff must not be null");
+        if (compileFailures == null) {
+            this.compileFailures = new HashSet<>();
+        } else {
+            this.compileFailures = compileFailures;
+        }
+        LOGGER.info("Generating striff output metadata..");
+        this.striffOutput = new StriffOutput(codeDiff, config, this.compileFailures);
+    }
+
+    /**
+     * Full pipeline with default configuration.
+     */
     public StriffOperation(ProjectFiles originalPFs, ProjectFiles newPFs)
             throws PUMLDrawException, CompileException, IOException {
         this(originalPFs, newPFs, new StriffConfig());
     }
 
+    /**
+     * Returns the parsed {@link CodeDiff} produced during the full-pipeline construction.
+     *
+     * <p>This is the intermediate representation between parsing and rendering. Callers
+     * can pass it to the render-only constructor to produce a second set of diagrams
+     * (e.g. with AI enrichment) without re-parsing source files.</p>
+     *
+     * @return the code diff, never null after construction
+     */
+    public CodeDiff codeDiff() {
+        return this.codeDiff;
+    }
+
+    /**
+     * Returns the compile failures encountered during source parsing.
+     *
+     * <p>Needed by the render-only constructor to maintain consistent warning reporting
+     * across both render passes.</p>
+     *
+     * @return compile failures set, never null
+     */
+    public Set<CompileFailure> compileFailures() {
+        return this.compileFailures;
+    }
+
+    /**
+     * Returns the generated Striff output for this operation.
+     *
+     * @return diagram output and compile warnings
+     */
+    public StriffOutput result() {
+        return this.striffOutput;
+    }
+
     @LogExecutionTime
     private static CodeDiff generateCodeDiff(ProjectFiles originalPFs, ProjectFiles newPFs,
             StriffConfig config,
-            HashSet<CompileFailure> allFailures) throws CompileException {
+            Set<CompileFailure> allFailures) throws CompileException {
         OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         Set<String> filesFilter = config.filesFilter();
@@ -112,11 +195,12 @@ public class StriffOperation {
      * in either the original or new ProjectFiles. This optimization avoids attempting
      * compilation for languages with no matching files.
      *
-     * @param config The config to modify
+     * @param config        The config to modify
      * @param originalFiles The original project files
-     * @param newFiles The new project files
+     * @param newFiles      The new project files
      */
-    private static void filterConfigLanguages(StriffConfig config, ProjectFiles originalFiles, ProjectFiles newFiles) {
+    private static void filterConfigLanguages(StriffConfig config, ProjectFiles originalFiles,
+            ProjectFiles newFiles) {
         // Detect which languages have files in the ProjectFiles
         Set<Lang> languagesInOriginal = detectLanguagesInProjectFiles(originalFiles);
         Set<Lang> languagesInNew = detectLanguagesInProjectFiles(newFiles);
@@ -168,14 +252,5 @@ public class StriffOperation {
             Set<String> filesFilter) {
         return Stream.concat(originalPFs.files().stream(), newPFs.files().stream())
                 .map(ProjectFile::path).collect(Collectors.toSet()).containsAll(filesFilter);
-    }
-
-    /**
-     * Returns the generated Striff output for this operation.
-     *
-     * @return diagram output and compile warnings
-     */
-    public StriffOutput result() {
-        return this.striffOutput;
     }
 }
