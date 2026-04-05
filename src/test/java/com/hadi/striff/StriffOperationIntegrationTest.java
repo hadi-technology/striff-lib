@@ -259,4 +259,121 @@ public class StriffOperationIntegrationTest {
         assertThrows(NullPointerException.class,
                 () -> new StriffOperation(null, new StriffConfig(), Set.of()));
     }
+
+    // Incremental parsing tests
+
+    @Test
+    public void incrementalParsingWithSingleChangedFile() throws Exception {
+        // First run: full pipeline to establish baseline
+        ProjectFiles baseFiles = new ProjectFiles();
+        baseFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        baseFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        ProjectFiles changedFiles = new ProjectFiles();
+        changedFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        changedFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
+        StriffOperation baseOp = new StriffOperation(baseFiles, changedFiles, config);
+
+        // Get the cached base model (this represents the "after" state we'll use as baseline)
+        var cachedBaseModel = baseOp.codeDiff().newModel();
+
+        // Second run: incremental - only ClassB changed
+        ProjectFiles newChangedFiles = new ProjectFiles();
+        newChangedFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        newChangedFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { private int x; }"));
+
+        Set<String> changedFilePaths = Set.of("/ClassB.java");
+
+        StriffOperation incrementalOp = new StriffOperation(
+                cachedBaseModel, newChangedFiles, changedFilePaths, config);
+        StriffOutput output = incrementalOp.result();
+
+        // Verify the change set detected the modification
+        assertTrue("Expected ClassB in modified components",
+                output.diagrams().get(0).changeSet().modifiedComponents().contains("com.sample.ClassB"));
+
+        // Verify SVG was rendered
+        assertNotNull("SVG should be rendered", output.diagrams().get(0).svg());
+    }
+
+    @Test
+    public void incrementalParsingDetectsNewComponent() throws Exception {
+        // Establish baseline with one class
+        ProjectFiles baseFiles = new ProjectFiles();
+        baseFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        ProjectFiles afterFiles = new ProjectFiles();
+        afterFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
+        StriffOperation baseOp = new StriffOperation(baseFiles, afterFiles, config);
+        var cachedBaseModel = baseOp.codeDiff().newModel();
+
+        // Incremental run: new ClassB added
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        newFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        Set<String> changedFilePaths = Set.of("/ClassB.java");
+
+        StriffOperation incrementalOp = new StriffOperation(
+                cachedBaseModel, newFiles, changedFilePaths, config);
+        StriffOutput output = incrementalOp.result();
+
+        // Verify the change set detected the addition
+        assertTrue("Expected ClassB in added components",
+                output.diagrams().get(0).changeSet().inAddedComponents("com.sample.ClassB"));
+    }
+
+    @Test
+    public void incrementalParsingRejectsNullBaseModel() {
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            try {
+                new StriffOperation(null, newFiles, Set.of("/ClassA.java"), config);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @Test
+    public void incrementalParsingRejectsEmptyChangedFiles() throws Exception {
+        ProjectFiles baseFiles = new ProjectFiles();
+        baseFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        ProjectFiles afterFiles = new ProjectFiles();
+        afterFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+
+        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
+        StriffOperation baseOp = new StriffOperation(baseFiles, afterFiles, config);
+        var cachedBaseModel = baseOp.codeDiff().newModel();
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            try {
+                new StriffOperation(cachedBaseModel, afterFiles, Set.of(), config);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }

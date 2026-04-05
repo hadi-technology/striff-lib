@@ -26,10 +26,12 @@ import java.util.stream.Stream;
 /**
  * Entry point for Striff diagram generation.
  *
- * <p>Two construction modes are supported:</p>
+ * <p>Three construction modes are supported:</p>
  * <ul>
  *   <li><strong>Full pipeline</strong> — parses source files into OOP models, computes a
  *       {@link CodeDiff}, runs SPI augmenters, and renders SVG diagrams.</li>
+ *   <li><strong>Incremental</strong> — accepts a cached base model and parses only
+ *       changed files, then merges and compares to produce the diff.</li>
  *   <li><strong>Render-only</strong> — accepts a pre-built {@link CodeDiff} and skips
  *       parsing entirely. This allows a second render pass with a different
  *       configuration without re-parsing the source files.</li>
@@ -111,6 +113,49 @@ public class StriffOperation {
     }
 
     /**
+     * Incremental parsing: reuses a cached base model and parses only changed files.
+     *
+     * <p>This constructor is optimized for scenarios where you have a previously parsed
+     * base model and only a small subset of files have changed. It parses only the
+     * specified changed files from the new ProjectFiles, merges them with a copy of
+     * the base model, and computes the diff.</p>
+     *
+     * <p><strong>Use case:</strong> CI/CD pipelines processing PRs with small changes.
+     * For a 1000-file codebase with 5 changed files, this parses only 5 files instead
+     * of 2000 (1000 old + 1000 new).</p>
+     *
+     * <p>The cached base model can be obtained from a prior full-pipeline run via
+     * {@link CodeDiff#newModel()}.</p>
+     *
+     * @param baseModel    cached OOP model from a previous run (typically from
+     *                     {@code priorOp.codeDiff().newModel()})
+     * @param newFiles     updated project files containing the changed files
+     * @param changedFiles set of file paths that have changed (relative to project root)
+     * @param config       generation configuration
+     * @throws IOException       if rendered diagram output cannot be produced
+     * @throws PUMLDrawException if PlantUML cannot render the requested diagram
+     * @throws CompileException  if source parsing fails
+     */
+    @LogExecutionTime
+    public StriffOperation(OOPSourceCodeModel baseModel, ProjectFiles newFiles,
+                           Set<String> changedFiles, StriffConfig config)
+            throws IOException, PUMLDrawException, CompileException {
+        if (baseModel == null) {
+            throw new IllegalArgumentException("baseModel must not be null");
+        }
+        if (changedFiles == null || changedFiles.isEmpty()) {
+            throw new IllegalArgumentException("changedFiles must not be null or empty");
+        }
+        LOGGER.info("Starting incremental operation with {} changed files", changedFiles.size());
+        filterConfigLanguages(config, newFiles, newFiles);
+        this.compileFailures = new HashSet<>();
+        LOGGER.info("Generating code diff metadata (incremental)...");
+        this.codeDiff = generateCodeDiffIncremental(baseModel, newFiles, changedFiles, config, this.compileFailures);
+        LOGGER.info("Generating striff output metadata..");
+        this.striffOutput = new StriffOutput(this.codeDiff, config, this.compileFailures);
+    }
+
+    /**
      * Returns the parsed {@link CodeDiff} produced during the full-pipeline construction.
      *
      * <p>This is the intermediate representation between parsing and rendering. Callers
@@ -183,6 +228,62 @@ public class StriffOperation {
         return new CodeDiff(oldModel, newModel);
     }
 
+    /**
+     * Generates a CodeDiff using incremental parsing.
+     *
+     * <p>This method reuses the cached base model and parses only the changed files
+     * from the new ProjectFiles. The changed components are merged with a copy of
+     * the base model to create the "new" state for comparison.</p>
+     *
+     * @param baseModel      cached OOP model from a previous run
+     * @param newFiles       updated project files
+     * @param changedFiles   set of file paths that have changed
+     * @param config         generation configuration
+     * @param allFailures    collection to accumulate compile failures
+     * @return CodeDiff comparing base model vs updated model
+     * @throws CompileException if parsing fails
+     */
+    @LogExecutionTime
+    private static CodeDiff generateCodeDiffIncremental(OOPSourceCodeModel baseModel,
+                                                         ProjectFiles newFiles,
+                                                         Set<String> changedFiles,
+                                                         StriffConfig config,
+                                                         Set<CompileFailure> allFailures) throws CompileException {
+        // The base model serves as the "old" state
+        OOPSourceCodeModel oldModel = baseModel;
+        // Create a copy of base model and merge changed components to create "new" state
+        OOPSourceCodeModel newModel = baseModel.copy();
+        long baseComponentCount = baseModel.components().count();
+        LOGGER.info("Base model components: {}", baseComponentCount);
+
+        // Parse only the changed files
+        for (Lang currLang : config.languages()) {
+            // Filter changed files to only those matching current language
+            Set<String> languageChangedFiles = filterFilesByLanguage(newFiles, changedFiles, currLang);
+            if (languageChangedFiles.isEmpty()) {
+                LOGGER.info("No changed files for language: {}", currLang);
+                continue;
+            }
+            LOGGER.info("Processing {} changed files for language: {}", languageChangedFiles.size(), currLang);
+            CompileResult newCR = new ClarpseProject(newFiles, currLang, languageChangedFiles).result();
+            long changedComponentCount = newCR.model().components().count();
+            LOGGER.info("Parsed {} components from {} changed {} files",
+                    changedComponentCount, languageChangedFiles.size(), currLang);
+
+            allFailures.addAll(newCR.failures());
+            if (!allFailures.isEmpty()) {
+                LOGGER.info("Compile failures for {}: {}", currLang, newCR.failures().size());
+            }
+            // Merge changed components into the copied base model
+            newModel.merge(newCR.model());
+        }
+        long newComponentCount = newModel.components().count();
+        LOGGER.info("New model components: {} (base: {}, delta: {})",
+                newComponentCount, baseComponentCount, newComponentCount - baseComponentCount);
+        LOGGER.info("Generating code diff b/w base and updated code models..");
+        return new CodeDiff(oldModel, newModel);
+    }
+
     private void validateProjectFiles(ProjectFiles originalFiles, ProjectFiles newFiles,
             Set<String> filesFilter) {
         LOGGER.info("Validating input project files..");
@@ -247,6 +348,36 @@ public class StriffOperation {
             }
         }
         return languagesFound;
+    }
+
+    /**
+     * Filters a set of file paths to only include files matching the given language.
+     *
+     * @param projectFiles the project files to check extensions against
+     * @param filePaths    the file paths to filter
+     * @param lang         the language to filter by
+     * @return set of file paths that match the language
+     */
+    private static Set<String> filterFilesByLanguage(ProjectFiles projectFiles,
+                                                      Set<String> filePaths,
+                                                      Lang lang) {
+        Set<String> filtered = new HashSet<>();
+        // Get files for this language and check if they're in the changed set
+        for (ProjectFile file : projectFiles.files(lang)) {
+            // Normalize path for comparison (handle both / and \ separators)
+            String normalizedPath = file.path().replace("\\", "/");
+            for (String changedPath : filePaths) {
+                String normalizedChangedPath = changedPath.replace("\\", "/");
+                // Check if paths match (handling cases with/without leading /)
+                if (normalizedPath.equals(normalizedChangedPath)
+                        || normalizedPath.endsWith("/" + normalizedChangedPath)
+                        || normalizedChangedPath.endsWith("/" + normalizedPath)) {
+                    filtered.add(file.path());
+                    break;
+                }
+            }
+        }
+        return filtered;
     }
 
     private boolean filterFilesExistInProjects(ProjectFiles originalPFs, ProjectFiles newPFs,
