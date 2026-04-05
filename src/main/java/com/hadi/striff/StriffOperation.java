@@ -31,8 +31,8 @@ import java.util.stream.Stream;
  *   <li><strong>Full pipeline</strong> — parses source files into OOP models, computes a
  *       {@link CodeDiff}, runs SPI augmenters, and renders SVG diagrams.</li>
  *   <li><strong>Render-only</strong> — accepts a pre-built {@link CodeDiff} and skips
- *       parsing entirely. This allows a second render pass (e.g. with AI augmentation
- *       enabled on a background thread) without re-parsing the source files.</li>
+ *       parsing entirely. This allows a second render pass with a different
+ *       configuration without re-parsing the source files.</li>
  * </ul>
  */
 public class StriffOperation {
@@ -77,8 +77,9 @@ public class StriffOperation {
      * full-pipeline construction via {@link #codeDiff()}).</p>
      *
      * <p>Primary use case: re-rendering the same parsed models with a different
-     * {@link StriffConfig} — for example, enabling AI augmentation on a background
-     * thread while the base diagram has already been returned to the client.</p>
+     * {@link StriffConfig} — for example, with a different layout engine or
+     * zoom level on a background thread while the base diagram has already been
+     * returned to the client.</p>
      *
      * @param codeDiff        pre-built code diff from a prior full-pipeline run
      * @param config          generation configuration (may differ from the original)
@@ -113,8 +114,8 @@ public class StriffOperation {
      * Returns the parsed {@link CodeDiff} produced during the full-pipeline construction.
      *
      * <p>This is the intermediate representation between parsing and rendering. Callers
-     * can pass it to the render-only constructor to produce a second set of diagrams
-     * (e.g. with AI enrichment) without re-parsing source files.</p>
+     * can pass it to the render-only constructor to produce additional diagrams
+     * (e.g. with different styling or layout) without re-parsing source files.</p>
      *
      * @return the code diff, never null after construction
      */

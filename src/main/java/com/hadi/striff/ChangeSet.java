@@ -15,7 +15,26 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Represents the differences between a primary and secondary code base.
+ * Represents the differences between two code bases (old and new).
+ *
+ * <p>This class computes the structural differences between two
+ * {@link com.hadi.clarpse.sourcemodel.OOPSourceCodeModel} instances,
+ * identifying:</p>
+ * <ul>
+ *   <li><strong>Added components</strong> - components present in new but not old</li>
+ *   <li><strong>Deleted components</strong> - components present in old but not new</li>
+ *   <li><strong>Modified components</strong> - components in both with different codeHash</li>
+ *   <li><strong>Added relations</strong> - relationships present in new but not old</li>
+ *   <li><strong>Deleted relations</strong> - relationships present in old but not new</li>
+ * </ul>
+ *
+ * <p><strong>Key Relations Components:</strong> Components that participate in
+ * added or deleted relations but are not themselves added or deleted. These
+ * components are important to include in diagrams as they represent the
+ * "connective tissue" between changes.</p>
+ *
+ * <p><strong>Short-circuit optimization:</strong> If both models are empty,
+ * relationship extraction is skipped entirely for performance.</p>
  */
 public final class ChangeSet {
 
@@ -29,6 +48,16 @@ public final class ChangeSet {
     private final Set<String> keyRelationsComponents = new HashSet<>();
     private final Set<String> modifiedComponents = new HashSet<>();
 
+    /**
+     * Computes the difference between two source code models.
+     *
+     * <p>This constructor extracts relationships from both models and compares
+     * them to identify changes. For performance, if both models are empty,
+     * relationship extraction is skipped entirely.</p>
+     *
+     * @param oldModel the original (before) code model
+     * @param newModel the updated (after) code model
+     */
     public ChangeSet(OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel) {
         LOGGER.info("Generating changeset between old and new code models..");
 

@@ -33,7 +33,7 @@ consumers.
 
 ## Rationale
 SPI gives a low-friction extension mechanism that works for both library users
-and higher-level services (e.g., striff-api) without changing core. The
+and higher-level services without changing core. The
 deterministic ordering requirement is addressed by sorting providers by
 `order()` then class name. Optionality is preserved by allowing the caller to
 disable augmenters via configuration.
@@ -182,7 +182,7 @@ com.example.striff.spi.LegendDecorator
 * **Security review**: decorate diagrams with a legend and special colors for
   components that interact with external systems.
 * **Team conventions**: apply a uniform banner or watermark via a diagram decorator.
-* **API extensions**: a service like striff-api can ship its own SPI implementations
+* **Service integrations**: external services can ship their own SPI implementations
   without changing striff-lib.
 
 ## Contributor Notes / FAQ

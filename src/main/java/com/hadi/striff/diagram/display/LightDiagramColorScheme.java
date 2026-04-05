@@ -2,7 +2,7 @@ package com.hadi.striff.diagram.display;
 
 public class LightDiagramColorScheme implements DiagramColorScheme {
 
-    public static final String PACKAGE_BG_COLOR = "#E0E0E0";
+    public static final String PACKAGE_BG_COLOR = "#A0A0A0";
     public static final String DEFAULT_CLASS_HEADER_COLOR = "#24292e";
 
     @Override
@@ -97,7 +97,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String packageBorderColor() {
-        return "#E0E0E0";
+        return "#A0A0A0";
     }
 
     @Override
