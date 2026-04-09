@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
  *       merged model</li>
  * </ul>
  *
- * <h3>Key Optimization: Single Extraction</h3>
+ * <h2>Key Optimization: Single Extraction</h2>
  * <p>Relationships are extracted <strong>once</strong> from the merged model,
  * then filtered by component names to obtain old/new relations. This avoids
  * the redundant extractions that would occur if extracting separately from
  * old and new models.</p>
  *
- * <h3>Usage in Render-Only Mode</h3>
+ * <h2>Usage in Render-Only Mode</h2>
  * <p>This class can be passed to the render-only {@link com.hadi.striff.StriffOperation}
  * constructor to generate additional diagrams without re-parsing source files.</p>
  *

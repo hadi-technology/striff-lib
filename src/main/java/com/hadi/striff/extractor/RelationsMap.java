@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
  * relations. This avoids redundant extraction that would occur if extracting
  * separately from old and new models.</p>
  *
- * <p>The internal structure is:
- * <pre>Map&lt;sourceComponentName, Map&lt;targetComponent, TreeSet&lt;Relation&gt;&gt;&gt;</pre></p>
+ * The internal structure is:
+ * <pre>Map&lt;sourceComponentName, Map&lt;targetComponent, TreeSet&lt;Relation&gt;&gt;&gt;</pre>
  */
 public class RelationsMap {
 
