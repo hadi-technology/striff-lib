@@ -151,6 +151,11 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     }
 
     @Override
+    public String contextualComponentColor() {
+        return "#b8b8b8";
+    }
+
+    @Override
     public String minClassWidth() {
         return "400";
     }

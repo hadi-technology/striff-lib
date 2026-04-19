@@ -22,6 +22,7 @@ public class PUMLDiagramData {
     private final Set<String> addedCmps;
     private final Set<String> deletedCmps;
     private final Set<String> modifiedCmps;
+    private final Set<String> sourceFilesFilter;
     private final Set<DiagramComponent> diagramCmps;
     private final List<ClassDecorator> classDecorators;
     private final List<DiagramDecorator> diagramDecorators;
@@ -33,13 +34,21 @@ public class PUMLDiagramData {
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ);
+                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
             LayoutEngine layoutEngine) {
+        this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
+                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, Set.of());
+    }
+
+    public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
+            DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
+            Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
+            LayoutEngine layoutEngine, Set<String> sourceFilesFilter) {
         this.diagramRels = diagramRels;
         this.addedRels = addedRels;
         this.deletedRels = deletedRels;
@@ -48,6 +57,7 @@ public class PUMLDiagramData {
         this.addedCmps = addedCmps;
         this.deletedCmps = deletedCmps;
         this.modifiedCmps = modifiedCmps;
+        this.sourceFilesFilter = sourceFilesFilter == null ? Set.of() : Set.copyOf(sourceFilesFilter);
         this.diagramCmps = diagramCmps;
         this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
         this.diagramDecorators = SpiLoader.loadOrdered(DiagramDecorator.class, DiagramDecorator::order);
@@ -86,6 +96,10 @@ public class PUMLDiagramData {
 
     public Set<String> modifiedCmps() {
         return modifiedCmps;
+    }
+
+    public Set<String> sourceFilesFilter() {
+        return sourceFilesFilter;
     }
 
     public Set<DiagramComponent> diagramCmps() {
