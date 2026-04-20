@@ -69,8 +69,16 @@ public class StriffDiagramModel {
                 changeSet.keyRelationsComponents(),
                 changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
         if (!sourceFilesFilter.isEmpty()) {
+            // Filter added/deleted/modified components by source file
+            // But keep keyRelationsComponents (contextual components) - they should appear as gray
+            Set<String> keyRels = changeSet.keyRelationsComponents();
             unfilteredCoreCmps = unfilteredCoreCmps.stream()
                     .filter(cmp -> {
+                        // Key relations components are always included (shown as gray contextual)
+                        if (keyRels.contains(cmp)) {
+                            return true;
+                        }
+                        // Other components must be in the source file filter
                         var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
                         return cmpOpt.isPresent() && sourceFilesFilter.contains(cmpOpt.get().sourceFile());
                     })
