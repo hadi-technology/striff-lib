@@ -103,7 +103,8 @@ public class TextTest {
                                                     " * @see TestSuite\n" +
                                                     " */".trim(), 80).value();
         assertTrue(value.contains("<back:#E6E6E6>TestCase</back>"));
-        assertTrue(value.contains("{@link #setUp[]}"));
+        assertTrue(value.contains("<back:#E6E6E6>#setUp[]</back>"));
+        assertTrue(value.contains("<back:#E6E6E6>junit.framework.Assert#assertTrue[String, boolean]</back>"));
         assertTrue(value.contains("public class MathTest extends"));
         assertTrue(value.contains("@see TestResult @see TestSuite"));
         assertFalse(value.contains("<code>"));
@@ -138,5 +139,11 @@ public class TextTest {
     public void striffComponentDocTextHighlightsDoxygenInlineCodeCommands() {
         assertTrue(new StriffComponentDocText("/** Use \\c foo and \\p bar here. */", 80).value().equals(
                 "**Use <back:#E6E6E6>foo</back> and <back:#E6E6E6>bar</back> here.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextHighlightsJavadocLinkLabels() {
+        assertTrue(new StriffComponentDocText("/** See {@link Foo#bar() custom label} here. */", 80).value().equals(
+                "**See <back:#E6E6E6>custom label</back> here.**"));
     }
 }

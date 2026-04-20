@@ -209,8 +209,24 @@ public class StriffOperation {
         LOGGER.info("pathsToAnalyze: {}, filesFilter size: {}", pathsToAnalyzeStr, filesFilter.size());
         for (Lang currLang : config.languages()) {
             LOGGER.info("Processing language: {}", currLang);
-            CompileResult oldCR = new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result();
-            CompileResult newCR = new ClarpseProject(newPFs, currLang, pathsToAnalyze).result();
+            // Compile old and new in parallel for better performance
+            var oldCRFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            var newCRFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new ClarpseProject(newPFs, currLang, pathsToAnalyze).result();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            CompileResult oldCR = oldCRFuture.join();
+            CompileResult newCR = newCRFuture.join();
 
             long oldComponentCount = oldCR.model().components().count();
             long newComponentCount = newCR.model().components().count();

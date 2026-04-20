@@ -57,7 +57,11 @@ public class PUMLDiagramData {
         this.addedCmps = addedCmps;
         this.deletedCmps = deletedCmps;
         this.modifiedCmps = modifiedCmps;
-        this.sourceFilesFilter = sourceFilesFilter == null ? Set.of() : Set.copyOf(sourceFilesFilter);
+        if (sourceFilesFilter == null) {
+            this.sourceFilesFilter = Set.of();
+        } else {
+            this.sourceFilesFilter = Set.copyOf(sourceFilesFilter);
+        }
         this.diagramCmps = diagramCmps;
         this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
         this.diagramDecorators = SpiLoader.loadOrdered(DiagramDecorator.class, DiagramDecorator::order);
