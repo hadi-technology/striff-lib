@@ -17,6 +17,7 @@ public class DiagramDisplayOverride {
     private String classArrowFontSize;
     private String legendBackgroundColor;
     private String modifiedComponentColor;
+    private String contextualComponentColor;
     private String minClassWidth;
     private String classFontColor;
     private String classFontName;
@@ -137,6 +138,15 @@ public class DiagramDisplayOverride {
 
     public DiagramDisplayOverride setModifiedComponentColor(String modifiedComponentColor) {
         this.modifiedComponentColor = modifiedComponentColor;
+        return this;
+    }
+
+    public String contextualComponentColor() {
+        return contextualComponentColor;
+    }
+
+    public DiagramDisplayOverride setContextualComponentColor(String contextualComponentColor) {
+        this.contextualComponentColor = contextualComponentColor;
         return this;
     }
 
@@ -360,6 +370,7 @@ public class DiagramDisplayOverride {
                 .setClassArrowFontSize(classArrowFontSize)
                 .setLegendBackgroundColor(legendBackgroundColor)
                 .setModifiedComponentColor(modifiedComponentColor)
+                .setContextualComponentColor(contextualComponentColor)
                 .setMinClassWidth(minClassWidth)
                 .setClassFontColor(classFontColor)
                 .setClassFontName(classFontName)

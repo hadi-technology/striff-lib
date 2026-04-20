@@ -17,9 +17,10 @@ public final class StriffComponentDocText implements Text {
     public String value() {
         Text normalizedDocText = new PlantUMLFriendlyText(
                 new HtmlTagsStrippedText(
+                        new JavadocLinkMarkedText(
                         new InlineCodeMarkedText(
                                 new DocCommentCharacterStrippedText(
-                                        new DefaultText(this.text.trim())))));
+                                        new DefaultText(this.text.trim()))))));
         return new InlineCodeBackgroundText(
                 new BoldedLineText(
                         new LineBreakedText(

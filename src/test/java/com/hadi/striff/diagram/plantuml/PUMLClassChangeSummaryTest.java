@@ -138,4 +138,30 @@ public class PUMLClassChangeSummaryTest {
         String puml = new PUMLClassFieldsCode(data).value(Set.of(classComponent));
         assertTrue(!puml.contains("#b3e3f5"));
     }
+
+    @Test
+    public void colorsContextualBaseComponentGrayWhenOutsideSourceFileFilter() throws Exception {
+        ProjectFiles rawData = new ProjectFiles();
+        rawData.insertFile(new ProjectFile("/ClassA.java", CLASS_CODE));
+        ClarpseProject parseService = new ClarpseProject(rawData, Lang.JAVA);
+        OOPSourceCodeModel codeModel = parseService.result().model();
+
+        DiagramComponent classComponent = new DiagramComponent(codeModel.getComponent(CLASS_NAME).get(), codeModel);
+        DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), Set.of());
+        PUMLDiagramData data = new PUMLDiagramData(
+                new RelationsMap(),
+                new RelationsMap(),
+                new RelationsMap(),
+                display,
+                codeModel,
+                Set.of(),
+                Set.of(),
+                Set.of(),
+                Set.of(classComponent),
+                LayoutEngine.GRAPHVIZ,
+                Set.of("/Other.java"));
+
+        String puml = new PUMLClassFieldsCode(data).value(Set.of(classComponent));
+        assertTrue(puml.contains("#back:b8b8b8"));
+    }
 }

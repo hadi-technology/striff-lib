@@ -24,6 +24,8 @@ public interface DiagramColorScheme {
 
     String modifiedComponentColor();
 
+    String contextualComponentColor();
+
     String minClassWidth();
 
     String classFontColor();

@@ -24,6 +24,7 @@ final class PUMLClassFieldsCode {
     private final Set<String> deletedComponents;
     private final Set<String> addedComponents;
     private final Set<String> modifiedComponents;
+    private final Set<String> sourceFilesFilter;
     private final DiagramDisplay diagramDisplay;
     private final List<ClassDecorator> classDecorators;
     private int commentTextIndex = 1;
@@ -33,6 +34,7 @@ final class PUMLClassFieldsCode {
         this.addedComponents = data.addedCmps();
         this.deletedComponents = data.deletedCmps();
         this.modifiedComponents = data.modifiedCmps();
+        this.sourceFilesFilter = data.sourceFilesFilter();
         this.diagramDisplay = data.diagramDisplay();
         this.classDecorators = data.classDecorators();
     }
@@ -365,15 +367,24 @@ final class PUMLClassFieldsCode {
     private String enhanceBaseCmp(DiagramComponent cmp, String text) {
         String addedColor = this.diagramDisplay.colorScheme().addedComponentColor().replace("#", "");
         String deletedColor = this.diagramDisplay.colorScheme().deletedComponentColor().replace("#", "");
+        String contextualColor = this.diagramDisplay.colorScheme().contextualComponentColor().replace("#", "");
         String backgroundColorText = "#back:" + this.diagramDisplay.colorScheme().backgroundColor().replace("#", "");
         String headerColor = ";header:" + this.diagramDisplay.colorScheme().defaultClassHeaderColor().replace("#", "");
         if (addedComponents.contains(cmp.uniqueName())) {
             backgroundColorText = "#back:" + addedColor;
         } else if (deletedComponents.contains(cmp.uniqueName())) {
             backgroundColorText = "#back:" + deletedColor;
+        } else if (isContextualComponent(cmp)) {
+            backgroundColorText = "#back:" + contextualColor;
         }
         text += " " + backgroundColorText + headerColor;
         return text + " ";
+    }
+
+    private boolean isContextualComponent(DiagramComponent component) {
+        return !sourceFilesFilter.isEmpty()
+                && component.sourceFile() != null
+                && !sourceFilesFilter.contains(component.sourceFile());
     }
 
     /**

@@ -15,6 +15,7 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
     private String classArrowFontSize;
     private String legendBackgroundColor;
     private String modifiedComponentColor;
+    private String contextualComponentColor;
     private String minClassWidth;
     private String classFontColor;
     private String classFontName;
@@ -102,6 +103,11 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
 
     public DiagramColorSchemeOverride setModifiedComponentColor(String modifiedComponentColor) {
         this.modifiedComponentColor = modifiedComponentColor;
+        return this;
+    }
+
+    public DiagramColorSchemeOverride setContextualComponentColor(String contextualComponentColor) {
+        this.contextualComponentColor = contextualComponentColor;
         return this;
     }
 
@@ -268,6 +274,11 @@ public final class DiagramColorSchemeOverride implements DiagramColorScheme {
     @Override
     public String modifiedComponentColor() {
         return pick(modifiedComponentColor, base.modifiedComponentColor());
+    }
+
+    @Override
+    public String contextualComponentColor() {
+        return pick(contextualComponentColor, base.contextualComponentColor());
     }
 
     @Override
