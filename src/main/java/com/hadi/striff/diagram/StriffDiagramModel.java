@@ -64,26 +64,54 @@ public class StriffDiagramModel {
         LOGGER.info("Selecting diagram components...");
         Set<String> diagramCmpNames = new HashSet<>();
         ChangeSet changeSet = codeDiff.changeSet();
-        Set<String> unfilteredCoreCmps = Stream.of(changeSet.addedComponents(),
-                changeSet.deletedComponents(),
-                changeSet.keyRelationsComponents(),
-                changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
-        if (!sourceFilesFilter.isEmpty()) {
-            // Filter added/deleted/modified components by source file
-            // But keep keyRelationsComponents (contextual components) - they should appear as gray
-            Set<String> keyRels = changeSet.keyRelationsComponents();
-            unfilteredCoreCmps = unfilteredCoreCmps.stream()
+
+        // Start with added/deleted/modified components
+        Set<String> filteredCmps = new HashSet<>();
+        if (sourceFilesFilter.isEmpty()) {
+            // No filter: include all added/deleted/modified/keyRel components
+            filteredCmps = Stream.of(changeSet.addedComponents(),
+                    changeSet.deletedComponents(),
+                    changeSet.keyRelationsComponents(),
+                    changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
+        } else {
+            // With filter: include added/deleted/modified components from filtered files only
+            filteredCmps = Stream.of(changeSet.addedComponents(),
+                    changeSet.deletedComponents(),
+                    changeSet.modifiedComponents()).flatMap(Collection::stream)
                     .filter(cmp -> {
-                        // Key relations components are always included (shown as gray contextual)
-                        if (keyRels.contains(cmp)) {
-                            return true;
-                        }
-                        // Other components must be in the source file filter
                         var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
                         return cmpOpt.isPresent() && sourceFilesFilter.contains(cmpOpt.get().sourceFile());
                     })
                     .collect(Collectors.toSet());
         }
+
+        // Add ALL components related to the filtered components (as contextual gray components)
+        // This includes both new and existing relations
+        Set<String> contextualCmps = new HashSet<>();
+        for (String cmpName : filteredCmps) {
+            var cmpOpt = codeDiff.mergedModel().getComponent(cmpName);
+            if (cmpOpt.isEmpty()) {
+                continue;
+            }
+            Component cmp = cmpOpt.get();
+            // Find all components that this component relates to (outgoing relations)
+            var relations = codeDiff.extractedRels().rels(cmp);
+            for (var relation : relations) {
+                contextualCmps.add(relation.targetComponent().uniqueName());
+            }
+            // Find all components that relate to this component (incoming relations)
+            for (var relation : codeDiff.extractedRels().allRels()) {
+                if (relation.targetComponent().uniqueName().equals(cmpName)) {
+                    contextualCmps.add(relation.originalComponent().uniqueName());
+                }
+            }
+        }
+
+        // Combine filtered and contextual components
+        Set<String> unfilteredCoreCmps = new HashSet<>();
+        unfilteredCoreCmps.addAll(filteredCmps);
+        unfilteredCoreCmps.addAll(contextualCmps);
+
         unfilteredCoreCmps.forEach(diagramComponent -> {
             var cmpOpt = codeDiff.mergedModel().getComponent(diagramComponent);
             if (cmpOpt.isEmpty()) {
