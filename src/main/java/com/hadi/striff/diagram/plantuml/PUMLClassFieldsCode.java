@@ -81,7 +81,9 @@ final class PUMLClassFieldsCode {
 
             // Insert class generics if required
             if (cmp.codeFragment() != null) {
-                cmpPUMLStr += (cmp.codeFragment());
+                String genericsColor = this.diagramDisplay.colorScheme()
+                        .genericsBackgroundColor().replace("#", "");
+                cmpPUMLStr += "<back:" + genericsColor + ">" + cmp.codeFragment() + "</back>";
             }
 
             // Insert synthetic module stereotypes if applicable
