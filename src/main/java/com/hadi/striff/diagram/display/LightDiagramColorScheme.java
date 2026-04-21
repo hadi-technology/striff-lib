@@ -179,9 +179,4 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
     public String syntheticStereotypeFontColor() {
         return "#C0C0C0";
     }
-
-    @Override
-    public String genericsBackgroundColor() {
-        return "#575757";
-    }
 }
