@@ -73,6 +73,4 @@ public interface DiagramColorScheme {
     String deletedRelationColor();
 
     String deletedComponentColor();
-
-    String genericsBackgroundColor();
 }
