@@ -219,8 +219,8 @@ public class StriffOperation {
                 }
             });
 
-            CompileResult oldCR = oldCRFuture.join();
-            CompileResult newCR = newCRFuture.join();
+            CompileResult oldCR = joinCompileResult(oldCRFuture);
+            CompileResult newCR = joinCompileResult(newCRFuture);
 
             long oldComponentCount = oldCR.model().components().count();
             long newComponentCount = newCR.model().components().count();
@@ -292,6 +292,21 @@ public class StriffOperation {
                 newComponentCount, baseComponentCount, newComponentCount - baseComponentCount);
         LOGGER.info("Generating code diff b/w base and updated code models..");
         return new CodeDiff(oldModel, newModel);
+    }
+
+    private static CompileResult joinCompileResult(java.util.concurrent.CompletableFuture<CompileResult> future) throws CompileException {
+        try {
+            return future.join();
+        } catch (java.util.concurrent.CompletionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof CompileException ce) {
+                throw ce;
+            }
+            if (cause instanceof RuntimeException re) {
+                throw re;
+            }
+            throw new RuntimeException(cause);
+        }
     }
 
     private void validateProjectFiles(ProjectFiles originalFiles, ProjectFiles newFiles,
