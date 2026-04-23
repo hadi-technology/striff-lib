@@ -24,7 +24,9 @@ public interface DiagramColorScheme {
 
     String modifiedComponentColor();
 
-    String contextualComponentColor();
+    default String contextualComponentColor() {
+        return modifiedComponentColor();
+    }
 
     String minClassWidth();
 

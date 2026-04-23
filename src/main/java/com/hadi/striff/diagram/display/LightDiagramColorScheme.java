@@ -152,7 +152,7 @@ public class LightDiagramColorScheme implements DiagramColorScheme {
 
     @Override
     public String contextualComponentColor() {
-        return "#b8b8b8";
+        return "#c8c8c8";
     }
 
     @Override

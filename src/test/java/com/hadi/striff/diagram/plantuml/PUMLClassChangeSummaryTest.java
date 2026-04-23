@@ -162,6 +162,6 @@ public class PUMLClassChangeSummaryTest {
                 Set.of("/Other.java"));
 
         String puml = new PUMLClassFieldsCode(data).value(Set.of(classComponent));
-        assertTrue(puml.contains("#back:b8b8b8"));
+        assertTrue(puml.contains("#back:c8c8c8"));
     }
 }

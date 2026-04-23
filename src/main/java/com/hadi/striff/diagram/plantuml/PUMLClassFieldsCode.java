@@ -79,11 +79,6 @@ final class PUMLClassFieldsCode {
                 cmpPUMLStr += displayName + changeSummary + "\"";
             }
 
-            // Insert class generics if required
-            if (cmp.codeFragment() != null) {
-                cmpPUMLStr += (cmp.codeFragment());
-            }
-
             // Insert synthetic module stereotypes if applicable
             if (cmp.augmentation("synthetic").isPresent()
                     && Boolean.TRUE.equals(cmp.augmentation("synthetic").get())) {
