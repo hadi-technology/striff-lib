@@ -84,6 +84,7 @@ public class StriffDiagramModel {
                     })
                     .collect(Collectors.toSet());
         }
+
         unfilteredCoreCmps.forEach(diagramComponent -> {
             var cmpOpt = codeDiff.mergedModel().getComponent(diagramComponent);
             if (cmpOpt.isEmpty()) {

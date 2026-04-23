@@ -196,17 +196,11 @@ public class StriffOperation {
         OOPSourceCodeModel oldModel = new OOPSourceCodeModel();
         OOPSourceCodeModel newModel = new OOPSourceCodeModel();
         Set<String> filesFilter = config.filesFilter();
-        // Pass null instead of empty set to analyze all files
-        Collection<String> pathsToAnalyze;
-        String pathsToAnalyzeStr;
-        if (filesFilter.isEmpty()) {
-            pathsToAnalyze = null;
-            pathsToAnalyzeStr = "null (all files)";
-        } else {
-            pathsToAnalyze = filesFilter;
-            pathsToAnalyzeStr = String.valueOf(filesFilter);
-        }
-        LOGGER.info("pathsToAnalyze: {}, filesFilter size: {}", pathsToAnalyzeStr, filesFilter.size());
+        // Always parse all files to capture complete model and relations.
+        // The filter is applied later during diagram generation to show
+        // contextual (gray) components that are referenced by filtered components.
+        Collection<String> pathsToAnalyze = null;
+        LOGGER.info("filesFilter size: {} (applied during diagram generation, not parsing)", filesFilter.size());
         for (Lang currLang : config.languages()) {
             LOGGER.info("Processing language: {}", currLang);
             // Compile old and new in parallel for better performance
