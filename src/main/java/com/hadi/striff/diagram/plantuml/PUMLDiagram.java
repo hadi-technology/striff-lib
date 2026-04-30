@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PUMLDiagram {
 
@@ -33,7 +34,8 @@ public class PUMLDiagram {
         if (!classDiagramDescription.isEmpty()) {
             final String plantUMLString = genPlantUMLString();
             final byte[] diagram = PUMLHelper.generateDiagram(plantUMLString);
-            diagramStr = stripQualifiedPumlIds(new String(diagram, StandardCharsets.UTF_8));
+            diagramStr = sanitizeXml(
+                    stripQualifiedPumlIds(new String(diagram, StandardCharsets.UTF_8)));
             if (PUMLHelper.invalidPUMLDiagram(diagramStr)) {
                 LOGGER.debug("Original PUML text:\n" + plantUMLString);
                 LOGGER.debug("Generated diagram text:\n" + diagramStr);
@@ -42,6 +44,51 @@ public class PUMLDiagram {
             }
         }
         return diagramStr;
+    }
+
+    /**
+     * Removes anything from the SVG that is not a legal XML 1.0 character, in a single pass:
+     * <ul>
+     *   <li>Character references ({@code &#8;}, {@code &#x1A;}) that resolve to invalid codepoints</li>
+     *   <li>Raw control characters and other illegal codepoints</li>
+     * </ul>
+     * These can originate from inline-code delimiters, source Javadoc, or PlantUML itself.
+     * <p>
+     * Valid XML 1.0: {@code #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]}
+     */
+    private static final Pattern CHAR_REF = Pattern.compile("&#(?:([0-9]+)|x([0-9a-fA-F]+));");
+
+    private static String sanitizeXml(String svg) {
+        StringBuilder sb = new StringBuilder(svg.length());
+        Matcher m = CHAR_REF.matcher(svg);
+        int last = 0;
+        while (m.find()) {
+            appendValidChars(sb, svg, last, m.start());
+            int val = m.group(1) != null ? Integer.parseInt(m.group(1)) : Integer.parseInt(m.group(2), 16);
+            if (isValidXmlChar(val)) {
+                sb.append(m.group());
+            }
+            last = m.end();
+        }
+        appendValidChars(sb, svg, last, svg.length());
+        return sb.toString();
+    }
+
+    private static void appendValidChars(StringBuilder sb, String s, int start, int end) {
+        for (int i = start; i < end; ) {
+            int cp = s.codePointAt(i);
+            if (isValidXmlChar(cp)) {
+                sb.appendCodePoint(cp);
+            }
+            i += Character.charCount(cp);
+        }
+    }
+
+    private static boolean isValidXmlChar(int cp) {
+        return cp == 0x9 || cp == 0xA || cp == 0xD
+                || (cp >= 0x20 && cp <= 0xD7FF)
+                || (cp >= 0xE000 && cp <= 0xFFFD)
+                || (cp >= 0x10000 && cp <= 0x10FFFF);
     }
 
     private String stripQualifiedPumlIds(String pumlGeneratedSVG) {
