@@ -14,6 +14,7 @@ import com.hadi.striff.diagram.SyntheticModuleSupport;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Extracts and manages relationships from an {@link OOPSourceCodeModel}.
@@ -152,7 +153,7 @@ public class ExtractedRelationships {
      * Analyzes specialization relationships (e.g., inheritance).
      */
     private void analyzeSpecializations(final Component component, final OOPSourceCodeModel model) {
-        component.internalDependencies().stream()
+        Stream.concat(component.internalDependencies().stream(), component.externalDependencies().stream())
                 .filter(ref -> OOPSourceModelConstants.TypeReferences.EXTENSION
                         .getMatchingClass().isAssignableFrom(ref.getClass()))
                 .map(ref -> resolveTargetBaseComponent(ref, model))
@@ -165,7 +166,7 @@ public class ExtractedRelationships {
      * Analyzes realization relationships (e.g., implementation).
      */
     private void analyzeRealizations(final Component component, final OOPSourceCodeModel model) {
-        component.internalDependencies().stream()
+        Stream.concat(component.internalDependencies().stream(), component.externalDependencies().stream())
                 .filter(ref -> OOPSourceModelConstants.TypeReferences.IMPLEMENTATION
                         .getMatchingClass().isAssignableFrom(ref.getClass()))
                 .map(ref -> resolveTargetBaseComponent(ref, model))

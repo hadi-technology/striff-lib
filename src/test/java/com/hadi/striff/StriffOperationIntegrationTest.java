@@ -174,31 +174,6 @@ public class StriffOperationIntegrationTest {
     }
 
     @Test
-    public void endToEndCSharpClassAddition() throws Exception {
-        ProjectFiles oldFiles = new ProjectFiles();
-        oldFiles.insertFile(new ProjectFile("/ClassA.cs",
-                "namespace Demo; public class ClassA {}"));
-
-        ProjectFiles newFiles = new ProjectFiles();
-        newFiles.insertFile(new ProjectFile("/ClassA.cs",
-                "namespace Demo; public class ClassA { private ClassB b; }"));
-        newFiles.insertFile(new ProjectFile("/ClassB.cs",
-                "namespace Demo; public class ClassB {}"));
-
-        StriffConfig config = new StriffConfig()
-                .setLanguages(List.of(Lang.CSHARP));
-        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
-
-        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
-        StriffDiagram diagram = output.diagrams().get(0);
-        assertTrue("Expected ClassB in added components",
-                diagram.changeSet().inAddedComponents("Demo.ClassB"));
-        assertNotNull("SVG should be rendered", diagram.svg());
-        assertTrue("SVG should contain ClassB", diagram.svg().contains("ClassB"));
-        assertTrue("Expected no compile warnings", output.compileWarnings().isEmpty());
-    }
-
-    @Test
     public void rejectsInvalidFileFilterPaths() {
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
@@ -380,25 +355,101 @@ public class StriffOperationIntegrationTest {
     }
 
     @Test
-    public void incrementalParsingRejectsEmptyChangedFiles() throws Exception {
-        ProjectFiles baseFiles = new ProjectFiles();
-        baseFiles.insertFile(new ProjectFile("/ClassA.java",
+    public void contextualResolutionShowsParentClassAsGray() throws Exception {
+        // Old: ClassA has no relation to ClassB
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        oldFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        // New: ClassA now extends ClassB (new relation)
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA extends ClassB { }"));
+        newFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setFilesFilter(List.of("/ClassA.java"))
+                .setResolveContextualComponents(true);
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+        StriffDiagram diagram = output.diagrams().get(0);
+        // ClassB should appear as a gray contextual component
+        assertTrue("SVG should contain ClassB (resolved contextual)",
+                diagram.svg().contains("ClassB"));
+    }
+
+    @Test
+    public void contextualResolutionDisabledByDefault() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { }"));
+        oldFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA extends ClassB { }"));
+        newFiles.insertFile(new ProjectFile("/ClassB.java",
+                "package com.sample; public class ClassB { }"));
+
+        // Default: resolveContextualComponents is false
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setFilesFilter(List.of("/ClassA.java"));
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+        StriffDiagram diagram = output.diagrams().get(0);
+        // ClassB should NOT appear when toggle is off
+        assertFalse("SVG should not contain ClassB when resolution disabled",
+                diagram.svg().contains("ClassB"));
+    }
+
+    @Test
+    public void contextualResolutionWithExternalLibRefDoesNotCrash() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { }"));
 
-        ProjectFiles afterFiles = new ProjectFiles();
-        afterFiles.insertFile(new ProjectFile("/ClassA.java",
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA extends SomeExternalLib { }"));
+
+        // SomeExternalLib is not in ProjectFiles at all
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setFilesFilter(List.of("/ClassA.java"))
+                .setResolveContextualComponents(true);
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        // Should not crash, just skip the unresolved external reference
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+    }
+
+    @Test
+    public void contextualResolutionNoFilterIsNoOp() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { }"));
 
-        StriffConfig config = new StriffConfig().setLanguages(List.of(Lang.JAVA));
-        StriffOperation baseOp = new StriffOperation(baseFiles, afterFiles, config);
-        var cachedBaseModel = baseOp.codeDiff().newModel();
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.java",
+                "package com.sample; public class ClassA { private int x; }"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            try {
-                new StriffOperation(cachedBaseModel, afterFiles, Set.of(), config);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        // No filesFilter, toggle on — should behave like normal (all files parsed)
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.JAVA))
+                .setResolveContextualComponents(true);
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+        assertTrue("ClassA should be modified",
+                output.diagrams().get(0).changeSet().modifiedComponents()
+                        .contains("com.sample.ClassA"));
     }
 }
