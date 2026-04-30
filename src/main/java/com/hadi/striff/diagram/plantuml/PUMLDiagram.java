@@ -64,14 +64,25 @@ public class PUMLDiagram {
         int last = 0;
         while (m.find()) {
             appendValidChars(sb, svg, last, m.start());
-            int val = m.group(1) != null ? Integer.parseInt(m.group(1)) : Integer.parseInt(m.group(2), 16);
-            if (isValidXmlChar(val)) {
+            int val = parseCharRef(m);
+            if (val >= 0 && isValidXmlChar(val)) {
                 sb.append(m.group());
             }
             last = m.end();
         }
         appendValidChars(sb, svg, last, svg.length());
         return sb.toString();
+    }
+
+    private static int parseCharRef(Matcher m) {
+        try {
+            if (m.group(1) != null) {
+                return Integer.parseInt(m.group(1));
+            }
+            return Integer.parseInt(m.group(2), 16);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     private static void appendValidChars(StringBuilder sb, String s, int start, int end) {
