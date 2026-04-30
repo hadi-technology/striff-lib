@@ -137,6 +137,41 @@ public class ExtractedRelationshipsMultiLanguageTest {
                 DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION);
     }
 
+    @Test
+    public void cSharpRelationshipExtractionCoversCoreTypes() throws Exception {
+        ProjectFiles files = new ProjectFiles();
+        files.insertFile(new ProjectFile("/src/Parent.cs",
+                "namespace Demo; public class Parent {}"));
+        files.insertFile(new ProjectFile("/src/Worker.cs",
+                "namespace Demo; public interface IWorker {}"));
+        files.insertFile(new ProjectFile("/src/OwnedDependency.cs",
+                "namespace Demo; public class OwnedDependency {}"));
+        files.insertFile(new ProjectFile("/src/SharedDependency.cs",
+                "namespace Demo; public class SharedDependency {}"));
+        files.insertFile(new ProjectFile("/src/CallDependency.cs",
+                "namespace Demo; public class CallDependency {}"));
+        files.insertFile(new ProjectFile("/src/Child.cs",
+                "namespace Demo; public class Child : Parent, IWorker { "
+                        + "private OwnedDependency owned; "
+                        + "public SharedDependency Shared { get; set; } "
+                        + "public Child(OwnedDependency owned, SharedDependency shared) { this.owned = owned; this.Shared = shared; } "
+                        + "public CallDependency Run(CallDependency input) { return input; } }"));
+
+        OOPSourceCodeModel model = compileModel(files, Lang.CSHARP);
+        RelationsMap relations = new ExtractedRelationships(model).result();
+
+        assertRelationExists(relations, model, "Demo.Child", "Demo.Parent",
+                DiagramConstants.ComponentAssociation.SPECIALIZATION);
+        assertRelationExists(relations, model, "Demo.Child", "Demo.IWorker",
+                DiagramConstants.ComponentAssociation.REALIZATION);
+        assertRelationExists(relations, model, "Demo.Child", "Demo.OwnedDependency",
+                DiagramConstants.ComponentAssociation.COMPOSITION);
+        assertRelationExists(relations, model, "Demo.Child", "Demo.SharedDependency",
+                DiagramConstants.ComponentAssociation.AGGREGATION);
+        assertRelationExists(relations, model, "Demo.Child", "Demo.CallDependency",
+                DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION);
+    }
+
     private static OOPSourceCodeModel compileModel(final ProjectFiles files, final Lang lang) throws Exception {
         CompileResult result = new ClarpseProject(files, lang).result();
         Assert.assertTrue("Compile failures: " + result.failures(), result.failures().isEmpty());

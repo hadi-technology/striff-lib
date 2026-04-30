@@ -174,6 +174,31 @@ public class StriffOperationIntegrationTest {
     }
 
     @Test
+    public void endToEndCSharpClassAddition() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/ClassA.cs",
+                "namespace Demo; public class ClassA {}"));
+
+        ProjectFiles newFiles = new ProjectFiles();
+        newFiles.insertFile(new ProjectFile("/ClassA.cs",
+                "namespace Demo; public class ClassA { private ClassB b; }"));
+        newFiles.insertFile(new ProjectFile("/ClassB.cs",
+                "namespace Demo; public class ClassB {}"));
+
+        StriffConfig config = new StriffConfig()
+                .setLanguages(List.of(Lang.CSHARP));
+        StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
+
+        assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
+        StriffDiagram diagram = output.diagrams().get(0);
+        assertTrue("Expected ClassB in added components",
+                diagram.changeSet().inAddedComponents("Demo.ClassB"));
+        assertNotNull("SVG should be rendered", diagram.svg());
+        assertTrue("SVG should contain ClassB", diagram.svg().contains("ClassB"));
+        assertTrue("Expected no compile warnings", output.compileWarnings().isEmpty());
+    }
+
+    @Test
     public void rejectsInvalidFileFilterPaths() {
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
