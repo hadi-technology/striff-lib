@@ -75,7 +75,7 @@ public class PUMLDiagram {
     }
 
     private static void appendValidChars(StringBuilder sb, String s, int start, int end) {
-        for (int i = start; i < end; ) {
+        for (int i = start; i < end;) {
             int cp = s.codePointAt(i);
             if (isValidXmlChar(cp)) {
                 sb.appendCodePoint(cp);
