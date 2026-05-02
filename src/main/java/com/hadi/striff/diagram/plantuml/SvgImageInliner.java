@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
  * Makes SVG output compatible with GitHub's sanitizer by:
  * <ol>
  *   <li>Converting {@code <image>} elements with {@code data:image/svg+xml;base64}
- *       data URIs into inline SVG groups</li>
+ *       data URIs into inline SVG groups.</li>
  *   <li>Flattening CSS {@code style} attributes into individual SVG presentation
  *       attributes (stroke, stroke-width, etc.) since GitHub strips
- *       {@code style} attributes</li>
+ *       {@code style} attributes.</li>
  * </ol>
  */
-public class SvgImageInliner {
+public final class SvgImageInliner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SvgImageInliner.class);
 
