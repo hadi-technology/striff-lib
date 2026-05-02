@@ -7,6 +7,8 @@ import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.striff.extractor.ExtractedRelationships;
 import com.hadi.striff.extractor.RelationsMap;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,7 +38,10 @@ import org.slf4j.LoggerFactory;
  * <p><strong>Short-circuit optimization:</strong> If both models are empty,
  * relationship extraction is skipped entirely for performance.</p>
  */
-public final class ChangeSet {
+public final class ChangeSet implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @JsonIgnore
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeSet.class);
@@ -116,10 +121,7 @@ public final class ChangeSet {
 
     private void addKeyRelComponents(Component... keyRelCmps) {
         for (Component keyRelCmp : keyRelCmps) {
-            if (!this.addedComponents.contains(keyRelCmp.uniqueName())
-                    && !this.deletedComponents.contains(keyRelCmp.uniqueName())) {
-                this.keyRelationsComponents.add(keyRelCmp.uniqueName());
-            }
+            this.keyRelationsComponents.add(keyRelCmp.uniqueName());
         }
     }
 

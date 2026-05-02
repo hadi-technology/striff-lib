@@ -259,23 +259,30 @@ public class StriffOperation {
         }
         LOGGER.info("Found {} potentially missing component references for contextual resolution", missingNames.size());
         for (Lang lang : languages) {
-            Set<String> filesToParse = new HashSet<>();
+            Set<String> oldFilesToParse = new HashSet<>();
+            Set<String> newFilesToParse = new HashSet<>();
             for (String missingName : missingNames) {
-                findSourceFile(missingName, lang, originalPFs, newPFs)
-                        .ifPresent(filesToParse::add);
+                findSourceFile(missingName, lang, originalPFs)
+                        .ifPresent(oldFilesToParse::add);
+                findSourceFile(missingName, lang, newPFs)
+                        .ifPresent(newFilesToParse::add);
             }
-            if (filesToParse.isEmpty()) {
+            if (oldFilesToParse.isEmpty() && newFilesToParse.isEmpty()) {
                 continue;
             }
-            LOGGER.info("Parsing {} additional source files for {} to resolve contextual components",
-                    filesToParse.size(), lang);
+            LOGGER.info("Parsing {} old and {} new additional source files for {} to resolve contextual components",
+                    oldFilesToParse.size(), newFilesToParse.size(), lang);
             try {
-                CompileResult oldCR = new ClarpseProject(originalPFs, lang, filesToParse).result();
-                CompileResult newCR = new ClarpseProject(newPFs, lang, filesToParse).result();
-                allFailures.addAll(oldCR.failures());
-                allFailures.addAll(newCR.failures());
-                oldModel.merge(oldCR.model());
-                newModel.merge(newCR.model());
+                if (!oldFilesToParse.isEmpty()) {
+                    CompileResult oldCR = new ClarpseProject(originalPFs, lang, oldFilesToParse).result();
+                    allFailures.addAll(oldCR.failures());
+                    oldModel.merge(oldCR.model());
+                }
+                if (!newFilesToParse.isEmpty()) {
+                    CompileResult newCR = new ClarpseProject(newPFs, lang, newFilesToParse).result();
+                    allFailures.addAll(newCR.failures());
+                    newModel.merge(newCR.model());
+                }
             } catch (Exception e) {
                 LOGGER.warn("Failed to parse additional contextual source files: {}", e.getMessage());
             }
@@ -298,12 +305,10 @@ public class StriffOperation {
     }
 
     private static Optional<String> findSourceFile(String componentUniqueName, Lang lang,
-            ProjectFiles originalPFs, ProjectFiles newPFs) {
+            ProjectFiles projectFiles) {
         String simpleName = extractTopLevelClassName(componentUniqueName);
         String fileName = simpleName + "." + lang.sourceFileExtns().iterator().next();
-        Set<ProjectFile> matches = new HashSet<>();
-        matches.addAll(originalPFs.matchingFilesByName(fileName));
-        matches.addAll(newPFs.matchingFilesByName(fileName));
+        Set<ProjectFile> matches = new HashSet<>(projectFiles.matchingFilesByName(fileName));
         if (matches.isEmpty()) {
             return Optional.empty();
         }

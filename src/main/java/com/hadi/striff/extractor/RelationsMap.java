@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.striff.diagram.DiagramComponent;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +33,10 @@ import java.util.stream.Collectors;
  * The internal structure is:
  * <pre>Map&lt;sourceComponentName, Map&lt;targetComponent, TreeSet&lt;Relation&gt;&gt;&gt;</pre>
  */
-public class RelationsMap {
+public class RelationsMap implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Map< originalComponentUniqueName, Map< targetComponent, TreeSet<Relation> > >.
@@ -53,6 +58,9 @@ public class RelationsMap {
      */
     public RelationsMap(Map<String, Map<Component, TreeSet<ComponentRelation>>> relMap) {
         this.relMap = relMap;
+        this.size = relMap.values().stream()
+                .mapToInt(targetMap -> targetMap.values().stream().mapToInt(Set::size).sum())
+                .sum();
     }
 
     @JsonProperty("relMap")

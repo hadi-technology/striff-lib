@@ -5,11 +5,17 @@ import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.striff.diagram.SyntheticModuleSupport;
 import com.hadi.striff.extractor.DiagramConstants.ComponentAssociation;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Represents a relation between a source and target {@link Component} in a code
  * base.
  */
-public class ComponentRelation implements Comparable<ComponentRelation> {
+public class ComponentRelation implements Comparable<ComponentRelation>, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Component originalComponent;
     private Component targetComponent;

@@ -177,6 +177,6 @@ public class RelationsMapTest {
                 relMap.insertRelation(new ComponentRelation(classB, classC));
                 Set<String> filterCmps = new HashSet<>(Arrays.asList("ClassA", "ClassB", "ClassC"));
                 RelationsMap filteredMap = relMap.filteredRelations(filterCmps);
-                assertEquals("Filtered map should be empty", 0, filteredMap.size());
+                assertEquals("Filtered map should contain all relations", 2, filteredMap.size());
         }
 }

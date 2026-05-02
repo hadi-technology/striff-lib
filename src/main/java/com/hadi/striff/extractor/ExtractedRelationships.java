@@ -14,6 +14,7 @@ import com.hadi.striff.diagram.SyntheticModuleSupport;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -194,7 +195,10 @@ public class ExtractedRelationships {
             return;
         }
 
-        Set<ComponentReference> references = new LinkedHashSet<>(component.internalDependencies());
+        Set<ComponentReference> references = Stream.concat(
+                component.internalDependencies().stream(),
+                component.externalDependencies().stream())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         removeRedundantReferences(references, model, baseComponent);
 
         references.stream()
