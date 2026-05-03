@@ -12,7 +12,11 @@ import java.io.IOException;
 public class PUMLHelper {
 
     public static String pumlId(String uniqueName) {
-        return uniqueName.replace(".", "-").replace(":", "-");
+        // Strip generic type parameters (e.g., List<String> -> List) to avoid
+        // PlantUML syntax issues with angle brackets
+        String stripped = uniqueName.replaceAll("<[^>]*>", "");
+        return stripped.replace(".", "-").replace(":", "-")
+                .replace("(", "-").replace(")", "-");
     }
 
     public static String pumlQualifiedId(Component component) {

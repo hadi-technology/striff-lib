@@ -104,4 +104,73 @@ public class StriffAPITest {
 		System.out.println("Total diagrams generated: " + striffs.size());
 		writeStriffsToDisk(striffs);
 	}
+
+	/**
+	 * Spring Boot PR #50095 - EndpointRequest links matcher fix.
+	 * Merged PR, base=3.5.x, 4 changed files.
+	 */
+	@Ignore
+	@Test
+	public void testSpringBootEndpointRequest() throws Exception {
+		String baseRepoOwner = "spring-projects";
+		String repoName = "spring-boot";
+		ProjectFiles oldFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "d2b62bc64f6a1e45e2f65293608c018a96e58971",
+				Lang.JAVA);
+		ProjectFiles newFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "pull/50095/head", Lang.JAVA);
+		StriffConfig config = new StriffConfig()
+				.setResolveContextualComponents(true);
+		List<StriffDiagram> striffs = new StriffOperation(
+				oldFiles, newFiles, config).result().diagrams();
+		System.out.println("Spring Boot #50095 - Total diagrams: "
+				+ striffs.size());
+		writeStriffsToDisk(striffs, "spring-50095");
+	}
+
+	/**
+	 * Spring Boot PR #50273 - Unwrap AOP proxies in configprops endpoint.
+	 * Open PR, base=main, 2 changed files.
+	 */
+	@Ignore
+	@Test
+	public void testSpringBootAopProxy() throws Exception {
+		String baseRepoOwner = "spring-projects";
+		String repoName = "spring-boot";
+		ProjectFiles oldFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "1a64cac622eb854974beb1d78edbc200a343b53e",
+				Lang.JAVA);
+		ProjectFiles newFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "pull/50273/head", Lang.JAVA);
+		StriffConfig config = new StriffConfig()
+				.setResolveContextualComponents(true);
+		List<StriffDiagram> striffs = new StriffOperation(
+				oldFiles, newFiles, config).result().diagrams();
+		System.out.println("Spring Boot #50273 - Total diagrams: "
+				+ striffs.size());
+		writeStriffsToDisk(striffs, "spring-50273");
+	}
+
+	/**
+	 * Langchain4j PR #5060 - AI Services: support polymorphic return types.
+	 * Merged PR, base=main, 10 changed files.
+	 */
+	@Ignore
+	@Test
+	public void testLangchain4jPolymorphic() throws Exception {
+		String baseRepoOwner = "langchain4j";
+		String repoName = "langchain4j";
+		ProjectFiles oldFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "03e755246b8576c8cd626f86de16915598f2bb29",
+				Lang.JAVA);
+		ProjectFiles newFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "pull/5060/head", Lang.JAVA);
+		StriffConfig config = new StriffConfig()
+				.setResolveContextualComponents(true);
+		List<StriffDiagram> striffs = new StriffOperation(
+				oldFiles, newFiles, config).result().diagrams();
+		System.out.println("Langchain4j #5060 - Total diagrams: "
+				+ striffs.size());
+		writeStriffsToDisk(striffs, "langchain4j-5060");
+	}
 }

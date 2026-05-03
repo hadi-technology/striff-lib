@@ -7,6 +7,9 @@ import com.hadi.striff.extractor.RelationsMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Represents the product of merging and comparing two code models.
  *
@@ -37,7 +40,10 @@ import org.slf4j.LoggerFactory;
  * <p>If both input models are empty, relationship extraction is skipped
  * entirely, returning an empty relations map and change set.</p>
  */
-public class CodeDiff {
+public class CodeDiff implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final OOPSourceCodeModel mergedModel;
     private final OOPSourceCodeModel oldModel;

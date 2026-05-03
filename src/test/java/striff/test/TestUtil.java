@@ -75,11 +75,17 @@ public class TestUtil {
     }
 
     public static void writeStriffsToDisk(List<StriffDiagram> striffs) throws IOException {
+        writeStriffsToDisk(striffs, "");
+    }
+
+    public static void writeStriffsToDisk(List<StriffDiagram> striffs,
+                                          String label) throws IOException {
         Path striffDirectory = Paths.get(System.getProperty("java.io.tmpdir"), "striffs");
         Files.createDirectories(striffDirectory);
         for (int i = 0; i < striffs.size(); i ++) {
+            String prefix = label.isEmpty() ? "" : label + "-";
             File diagramFile =
-                new File(striffDirectory.toString() + "/" + i + ".svg");
+                new File(striffDirectory.toString() + "/" + prefix + i + ".svg");
             PrintWriter writer = new PrintWriter(diagramFile);
             writer.println(striffs.get(i).svg());
             writer.close();

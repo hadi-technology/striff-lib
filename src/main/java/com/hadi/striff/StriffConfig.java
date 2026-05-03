@@ -38,6 +38,12 @@ public class StriffConfig {
     private DiagramColorScheme colorScheme = new LightDiagramColorScheme();
     private DiagramDisplayOverride displayOverride = null;
     private boolean enableAugmenters = true;
+    /**
+     * When true and filesFilter is non-empty, dynamically parses source files for
+     * components referenced by filtered files (e.g., parent classes, implemented
+     * interfaces) so they can appear as gray contextual components in the diagram.
+     */
+    private boolean resolveContextualComponents = false;
     private LayoutEngine layoutEngine = LayoutEngine.SMETANA;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
@@ -103,6 +109,11 @@ public class StriffConfig {
         return this;
     }
 
+    public StriffConfig setResolveContextualComponents(boolean resolveContextualComponents) {
+        this.resolveContextualComponents = resolveContextualComponents;
+        return this;
+    }
+
     public OutputMode outputMode() {
         return this.outputMode;
     }
@@ -121,6 +132,10 @@ public class StriffConfig {
 
     public boolean enableAugmenters() {
         return this.enableAugmenters;
+    }
+
+    public boolean resolveContextualComponents() {
+        return this.resolveContextualComponents;
     }
 
     public LayoutEngine layoutEngine() {

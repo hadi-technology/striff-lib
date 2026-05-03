@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -240,12 +241,116 @@ public class StriffOperation {
             oldModel.merge(oldCR.model());
             newModel.merge(newCR.model());
         }
+        if (config.resolveContextualComponents() && !filesFilter.isEmpty()) {
+            resolveMissingContextualComponents(oldModel, newModel, originalPFs, newPFs,
+                    config.languages(), allFailures);
+        }
         LOGGER.info("Generating code diff b/w old and new code models..");
         return new CodeDiff(oldModel, newModel);
     }
 
+    private static void resolveMissingContextualComponents(
+            OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel,
+            ProjectFiles originalPFs, ProjectFiles newPFs,
+            Set<Lang> languages, Set<CompileFailure> allFailures) {
+        Set<String> missingNames = collectUnresolvedReferences(oldModel, newModel);
+        if (missingNames.isEmpty()) {
+            return;
+        }
+        LOGGER.info("Found {} potentially missing component references for contextual resolution", missingNames.size());
+        for (Lang lang : languages) {
+            Set<String> oldFilesToParse = new HashSet<>();
+            Set<String> newFilesToParse = new HashSet<>();
+            for (String missingName : missingNames) {
+                findSourceFile(missingName, lang, originalPFs)
+                        .ifPresent(oldFilesToParse::add);
+                findSourceFile(missingName, lang, newPFs)
+                        .ifPresent(newFilesToParse::add);
+            }
+            if (oldFilesToParse.isEmpty() && newFilesToParse.isEmpty()) {
+                continue;
+            }
+            LOGGER.info("Parsing {} old and {} new additional source files for {} to resolve contextual components",
+                    oldFilesToParse.size(), newFilesToParse.size(), lang);
+            try {
+                if (!oldFilesToParse.isEmpty()) {
+                    CompileResult oldCR = new ClarpseProject(originalPFs, lang, oldFilesToParse).result();
+                    allFailures.addAll(oldCR.failures());
+                    oldModel.merge(oldCR.model());
+                }
+                if (!newFilesToParse.isEmpty()) {
+                    CompileResult newCR = new ClarpseProject(newPFs, lang, newFilesToParse).result();
+                    allFailures.addAll(newCR.failures());
+                    newModel.merge(newCR.model());
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to parse additional contextual source files: {}", e.getMessage());
+            }
+        }
+    }
+
+    private static Set<String> collectUnresolvedReferences(
+            OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel) {
+        Set<String> missing = new HashSet<>();
+        Stream.concat(oldModel.components(), newModel.components()).forEach(cmp -> {
+            Stream.concat(cmp.internalDependencies().stream(), cmp.externalDependencies().stream())
+                    .forEach(ref -> {
+                        String target = ref.invokedComponent();
+                        if (!oldModel.containsComponent(target) && !newModel.containsComponent(target)) {
+                            missing.add(target);
+                        }
+                    });
+        });
+        return missing;
+    }
+
+    private static Optional<String> findSourceFile(String componentUniqueName, Lang lang,
+            ProjectFiles projectFiles) {
+        String simpleName = extractTopLevelClassName(componentUniqueName);
+        String fileName = simpleName + "." + lang.sourceFileExtns().iterator().next();
+        Set<ProjectFile> matches = new HashSet<>(projectFiles.matchingFilesByName(fileName));
+        if (matches.isEmpty()) {
+            return Optional.empty();
+        }
+        if (matches.size() == 1) {
+            return Optional.of(matches.iterator().next().path());
+        }
+        String packagePath = extractPackagePath(componentUniqueName);
+        if (!packagePath.isEmpty()) {
+            Optional<String> best = matches.stream()
+                    .filter(pf -> pf.path().contains(packagePath))
+                    .findFirst().map(ProjectFile::path);
+            if (best.isPresent()) {
+                return best;
+            }
+        }
+        return Optional.of(matches.iterator().next().path());
+    }
+
+    private static String extractTopLevelClassName(String uniqueName) {
+        String name = uniqueName;
+        if (name.contains("$")) {
+            name = name.substring(0, name.indexOf("$"));
+        }
+        if (name.contains(".")) {
+            name = name.substring(name.lastIndexOf(".") + 1);
+        }
+        return name;
+    }
+
+    private static String extractPackagePath(String uniqueName) {
+        int lastDot = uniqueName.lastIndexOf(".");
+        if (lastDot <= 0) {
+            return "";
+        }
+        String pkg = uniqueName.substring(0, lastDot);
+        if (pkg.contains("$")) {
+            pkg = pkg.substring(0, pkg.indexOf("$"));
+        }
+        return pkg.replace(".", "/");
+    }
+
     /**
-     * Generates a CodeDiff using incremental parsing.
      *
      * <p>This method reuses the cached base model and parses only the changed files
      * from the new ProjectFiles. The changed components are merged with a copy of
