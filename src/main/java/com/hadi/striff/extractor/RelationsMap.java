@@ -39,7 +39,7 @@ public class RelationsMap implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Map< originalComponentUniqueName, Map< targetComponent, TreeSet<Relation> > >.
+     * {@code Map<originalComponentUniqueName, Map<targetComponent, TreeSet<Relation>>>}.
      */
     private Map<String, Map<Component, TreeSet<ComponentRelation>>> relMap = new HashMap<>();
     private int size = 0;
