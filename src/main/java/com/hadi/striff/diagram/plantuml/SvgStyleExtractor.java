@@ -23,8 +23,10 @@ public final class SvgStyleExtractor {
             "text-anchor", "text-decoration",
             "display", "visibility");
 
-    private static final Pattern STYLE_ATTR = Pattern.compile(
-            "\\bstyle=\"([^\"]*)\"");
+    // Matches an opening or self-closing tag that contains a style attribute.
+    // Captures: (1) tag name + attrs before style, (2) style value, (3) attrs after style + closing
+    private static final Pattern TAG_WITH_STYLE = Pattern.compile(
+            "(<\\w+\\s[^>]*?)\\bstyle=\"([^\"]*)\"([^>]*>)");
 
     private static final Pattern DECL = Pattern.compile(
             "\\s*([\\w-]+)\\s*:\\s*([^;]+)");
@@ -36,17 +38,21 @@ public final class SvgStyleExtractor {
      * Converts inline {@code style} attributes to native SVG presentation
      * attributes on all elements. Non-convertible CSS properties (e.g.
      * {@code transform}, {@code background}) remain in the {@code style}
-     * attribute.
+     * attribute. Properties that already exist as native attributes on the
+     * element are skipped to avoid duplicate attributes.
      */
     public static String extractStyles(String svg) {
-        Matcher matcher = STYLE_ATTR.matcher(svg);
+        Matcher matcher = TAG_WITH_STYLE.matcher(svg);
         if (!matcher.find()) {
             return svg;
         }
         matcher.reset();
         StringBuffer result = new StringBuffer();
         while (matcher.find()) {
-            String styleValue = matcher.group(1);
+            String beforeStyle = matcher.group(1);
+            String styleValue = matcher.group(2);
+            String afterStyle = matcher.group(3);
+
             Map<String, String> converted = new LinkedHashMap<>();
             StringBuilder remaining = new StringBuilder();
 
@@ -55,7 +61,9 @@ public final class SvgStyleExtractor {
                 String prop = declMatcher.group(1).trim();
                 String val = declMatcher.group(2).trim();
                 if (CONVERTIBLE.contains(prop)) {
-                    converted.put(prop, val);
+                    if (!hasNativeAttr(beforeStyle, afterStyle, prop)) {
+                        converted.put(prop, val);
+                    }
                 } else {
                     if (remaining.length() > 0) {
                         remaining.append("; ");
@@ -64,16 +72,24 @@ public final class SvgStyleExtractor {
                 }
             }
 
-            StringBuilder replacement = new StringBuilder();
+            StringBuilder replacement = new StringBuilder(beforeStyle);
             for (Map.Entry<String, String> e : converted.entrySet()) {
-                replacement.append(' ').append(e.getKey()).append("=\"").append(e.getValue()).append('"');
+                replacement.append(e.getKey()).append("=\"").append(e.getValue()).append("\" ");
             }
             if (remaining.length() > 0) {
-                replacement.append(" style=\"").append(remaining).append('"');
+                replacement.append("style=\"").append(remaining).append("\"");
             }
+            replacement.append(afterStyle);
+
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement.toString()));
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+
+    private static boolean hasNativeAttr(String before, String after, String attrName) {
+        String pattern = "\\b" + Pattern.quote(attrName) + "\\s*=";
+        return Pattern.compile(pattern).matcher(before).find()
+                || Pattern.compile(pattern).matcher(after).find();
     }
 }

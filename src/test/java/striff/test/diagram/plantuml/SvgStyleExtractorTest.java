@@ -89,4 +89,28 @@ public class SvgStyleExtractorTest {
         assertTrue(result.contains("fill=\"none\""));
         assertTrue(result.contains("stroke=\"#00CC00\""));
     }
+
+    @Test
+    public void skipsStylePropertyAlreadyPresentAsNativeAttribute() {
+        String svg = "<rect fill=\"#fff\" style=\"fill:#000;stroke:#24292E;stroke-width:1;\" width=\"100\" height=\"50\"/>";
+        String result = SvgStyleExtractor.extractStyles(svg);
+        // fill should NOT be duplicated — native fill="#fff" is kept, style fill:#000 is skipped
+        assertTrue(result.contains("fill=\"#fff\""));
+        assertFalse(result.contains("fill=\"#000\""));
+        // stroke properties are still extracted
+        assertTrue(result.contains("stroke=\"#24292E\""));
+        assertTrue(result.contains("stroke-width=\"1\""));
+        assertFalse(result.contains("style="));
+    }
+
+    @Test
+    public void skipsStylePropertyPresentAsNativeAttributeAfterStyle() {
+        String svg = "<rect style=\"stroke:none;stroke-width:1;\" fill=\"#fff\" stroke=\"#000\" width=\"100\" height=\"50\"/>";
+        String result = SvgStyleExtractor.extractStyles(svg);
+        // native stroke="#000" after the style attr is kept, style stroke:none is skipped
+        assertTrue(result.contains("stroke=\"#000\""));
+        assertFalse(result.contains("stroke=\"none\""));
+        assertTrue(result.contains("stroke-width=\"1\""));
+        assertFalse(result.contains("style="));
+    }
 }
