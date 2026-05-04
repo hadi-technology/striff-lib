@@ -34,9 +34,10 @@ public class PUMLDiagram {
         if (!classDiagramDescription.isEmpty()) {
             final String plantUMLString = genPlantUMLString();
             final byte[] diagram = PUMLHelper.generateDiagram(plantUMLString);
-            diagramStr = SvgImageInliner.inlineSvgImages(
+            diagramStr = SvgStyleExtractor.extractStyles(
+                    SvgImageInliner.inlineSvgImages(
                     sanitizeXml(
-                        stripQualifiedPumlIds(new String(diagram, StandardCharsets.UTF_8))));
+                        stripQualifiedPumlIds(new String(diagram, StandardCharsets.UTF_8)))));
             if (PUMLHelper.invalidPUMLDiagram(diagramStr)) {
                 LOGGER.debug("Original PUML text:\n" + plantUMLString);
                 LOGGER.debug("Generated diagram text:\n" + diagramStr);
