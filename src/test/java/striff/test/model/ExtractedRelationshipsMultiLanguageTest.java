@@ -109,6 +109,44 @@ public class ExtractedRelationshipsMultiLanguageTest {
     }
 
     @Test
+    public void csharpRelationshipExtractionCoversCoreTypes() throws Exception {
+        ProjectFiles files = new ProjectFiles();
+        files.insertFile(new ProjectFile("/src/Models.cs",
+                "namespace MyApp.Models {\n"
+                        + "  public class Parent {}\n"
+                        + "  public interface IWorker {}\n"
+                        + "  public class OwnedDependency {}\n"
+                        + "  public class SharedDependency {}\n"
+                        + "  public class CallDependency {}\n"
+                        + "  public class Child : Parent, IWorker {\n"
+                        + "    private OwnedDependency _owned;\n"
+                        + "    public SharedDependency Shared { get; set; }\n"
+                        + "    public Child(OwnedDependency owned, SharedDependency shared) {\n"
+                        + "      _owned = owned;\n"
+                        + "      Shared = shared;\n"
+                        + "    }\n"
+                        + "    public CallDependency Run(CallDependency input) {\n"
+                        + "      return input;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n"));
+
+        OOPSourceCodeModel model = compileModel(files, Lang.CSHARP);
+        RelationsMap relations = new ExtractedRelationships(model).result();
+
+        assertRelationExists(relations, model, "MyApp.Models.Child", "MyApp.Models.Parent",
+                DiagramConstants.ComponentAssociation.SPECIALIZATION);
+        assertRelationExists(relations, model, "MyApp.Models.Child", "MyApp.Models.IWorker",
+                DiagramConstants.ComponentAssociation.REALIZATION);
+        assertRelationExists(relations, model, "MyApp.Models.Child", "MyApp.Models.OwnedDependency",
+                DiagramConstants.ComponentAssociation.COMPOSITION);
+        assertRelationExists(relations, model, "MyApp.Models.Child", "MyApp.Models.SharedDependency",
+                DiagramConstants.ComponentAssociation.AGGREGATION);
+        assertRelationExists(relations, model, "MyApp.Models.Child", "MyApp.Models.CallDependency",
+                DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION);
+    }
+
+    @Test
     public void pythonRelationshipExtractionCoversCoreTypes() throws Exception {
         Assume.assumeTrue(NodeRuntime.isNodeAvailable());
         ProjectFiles files = new ProjectFiles();

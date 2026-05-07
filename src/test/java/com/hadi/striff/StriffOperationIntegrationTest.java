@@ -55,6 +55,8 @@ public class StriffOperationIntegrationTest {
 
         // Verify SVG was rendered
         assertNotNull("SVG should be rendered", diagram.svg());
+        assertNotNull("PUML source should be available", diagram.pumlSource());
+        assertTrue("PUML source should contain PlantUML wrappers", diagram.pumlSource().contains("@startuml"));
         assertTrue("SVG should contain ClassB", diagram.svg().contains("ClassB"));
 
         // Verify no compile warnings
@@ -166,6 +168,7 @@ public class StriffOperationIntegrationTest {
 
         // Verify SVG is null (metadata only mode)
         assertNull("SVG should be null in metadata-only mode", diagram.svg());
+        assertNull("PUML source should be null in metadata-only mode", diagram.pumlSource());
 
         // But metadata should still be available
         assertTrue("Expected ClassA in modified components",
