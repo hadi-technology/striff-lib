@@ -29,6 +29,7 @@ public class StriffDiagram {
     private static final Logger LOGGER = LoggerFactory.getLogger(StriffDiagram.class);
     private final Set<String> containedPkgs = new HashSet<>();
     private String svgCode;
+    private String pumlSource;
     private final Set<DiagramComponent> diagramComponents;
     private RelationsMap diagramRels;
     private ChangeSet changeSet;
@@ -48,11 +49,13 @@ public class StriffDiagram {
             skipDiagramGeneration = true;
         }
         if (!skipDiagramGeneration) {
-            this.svgCode = new PUMLDiagram(new PUMLDiagramData(diagramRels, codeDiff.changeSet().addedRelations(),
+            PUMLDiagram pumlDiagram = new PUMLDiagram(new PUMLDiagramData(diagramRels, codeDiff.changeSet().addedRelations(),
                     codeDiff.changeSet().deletedRelations(), diagramDisplay,
                     codeDiff.mergedModel(), codeDiff.changeSet().addedComponents(),
                     codeDiff.changeSet().deletedComponents(), codeDiff.changeSet().modifiedComponents(),
-                    diagramComponents, config.layoutEngine(), config.filesFilter())).svgText();
+                    diagramComponents, config.layoutEngine(), config.filesFilter()));
+            this.svgCode = pumlDiagram.svgText();
+            this.pumlSource = pumlDiagram.pumlSource();
         }
         this.diagramRels = diagramRels;
         this.changeSet = codeDiff.changeSet();
@@ -61,6 +64,14 @@ public class StriffDiagram {
     @JsonIgnore
     public String svg() {
         return this.svgCode;
+    }
+
+    /**
+     * Returns the original PlantUML source used to generate this diagram.
+     */
+    @JsonIgnore
+    public String pumlSource() {
+        return this.pumlSource;
     }
 
     /**

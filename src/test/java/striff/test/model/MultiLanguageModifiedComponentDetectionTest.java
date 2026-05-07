@@ -36,6 +36,42 @@ public class MultiLanguageModifiedComponentDetectionTest {
             + "}";
 
     @Test
+    public void csharpAddedMethod_showsClassInDiagram() throws Exception {
+        ProjectFiles oldFiles = new ProjectFiles();
+        ProjectFiles newFiles = new ProjectFiles();
+        oldFiles.insertFile(new ProjectFile("/src/Foo.cs",
+                "namespace MyApp {\n"
+                        + "  public class Foo {\n"
+                        + "    public int Run(int value) {\n"
+                        + "      return value + 1;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n"));
+        newFiles.insertFile(new ProjectFile("/src/Foo.cs",
+                "namespace MyApp {\n"
+                        + "  public class Foo {\n"
+                        + "    public int Run(int value) {\n"
+                        + "      return value + 1;\n"
+                        + "    }\n"
+                        + "    public int Compute(int a, int b) {\n"
+                        + "      return a + b;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}\n"));
+
+        OOPSourceCodeModel oldModel = compileModel(oldFiles, Lang.CSHARP);
+        OOPSourceCodeModel newModel = compileModel(newFiles, Lang.CSHARP);
+        ChangeSet changeSet = new ChangeSet(oldModel, newModel);
+
+        Assert.assertTrue(changeSet.inAddedComponents("MyApp.Foo.Compute(int, int)"));
+
+        StriffDiagramModel diagramModel = new StriffDiagramModel(new CodeDiff(oldModel, newModel), java.util.Set.of(), false);
+        Assert.assertTrue(diagramModel.diagramCmps().stream()
+                .map(DiagramComponent::uniqueName)
+                .anyMatch(uniqueName -> uniqueName.endsWith(".Foo")));
+    }
+
+    @Test
     public void pythonBodyOnlyMethodChange_marksMethodModifiedAndDisplaysParentClass() throws Exception {
         Assume.assumeTrue(NodeRuntime.isNodeAvailable());
         ProjectFiles oldFiles = new ProjectFiles();

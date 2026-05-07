@@ -147,6 +147,10 @@ public class PUMLDiagram {
         return this.svgText;
     }
 
+    public final String pumlSource() {
+        return this.classDiagramDescription;
+    }
+
     public final int size() {
         return this.size;
     }
