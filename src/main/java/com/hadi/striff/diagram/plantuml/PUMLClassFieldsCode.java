@@ -105,7 +105,8 @@ final class PUMLClassFieldsCode {
             });
             // Group child components into method type and field types
             Set<DiagramComponent> methodChilds = childComponents.stream().filter(
-                    diagramComponent -> diagramComponent.componentType().isMethodComponent())
+                    diagramComponent -> diagramComponent.componentType().isMethodComponent()
+                            || diagramComponent.componentType() == OOPSourceModelConstants.ComponentType.CONSTRUCTOR)
                     .collect(Collectors.toSet());
             Set<DiagramComponent> fieldChilds = childComponents.stream().filter(
                     diagramComponent -> diagramComponent
@@ -206,6 +207,7 @@ final class PUMLClassFieldsCode {
     private String childComponentPUMLText(DiagramComponent childCmp) {
         String childCmpPUMLStr = "";
         if ((childCmp.componentType() == OOPSourceModelConstants.ComponentType.METHOD)
+                || (childCmp.componentType() == OOPSourceModelConstants.ComponentType.CONSTRUCTOR)
                 || (childCmp.componentType() == OOPSourceModelConstants.ComponentType.FUNCTION)
                 || childCmp.componentType().isVariableComponent()) {
             if (!childCmp.componentType().isBaseComponent()) {
@@ -244,11 +246,14 @@ final class PUMLClassFieldsCode {
     private String getChildCmpDisplayText(DiagramComponent childCmp) {
         String childCmpDisplayText = "";
         if (childCmp.componentType().isMethodComponent()
+                || childCmp.componentType() == OOPSourceModelConstants.ComponentType.CONSTRUCTOR
                 || (childCmp.componentType().isVariableComponent()
                         && childCmp.componentType() != OOPSourceModelConstants.ComponentType.ENUM_CONSTANT)) {
             childCmpDisplayText = childCmp.codeFragment();
-            // Truncate long method signatures but preserve return type
-            if (childCmp.componentType().isMethodComponent() && childCmpDisplayText != null) {
+            // Truncate long method/constructor signatures but preserve return type
+            if ((childCmp.componentType().isMethodComponent()
+                    || childCmp.componentType() == OOPSourceModelConstants.ComponentType.CONSTRUCTOR)
+                    && childCmpDisplayText != null) {
                 childCmpDisplayText = truncateMethodSignature(childCmpDisplayText);
             }
         }
@@ -395,8 +400,13 @@ final class PUMLClassFieldsCode {
         int deletedCount = 0;
         int modifiedCount = 0;
 
-        // Count changes among the component's children
+        // Count changes among the component's children (excluding base components like inner classes)
         for (String childName : cmp.children()) {
+            // Skip base components (classes, interfaces, enums) as they are rendered as separate top-level components
+            DiagramComponent childCmp = new DiagramComponent(childName, mergedModel);
+            if (childCmp.componentType().isBaseComponent()) {
+                continue;
+            }
             if (addedComponents.contains(childName)) {
                 addedCount++;
             }
