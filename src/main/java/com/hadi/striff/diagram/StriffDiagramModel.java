@@ -39,12 +39,17 @@ public class StriffDiagramModel {
 
     @LogExecutionTime
     public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter, boolean enableAugmenters) {
+        this(codeDiff, sourceFilesFilter, Collections.emptySet(), enableAugmenters);
+    }
+
+    @LogExecutionTime
+    public StriffDiagramModel(CodeDiff codeDiff, Set<String> sourceFilesFilter, final Set<String> expandedFiles, boolean enableAugmenters) {
         LOGGER.info("Generating diagram model..");
         Set<String> targetCmpNames = codeDiff.mergedModel().components()
                 .filter(cmp -> sourceFilesFilter.contains(cmp.sourceFile())).map(Component::uniqueName)
                 .collect(Collectors.toSet());
         LOGGER.debug("The following components will be analyzed: {}", targetCmpNames);
-        getCoreBaseCmps(codeDiff, sourceFilesFilter).forEach(
+        getCoreBaseCmps(codeDiff, sourceFilesFilter, expandedFiles).forEach(
                 cmpName -> this.diagramCmps.add(new DiagramComponent(
                         cmpName, codeDiff.mergedModel())));
         if (enableAugmenters) {
@@ -60,7 +65,7 @@ public class StriffDiagramModel {
         LOGGER.info(this.diagramRels.size() + " relations will be displayed.");
     }
 
-    private Set<String> getCoreBaseCmps(CodeDiff codeDiff, Set<String> sourceFilesFilter) {
+    private Set<String> getCoreBaseCmps(CodeDiff codeDiff, Set<String> sourceFilesFilter, final Set<String> expandedFiles) {
         LOGGER.info("Selecting diagram components...");
         Set<String> diagramCmpNames = new HashSet<>();
         ChangeSet changeSet = codeDiff.changeSet();
@@ -68,6 +73,15 @@ public class StriffDiagramModel {
                 changeSet.deletedComponents(),
                 changeSet.keyRelationsComponents(),
                 changeSet.modifiedComponents()).flatMap(Collection::stream).collect(Collectors.toSet());
+
+        // Include components from expandedFiles that aren't already in the change set
+        if (!expandedFiles.isEmpty()) {
+            codeDiff.mergedModel().components()
+                    .filter(cmp -> expandedFiles.contains(cmp.sourceFile()))
+                    .map(Component::uniqueName)
+                    .forEach(unfilteredCoreCmps::add);
+        }
+
         if (!sourceFilesFilter.isEmpty()) {
             // Filter added/deleted/modified components by source file
             // But keep keyRelationsComponents (contextual components) - they should appear as gray
@@ -78,9 +92,17 @@ public class StriffDiagramModel {
                         if (keyRels.contains(cmp)) {
                             return true;
                         }
-                        // Other components must be in the source file filter
+                        // Expanded files components are always included
                         var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
-                        return cmpOpt.isPresent() && sourceFilesFilter.contains(cmpOpt.get().sourceFile());
+                        if (cmpOpt.isEmpty()) {
+                            return false;
+                        }
+                        String sourceFile = cmpOpt.get().sourceFile();
+                        if (sourceFile != null && expandedFiles.contains(sourceFile)) {
+                            return true;
+                        }
+                        // Other components must be in the source file filter
+                        return sourceFilesFilter.contains(sourceFile);
                     })
                     .collect(Collectors.toSet());
         }

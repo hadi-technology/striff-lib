@@ -23,6 +23,7 @@ public class PUMLDiagramData {
     private final Set<String> deletedCmps;
     private final Set<String> modifiedCmps;
     private final Set<String> sourceFilesFilter;
+    private final Set<String> expandedFiles;
     private final Set<DiagramComponent> diagramCmps;
     private final List<ClassDecorator> classDecorators;
     private final List<DiagramDecorator> diagramDecorators;
@@ -34,7 +35,7 @@ public class PUMLDiagramData {
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of());
+                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of(), Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
@@ -42,13 +43,21 @@ public class PUMLDiagramData {
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
             LayoutEngine layoutEngine) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, Set.of());
+                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, Set.of(), Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
             LayoutEngine layoutEngine, Set<String> sourceFilesFilter) {
+        this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
+                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, sourceFilesFilter, Set.of());
+    }
+
+    public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
+            DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
+            Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
+            LayoutEngine layoutEngine, Set<String> sourceFilesFilter, final Set<String> exFiles) {
         this.diagramRels = diagramRels;
         this.addedRels = addedRels;
         this.deletedRels = deletedRels;
@@ -61,6 +70,11 @@ public class PUMLDiagramData {
             this.sourceFilesFilter = Set.of();
         } else {
             this.sourceFilesFilter = Set.copyOf(sourceFilesFilter);
+        }
+        if (exFiles == null) {
+            this.expandedFiles = Set.of();
+        } else {
+            this.expandedFiles = Set.copyOf(exFiles);
         }
         this.diagramCmps = diagramCmps;
         this.classDecorators = SpiLoader.loadOrdered(ClassDecorator.class, ClassDecorator::order);
@@ -104,6 +118,11 @@ public class PUMLDiagramData {
 
     public Set<String> sourceFilesFilter() {
         return sourceFilesFilter;
+    }
+
+    /** Returns expanded source files whose components are forced into the diagram. */
+    public Set<String> expandedFiles() {
+        return expandedFiles;
     }
 
     public Set<DiagramComponent> diagramCmps() {

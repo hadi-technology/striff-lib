@@ -25,6 +25,7 @@ final class PUMLClassFieldsCode {
     private final Set<String> addedComponents;
     private final Set<String> modifiedComponents;
     private final Set<String> sourceFilesFilter;
+    private final Set<String> expandedFiles;
     private final DiagramDisplay diagramDisplay;
     private final List<ClassDecorator> classDecorators;
     private int commentTextIndex = 1;
@@ -35,6 +36,7 @@ final class PUMLClassFieldsCode {
         this.deletedComponents = data.deletedCmps();
         this.modifiedComponents = data.modifiedCmps();
         this.sourceFilesFilter = data.sourceFilesFilter();
+        this.expandedFiles = data.expandedFiles();
         this.diagramDisplay = data.diagramDisplay();
         this.classDecorators = data.classDecorators();
     }
@@ -384,6 +386,15 @@ final class PUMLClassFieldsCode {
     }
 
     private boolean isContextualComponent(DiagramComponent component) {
+        // Components from expandedFiles that are not added/deleted/modified are contextual (gray)
+        if (!expandedFiles.isEmpty()
+                && component.sourceFile() != null
+                && expandedFiles.contains(component.sourceFile())
+                && !addedComponents.contains(component.uniqueName())
+                && !deletedComponents.contains(component.uniqueName())
+                && !modifiedComponents.contains(component.uniqueName())) {
+            return true;
+        }
         return !sourceFilesFilter.isEmpty()
                 && component.sourceFile() != null
                 && !sourceFilesFilter.contains(component.sourceFile());
