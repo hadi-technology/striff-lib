@@ -44,6 +44,14 @@ public class StriffConfig {
      * interfaces) so they can appear as gray contextual components in the diagram.
      */
     private boolean resolveContextualComponents = false;
+    /**
+     * Source files whose components are forced into the diagram regardless of
+     * whether they appear in {@link #filesFilter} or in keyRelationsComponents().
+     * Components from these files that are not added/deleted/modified are
+     * rendered as gray contextual. Callers use this to expand diagram scope
+     * explicitly (e.g., for AI review neighborhood components).
+     */
+    private Set<String> expandedFiles = Collections.emptySet();
     private LayoutEngine layoutEngine = LayoutEngine.SMETANA;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
@@ -114,6 +122,15 @@ public class StriffConfig {
         return this;
     }
 
+    public StriffConfig setExpandedFiles(final Collection<String> files) {
+        if (files == null) {
+            this.expandedFiles = Collections.emptySet();
+        } else {
+            this.expandedFiles = new HashSet<>(files);
+        }
+        return this;
+    }
+
     public OutputMode outputMode() {
         return this.outputMode;
     }
@@ -136,6 +153,11 @@ public class StriffConfig {
 
     public boolean resolveContextualComponents() {
         return this.resolveContextualComponents;
+    }
+
+    /** Returns source files forced into the diagram as gray contextual components. */
+    public Set<String> expandedFiles() {
+        return this.expandedFiles;
     }
 
     public LayoutEngine layoutEngine() {
