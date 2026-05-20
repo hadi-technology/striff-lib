@@ -35,7 +35,7 @@ public class PUMLDiagramData {
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of(), Set.of());
+                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.SMETANA, Set.of(), Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
