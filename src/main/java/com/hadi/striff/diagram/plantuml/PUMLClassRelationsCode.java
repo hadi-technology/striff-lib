@@ -159,7 +159,10 @@ final class PUMLClassRelationsCode {
     }
 
     private String pairKey(String a, String b) {
-        return a.compareTo(b) < 0 ? a + "|" + b : b + "|" + a;
+        if (a.compareTo(b) < 0) {
+            return a + "|" + b;
+        }
+        return b + "|" + a;
     }
 
     public String value() {
