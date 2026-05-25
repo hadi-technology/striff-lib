@@ -63,7 +63,7 @@ public class ContextualGraySvgDemo {
                 Set.of(), Set.of(), Set.of(),
                 Set.of(userService, emailService),
                 LayoutEngine.GRAPHVIZ,
-                Set.of("/UserService.java"));  // Filter: only UserService
+                Set.of("/UserService.java"), Set.of());  // Filter: only UserService
 
         // Generate PUML class diagram code
         PUMLClassDiagramCode diagramCode = new PUMLClassDiagramCode(data);

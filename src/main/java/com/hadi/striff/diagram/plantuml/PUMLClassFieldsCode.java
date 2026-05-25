@@ -24,6 +24,7 @@ final class PUMLClassFieldsCode {
     private final Set<String> deletedComponents;
     private final Set<String> addedComponents;
     private final Set<String> modifiedComponents;
+    private final Set<String> keyRelationsCmps;
     private final Set<String> sourceFilesFilter;
     private final DiagramDisplay diagramDisplay;
     private final List<ClassDecorator> classDecorators;
@@ -34,6 +35,7 @@ final class PUMLClassFieldsCode {
         this.addedComponents = data.addedCmps();
         this.deletedComponents = data.deletedCmps();
         this.modifiedComponents = data.modifiedCmps();
+        this.keyRelationsCmps = data.keyRelationsCmps();
         this.sourceFilesFilter = data.sourceFilesFilter();
         this.diagramDisplay = data.diagramDisplay();
         this.classDecorators = data.classDecorators();
@@ -384,6 +386,11 @@ final class PUMLClassFieldsCode {
     }
 
     private boolean isContextualComponent(DiagramComponent component) {
+        if (keyRelationsCmps.contains(component.uniqueName())) {
+            return !addedComponents.contains(component.uniqueName())
+                    && !deletedComponents.contains(component.uniqueName())
+                    && !modifiedComponents.contains(component.uniqueName());
+        }
         return !sourceFilesFilter.isEmpty()
                 && component.sourceFile() != null
                 && !sourceFilesFilter.contains(component.sourceFile());

@@ -159,7 +159,8 @@ public class PUMLClassChangeSummaryTest {
                 Set.of(),
                 Set.of(classComponent),
                 LayoutEngine.GRAPHVIZ,
-                Set.of("/Other.java"));
+                Set.of("/Other.java"),
+                Set.of());
 
         String puml = new PUMLClassFieldsCode(data).value(Set.of(classComponent));
         assertTrue(puml.contains("#back:c8c8c8"));

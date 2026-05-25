@@ -152,6 +152,29 @@ public class StriffAPITest {
 	}
 
 	/**
+	 * SmartTube PR #5797 - Add REST API for remote playback control.
+	 * Base=master, 18 changed files.
+	 */
+	@Ignore
+	@Test
+	public void testSmartTubeRestApi() throws Exception {
+		String baseRepoOwner = "yuliskov";
+		String repoName = "SmartTube";
+		ProjectFiles oldFiles = githubProjectFiles(
+				baseRepoOwner, repoName,
+				"c1bdecbe7064c4a491495bea61cc7f002878511e", Lang.JAVA);
+		ProjectFiles newFiles = githubProjectFiles(
+				baseRepoOwner, repoName, "pull/5797/head", Lang.JAVA);
+		StriffConfig config = new StriffConfig()
+				.setResolveContextualComponents(true);
+		List<StriffDiagram> striffs = new StriffOperation(
+				oldFiles, newFiles, config).result().diagrams();
+		System.out.println("SmartTube #5797 - Total diagrams: "
+				+ striffs.size());
+		writeStriffsToDisk(striffs, "smarttube-5797");
+	}
+
+	/**
 	 * Langchain4j PR #5060 - AI Services: support polymorphic return types.
 	 * Merged PR, base=main, 10 changed files.
 	 */

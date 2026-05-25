@@ -53,7 +53,8 @@ public class StriffDiagram {
                     codeDiff.changeSet().deletedRelations(), diagramDisplay,
                     codeDiff.mergedModel(), codeDiff.changeSet().addedComponents(),
                     codeDiff.changeSet().deletedComponents(), codeDiff.changeSet().modifiedComponents(),
-                    diagramComponents, config.layoutEngine(), config.filesFilter()));
+                    diagramComponents, config.layoutEngine(), config.filesFilter(),
+                    codeDiff.changeSet().keyRelationsComponents()));
             this.svgCode = pumlDiagram.svgText();
             this.pumlSource = pumlDiagram.pumlSource();
         }

@@ -22,6 +22,7 @@ public class PUMLDiagramData {
     private final Set<String> addedCmps;
     private final Set<String> deletedCmps;
     private final Set<String> modifiedCmps;
+    private final Set<String> keyRelationsCmps;
     private final Set<String> sourceFilesFilter;
     private final Set<DiagramComponent> diagramCmps;
     private final List<ClassDecorator> classDecorators;
@@ -34,7 +35,7 @@ public class PUMLDiagramData {
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of());
+                deletedCmps, modifiedCmps, diagramCmps, LayoutEngine.GRAPHVIZ, Set.of(), Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
@@ -42,13 +43,13 @@ public class PUMLDiagramData {
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
             LayoutEngine layoutEngine) {
         this(diagramRels, addedRels, deletedRels, diagramDisplay, mergedModel, addedCmps,
-                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, Set.of());
+                deletedCmps, modifiedCmps, diagramCmps, layoutEngine, Set.of(), Set.of());
     }
 
     public PUMLDiagramData(RelationsMap diagramRels, RelationsMap addedRels, RelationsMap deletedRels,
             DiagramDisplay diagramDisplay, OOPSourceCodeModel mergedModel, Set<String> addedCmps,
             Set<String> deletedCmps, Set<String> modifiedCmps, Set<DiagramComponent> diagramCmps,
-            LayoutEngine layoutEngine, Set<String> sourceFilesFilter) {
+            LayoutEngine layoutEngine, Set<String> sourceFilesFilter, Set<String> keyRelationsCmps) {
         this.diagramRels = diagramRels;
         this.addedRels = addedRels;
         this.deletedRels = deletedRels;
@@ -57,6 +58,7 @@ public class PUMLDiagramData {
         this.addedCmps = addedCmps;
         this.deletedCmps = deletedCmps;
         this.modifiedCmps = modifiedCmps;
+        this.keyRelationsCmps = keyRelationsCmps != null ? Set.copyOf(keyRelationsCmps) : Set.of();
         if (sourceFilesFilter == null) {
             this.sourceFilesFilter = Set.of();
         } else {
@@ -100,6 +102,10 @@ public class PUMLDiagramData {
 
     public Set<String> modifiedCmps() {
         return modifiedCmps;
+    }
+
+    public Set<String> keyRelationsCmps() {
+        return keyRelationsCmps;
     }
 
     public Set<String> sourceFilesFilter() {

@@ -60,7 +60,7 @@ public class ContextualGrayDemo {
                 filteredDisplay, codeModel,
                 Set.of(), Set.of(), Set.of(), Set.of(classComponent),
                 LayoutEngine.GRAPHVIZ,
-                Set.of("/OtherFile.java"));  // KEY: sourceFilesFilter parameter
+                Set.of("/OtherFile.java"), Set.of());  // KEY: sourceFilesFilter parameter
         String grayPuml = new PUMLClassFieldsCode(grayData).value(Set.of(classComponent));
 
         System.out.println("\n=== Normal PUML (no filter) ===");
