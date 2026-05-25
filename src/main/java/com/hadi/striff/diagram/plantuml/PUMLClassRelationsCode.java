@@ -8,6 +8,7 @@ import com.hadi.striff.extractor.ComponentRelation;
 import com.hadi.striff.extractor.RelationsMap;
 import com.hadi.striff.spi.RelationDecorator;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,10 +37,17 @@ final class PUMLClassRelationsCode {
         this.tempStrBuilder = new StringBuilder();
         Set<String> diagramCmpNames = this.diagramComponents.stream().map(DiagramComponent::uniqueName)
                 .collect(Collectors.toSet());
+        Set<String> renderedPairs = new HashSet<>();
         for (DiagramComponent currCmp : this.diagramComponents) {
             for (ComponentRelation currCmpRel : this.diagramRels.significantRels(currCmp.uniqueName())) {
                 // Ensure the relationship involves components from this diagram
                 if (diagramCmpNames.contains(currCmpRel.targetComponent().uniqueName())) {
+                    // Skip if the reverse pair was already rendered
+                    String pair = pairKey(currCmpRel.originalComponent().uniqueName(),
+                            currCmpRel.targetComponent().uniqueName());
+                    if (!renderedPairs.add(pair)) {
+                        continue;
+                    }
                     // Get reverse relation between componentA and component B... this may be empty.
                     ComponentRelation reverseRel = this.diagramRels.mostSignificantRelation(
                             currCmpRel.targetComponent(), currCmpRel.originalComponent());
@@ -148,6 +156,10 @@ final class PUMLClassRelationsCode {
         } else {
             return this.diagramDisplay.colorScheme().classArrowColor();
         }
+    }
+
+    private String pairKey(String a, String b) {
+        return a.compareTo(b) < 0 ? a + "|" + b : b + "|" + a;
     }
 
     public String value() {
