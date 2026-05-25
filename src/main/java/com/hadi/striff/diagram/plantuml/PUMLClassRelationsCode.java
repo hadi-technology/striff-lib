@@ -42,15 +42,22 @@ final class PUMLClassRelationsCode {
             for (ComponentRelation currCmpRel : this.diagramRels.significantRels(currCmp.uniqueName())) {
                 // Ensure the relationship involves components from this diagram
                 if (diagramCmpNames.contains(currCmpRel.targetComponent().uniqueName())) {
-                    // Skip if the reverse pair was already rendered
-                    String pair = pairKey(currCmpRel.originalComponent().uniqueName(),
-                            currCmpRel.targetComponent().uniqueName());
+                    String source = currCmpRel.originalComponent().uniqueName();
+                    String target = currCmpRel.targetComponent().uniqueName();
+                    String pair = pairKey(source, target);
                     if (!renderedPairs.add(pair)) {
                         continue;
                     }
-                    // Get reverse relation between componentA and component B... this may be empty.
+                    // Get reverse relation to determine preferred direction
                     ComponentRelation reverseRel = this.diagramRels.mostSignificantRelation(
                             currCmpRel.targetComponent(), currCmpRel.originalComponent());
+                    // Prefer rendering the direction with diff coloring (added/deleted).
+                    // If neither has diff, prefer canonical direction (source < target)
+                    // for deterministic output across runs.
+                    if (shouldSkipForReverse(currCmpRel, reverseRel, source, target)) {
+                        renderedPairs.remove(pair);
+                        continue;
+                    }
                     if ((currCmp.name() != null) && ((currCmpRel.targetComponent().name() != null)
                             && !currCmp.uniqueName().contains("(")
                             && !currCmpRel.targetComponent().uniqueName().contains("("))) {
@@ -163,6 +170,31 @@ final class PUMLClassRelationsCode {
             return a + "|" + b;
         }
         return b + "|" + a;
+    }
+
+    /**
+     * Determines whether the current direction should be skipped in favor
+     * of the reverse direction. Prefers the direction with diff coloring
+     * (added/deleted) for accurate change visualization. Falls back to
+     * canonical (alphabetical) ordering for deterministic output.
+     */
+    private boolean shouldSkipForReverse(ComponentRelation currRel, ComponentRelation reverseRel,
+            String source, String target) {
+        boolean reverseExists = reverseRel.associationType()
+                != DiagramConstants.ComponentAssociation.NONE;
+        if (!reverseExists) {
+            return false;
+        }
+        boolean currDiff = addedRels.contains(currRel) || deletedRels.contains(currRel);
+        boolean revDiff = addedRels.contains(reverseRel) || deletedRels.contains(reverseRel);
+        if (currDiff && !revDiff) {
+            return false;
+        }
+        if (!currDiff && revDiff) {
+            return true;
+        }
+        boolean isCanonical = source.compareTo(target) < 0;
+        return !isCanonical;
     }
 
     public String value() {
