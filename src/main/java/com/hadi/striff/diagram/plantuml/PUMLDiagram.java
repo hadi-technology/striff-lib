@@ -127,17 +127,23 @@ public class PUMLDiagram {
             // Also replace data-qualified-name attributes with the original uniqueName
             // PlantUML generates data-qualified-name="com-example-MyClass"
             // We need data-qualified-name="com.example.MyClass" to match API componentId
+            // XML-escape the uniqueName to handle generics like Foo<T>
+            String xmlSafeName = component.uniqueName()
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;");
             updatedSvg = updatedSvg.replace(
                     "data-qualified-name=\"" + pumlId + "\"",
-                    "data-qualified-name=\"" + component.uniqueName() + "\""
+                    "data-qualified-name=\"" + xmlSafeName + "\""
             );
             updatedSvg = updatedSvg.replace(
                     "data-qualified-name=\"" + qualifiedId + "\"",
-                    "data-qualified-name=\"" + component.uniqueName() + "\""
+                    "data-qualified-name=\"" + xmlSafeName + "\""
             );
             updatedSvg = updatedSvg.replaceAll(
                     "data-qualified-name=\"[^\"]*\\." + java.util.regex.Pattern.quote(pumlId) + "\"",
-                    Matcher.quoteReplacement("data-qualified-name=\"" + component.uniqueName() + "\"")
+                    Matcher.quoteReplacement("data-qualified-name=\"" + xmlSafeName + "\"")
             );
         }
         return updatedSvg;
