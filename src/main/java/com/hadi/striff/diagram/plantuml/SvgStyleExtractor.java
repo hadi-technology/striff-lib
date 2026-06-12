@@ -25,8 +25,9 @@ public final class SvgStyleExtractor {
 
     // Matches an opening or self-closing tag that contains a style attribute.
     // Captures: (1) tag name + attrs before style, (2) style value, (3) attrs after style + closing
+    // The negative lookbehind (?<!-) prevents matching "style" inside "font-style" etc.
     private static final Pattern TAG_WITH_STYLE = Pattern.compile(
-            "(<\\w+\\s[^>]*?)\\bstyle=\"([^\"]*)\"([^>]*>)");
+            "(<\\w+\\s[^>]*?)(?<!-)\\bstyle=\"([^\"]*)\"([^>]*>)");
 
     private static final Pattern DECL = Pattern.compile(
             "\\s*([\\w-]+)\\s*:\\s*([^;]+)");
