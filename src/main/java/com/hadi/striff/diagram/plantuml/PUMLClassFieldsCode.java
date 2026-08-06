@@ -48,9 +48,9 @@ final class PUMLClassFieldsCode {
             List<String> componentPUMLStrings = new ArrayList<>();
             if (cmp.modifiers().contains(
                     // Insert abstract keyword if cmp is Abstract class
-                    OOPSourceModelConstants.getJavaAccessModifierMap()
+                    OOPSourceModelConstants.getAccessModifierMap()
                             .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
-                cmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
+                cmpPUMLStr += (OOPSourceModelConstants.getAccessModifierMap()
                         .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT)
                         + " ");
             }
@@ -216,18 +216,18 @@ final class PUMLClassFieldsCode {
                 // if the field/method is abstract or static, add the {abstract}/{static}
                 // prefix..
                 if (childCmp.modifiers().contains(
-                        OOPSourceModelConstants.getJavaAccessModifierMap()
+                        OOPSourceModelConstants.getAccessModifierMap()
                                 .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT))) {
                     childCmpPUMLStr += ("{");
-                    childCmpPUMLStr += OOPSourceModelConstants.getJavaAccessModifierMap()
+                    childCmpPUMLStr += OOPSourceModelConstants.getAccessModifierMap()
                             .get(OOPSourceModelConstants.AccessModifiers.ABSTRACT);
                     childCmpPUMLStr += ("} ");
                 }
                 if (childCmp.modifiers().contains(
-                        OOPSourceModelConstants.getJavaAccessModifierMap()
+                        OOPSourceModelConstants.getAccessModifierMap()
                                 .get(OOPSourceModelConstants.AccessModifiers.STATIC))) {
                     childCmpPUMLStr += ("{");
-                    childCmpPUMLStr += (OOPSourceModelConstants.getJavaAccessModifierMap()
+                    childCmpPUMLStr += (OOPSourceModelConstants.getAccessModifierMap()
                             .get(OOPSourceModelConstants.AccessModifiers.STATIC));
                     childCmpPUMLStr += ("} ");
                 }
@@ -310,15 +310,15 @@ final class PUMLClassFieldsCode {
     private String visibilitySymbol(DiagramComponent childCmp) {
         String visibilitySymbol = "";
         if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap()
+                OOPSourceModelConstants.getAccessModifierMap()
                         .get(OOPSourceModelConstants.AccessModifiers.PUBLIC))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PUBLIC.getUMLClassDigramSymbol() + " ";
         } else if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap()
+                OOPSourceModelConstants.getAccessModifierMap()
                         .get(OOPSourceModelConstants.AccessModifiers.PRIVATE))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PRIVATE.getUMLClassDigramSymbol() + " ";
         } else if (childCmp.modifiers().contains(
-                OOPSourceModelConstants.getJavaAccessModifierMap()
+                OOPSourceModelConstants.getAccessModifierMap()
                         .get(OOPSourceModelConstants.AccessModifiers.PROTECTED))) {
             visibilitySymbol += OOPSourceModelConstants.AccessModifiers.PROTECTED.getUMLClassDigramSymbol() + " ";
         } else {
