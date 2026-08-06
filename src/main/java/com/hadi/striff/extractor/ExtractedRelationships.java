@@ -283,9 +283,9 @@ public class ExtractedRelationships {
 
     private DiagramConstants.ComponentAssociation determineFieldAssociation(Component component) {
         if (component.modifiers()
-                .contains(OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PRIVATE))
+                .contains(OOPSourceModelConstants.getAccessModifierMap().get(AccessModifiers.PRIVATE))
                 || component.modifiers()
-                        .contains(OOPSourceModelConstants.getJavaAccessModifierMap().get(AccessModifiers.PROTECTED))) {
+                        .contains(OOPSourceModelConstants.getAccessModifierMap().get(AccessModifiers.PROTECTED))) {
             return DiagramConstants.ComponentAssociation.COMPOSITION;
         } else {
             return DiagramConstants.ComponentAssociation.AGGREGATION;
