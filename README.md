@@ -1,33 +1,37 @@
-# [striff-lib](https://striff.io)
-[![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technologies-violet.svg)](https://hadi.ca) [![Maven Central](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib/badge.svg)](https://maven-badges.sml.io/maven-central/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-technology/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+# striff-lib
 
+**Turn a code diff into an architectural diagram.**
 
-### Architectural Diagrams, Made For Code Reviews.
-Striffs leverage the basic premise surrounding the utility of line-wise code diffs at an architectural level, and encourage a more natural understanding of code changes through a "top-down" approach which more closely resembles the lens from which the system was designed and intended to be understood. 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.hadi-technology/striff-lib?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-technology/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technology-violet.svg)](https://haditechnology.com) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
+A line-wise diff tells you which characters changed. It does not tell you that a change moved a dependency across a package boundary, or introduced a cycle, or coupled two modules that used to be independent. Reviewers reconstruct that from memory, one file at a time.
+
+Give striff-lib two versions of a codebase and it gives you back a "striff": a diagram of the classes and relationships the change actually touched, with added, deleted, and modified components marked. Nothing else is drawn, so the picture stays small enough to read during a review.
 
 ![sample_striff](striff.png)
 
 ### Getting Started
-* Ensure `graphviz` is installed on your system (required for SVG rendering).
-* Java 17 and Maven 3.x are required (see `pom.xml`).
-* Add the dependency:
+
+Requirements: Java 17 and Maven 3.x. No native dependencies. Diagrams render through PlantUML's pure-Java Smetana layout engine by default, so Graphviz is **not** required (install it only if you opt into `LayoutEngine.GRAPHVIZ`).
+
+Add the dependency (check the badge above for the latest version):
 
 ```xml
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>3.7.0</version>
+  <version>3.17.0</version>
 </dependency>
 ```
 
-* Build from source:
+Or build from source:
 
 ```bash
 mvn clean package assembly:single
 ```
 
 ### Quickstart
-Minimal example (see `src/test/java/striff/test/model/StriffAPITest.java` for more):
+Minimal example (see [`StriffAPITest`](src/test/java/striff/test/model/StriffAPITest.java) for more):
 
 ```java
 import com.hadi.clarpse.compiler.ProjectFiles;
@@ -54,15 +58,14 @@ for (StriffDiagram diagram : striffs) {
 ### Configuration
 
 #### Parsing and language support (Clarpse)
-Striff uses the [Clarpse](https://github.com/hadi-tech/clarpse) parser under the hood to build the source model from your codebase.
-Parsing is performed per language configured in `StriffConfig.setLanguages(...)`.
+Striff uses the [Clarpse](https://github.com/hadi-technology/clarpse) parser under the hood to build the source model from your codebase.
+By default every language Clarpse supports is enabled; narrow that with `StriffConfig.setLanguages(...)`.
 
 Supported languages (via Clarpse):
 * Java
-* TypeScript
-* Python
-* C# (Coming Soon)
-* Go (Coming Soon)
+* C#
+* TypeScript (requires Node.js and a valid `tsconfig.json`)
+* Python (requires Node.js)
 
 Parsing failures (e.g., unsupported syntax) are reported by Clarpse and surfaced
 through Striff as compile warnings on the output. Striff will still attempt to
@@ -158,3 +161,12 @@ StriffConfig config = new StriffConfig()
 * Build: `mvn clean package assembly:single`
 * Run tests: `mvn test`
 * See `src/test/java/` for usage examples and regression tests.
+* See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+
+### License
+
+striff-lib is released under the [MIT License](LICENSE). You are free to use it in commercial and closed-source products.
+
+Diagram rendering uses [PlantUML](https://plantuml.com), distributed under its MIT-licensed build. Images produced by running PlantUML are owned by the author of the corresponding source code, not by PlantUML.
+
+Maintained by [Hadi Technology](https://haditechnology.com), which also builds [Striff](https://striff.io), a hosted architecture-aware pull request reviewer built on top of this library.
