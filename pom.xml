@@ -5,7 +5,7 @@
 	<groupId>io.github.hadi-technology</groupId>
 	<artifactId>striff-lib</artifactId>
 	<packaging>jar</packaging>
-	<version>3.16.0</version>
+	<version>3.17.0</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>striff-lib is a java library for generating striff diagrams.</description>
 	<url>https://github.com/hadi-technology/striff-lib</url>
@@ -82,7 +82,9 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
-			<artifactId>plantuml</artifactId>
+			<!-- MIT-licensed build of PlantUML: the default `plantuml` artifact is GPL,
+			     which would be incompatible with shipping striff-lib under MIT. -->
+			<artifactId>plantuml-mit</artifactId>
 			<version>1.2026.0</version>
 		</dependency>
 		<dependency>
