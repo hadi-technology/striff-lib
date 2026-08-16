@@ -20,7 +20,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>3.17.0</version>
+  <version>3.17.1</version>
 </dependency>
 ```
 
