@@ -100,7 +100,9 @@ final class PUMLClassFieldsCode {
             // Get all child components
             Set<DiagramComponent> childComponents = new HashSet<>();
             cmp.children().forEach(s -> {
-                DiagramComponent childComponent = new DiagramComponent(mergedModel.copyOfComponent(s).get(), mergedModel);
+                // The copy is required: DiagramComponent retains what it is given and can rename it.
+                DiagramComponent childComponent =
+                        new DiagramComponent(mergedModel.copyOfComponent(s).get(), mergedModel);
                 if (childComponent != null) {
                     childComponents.add(childComponent);
                 }

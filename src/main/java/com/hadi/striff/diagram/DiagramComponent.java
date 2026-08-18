@@ -38,8 +38,11 @@ public class DiagramComponent {
             this.cmp = cmp;
         }
         if (srcModel != null) {
+            // A presence test, so it asks the model whether it holds the child rather than
+            // deep-copying one in order to throw the copy away. Runs once per child of every
+            // component a diagram is built from.
             this.cmp.children().stream()
-                    .filter(child -> srcModel.copyOfComponent(child).isPresent())
+                    .filter(srcModel::containsComponent)
                     .forEach(children::add);
         }
     }
@@ -49,6 +52,11 @@ public class DiagramComponent {
         this.cmp.setComponentName(componentName);
     }
 
+    /**
+     * Keeps the copy on purpose. A DiagramComponent retains the component it is handed for its whole
+     * life and exposes {@link #setName(String)} over it, so the model's own instance here would give
+     * every caller of that setter the power to rename a component in the parsed model.
+     */
     public DiagramComponent(String cmpName, OOPSourceCodeModel srcModel) {
         this(srcModel.copyOfComponent(cmpName).orElse(new Component()), srcModel);
     }

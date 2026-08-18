@@ -107,7 +107,9 @@ public final class SyntheticModuleSupport {
             return null;
         }
         for (String childName : children) {
-            Component child = model.copyOfComponent(childName).orElse(null);
+            // Read-only, and the value read out is immutable: a copy would hand back the same
+            // String this does. Runs once per child of every module in the model.
+            Component child = model.component(childName).orElse(null);
             if (child == null) {
                 continue;
             }
@@ -124,7 +126,9 @@ public final class SyntheticModuleSupport {
             return null;
         }
         for (String childName : children) {
-            Component child = model.copyOfComponent(childName).orElse(null);
+            // As above, and provably identical here: Package is immutable and a copied component
+            // shares its owner's instance of it, so the copy never differed in the first place.
+            Component child = model.component(childName).orElse(null);
             if (child == null) {
                 continue;
             }
