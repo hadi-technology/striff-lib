@@ -83,7 +83,7 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
 
         // Find modules containing changed components
         for (String componentName : diffComponentNames) {
-            Component cmp = model.getComponent(componentName).orElse(null);
+            Component cmp = model.copyOfComponent(componentName).orElse(null);
             if (cmp != null && cmp.module() != null && !cmp.module().trim().isEmpty()) {
                 relevantModuleKeys.add(cmp.module());
             }
@@ -92,11 +92,11 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
         // Find modules containing module-level components referenced by changed components
         Set<String> processedModules = new HashSet<>();
         for (String componentName : diffComponentNames) {
-            Component cmp = model.getComponent(componentName).orElse(null);
+            Component cmp = model.copyOfComponent(componentName).orElse(null);
             if (cmp != null) {
                 // Find all components this component references
                 cmp.internalDependencies().forEach(ref -> {
-                    Component referencedCmp = model.getComponent(ref.invokedComponent()).orElse(null);
+                    Component referencedCmp = model.copyOfComponent(ref.invokedComponent()).orElse(null);
                     if (referencedCmp != null
                             && SyntheticModuleSupport.isModuleLevelComponent(referencedCmp)
                             && referencedCmp.module() != null

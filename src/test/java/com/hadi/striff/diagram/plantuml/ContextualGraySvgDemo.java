@@ -49,9 +49,9 @@ public class ContextualGraySvgDemo {
         OOPSourceCodeModel codeModel = parseService.result().model();
 
         DiagramComponent userService = new DiagramComponent(
-                codeModel.getComponent("com.example.service.UserService").get(), codeModel);
+                codeModel.copyOfComponent("com.example.service.UserService").get(), codeModel);
         DiagramComponent emailService = new DiagramComponent(
-                codeModel.getComponent("com.example.service.EmailService").get(), codeModel);
+                codeModel.copyOfComponent("com.example.service.EmailService").get(), codeModel);
 
         // Create display with filter = only UserService.java
         // This means EmailService will be gray (contextual)

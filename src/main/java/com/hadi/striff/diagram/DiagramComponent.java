@@ -39,7 +39,7 @@ public class DiagramComponent {
         }
         if (srcModel != null) {
             this.cmp.children().stream()
-                    .filter(child -> srcModel.getComponent(child).isPresent())
+                    .filter(child -> srcModel.copyOfComponent(child).isPresent())
                     .forEach(children::add);
         }
     }
@@ -50,7 +50,7 @@ public class DiagramComponent {
     }
 
     public DiagramComponent(String cmpName, OOPSourceCodeModel srcModel) {
-        this(srcModel.getComponent(cmpName).orElse(new Component()), srcModel);
+        this(srcModel.copyOfComponent(cmpName).orElse(new Component()), srcModel);
     }
 
     @JsonIgnore

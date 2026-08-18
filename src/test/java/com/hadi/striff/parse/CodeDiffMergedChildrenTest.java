@@ -55,9 +55,9 @@ public class CodeDiffMergedChildrenTest {
     public void mergedParentListsChildrenDeletedByTheChange() throws Exception {
         CodeDiff diff = diffOf(OLD_SOURCE, NEW_SOURCE);
 
-        Component oldWidget = diff.oldModel().getComponent("com.sample.Widget").orElseThrow();
-        Component newWidget = diff.newModel().getComponent("com.sample.Widget").orElseThrow();
-        Component mergedWidget = diff.mergedModel().getComponent("com.sample.Widget").orElseThrow();
+        Component oldWidget = diff.oldModel().copyOfComponent("com.sample.Widget").orElseThrow();
+        Component newWidget = diff.newModel().copyOfComponent("com.sample.Widget").orElseThrow();
+        Component mergedWidget = diff.mergedModel().copyOfComponent("com.sample.Widget").orElseThrow();
 
         // The premise: the old revision declares two children the new revision does not.
         assertTrue(oldWidget.children().contains("com.sample.Widget.removedField"));
@@ -66,8 +66,8 @@ public class CodeDiffMergedChildrenTest {
         assertTrue(!newWidget.children().contains("com.sample.Widget.removedMethod()"));
 
         // The deleted members themselves survive into the merged model as old-only components.
-        assertTrue(diff.mergedModel().getComponent("com.sample.Widget.removedField").isPresent());
-        assertTrue(diff.mergedModel().getComponent("com.sample.Widget.removedMethod()").isPresent());
+        assertTrue(diff.mergedModel().copyOfComponent("com.sample.Widget.removedField").isPresent());
+        assertTrue(diff.mergedModel().copyOfComponent("com.sample.Widget.removedMethod()").isPresent());
 
         // What the merge loop is for: the surviving parent should list them too.
         assertTrue("merged Widget should list the deleted field among its children, but held "
@@ -81,7 +81,7 @@ public class CodeDiffMergedChildrenTest {
     @Test
     public void mergedParentKeepsTheNewRevisionsChildrenAndAddsNoDuplicates() throws Exception {
         CodeDiff diff = diffOf(OLD_SOURCE, NEW_SOURCE);
-        List<String> children = diff.mergedModel().getComponent("com.sample.Widget")
+        List<String> children = diff.mergedModel().copyOfComponent("com.sample.Widget")
                 .orElseThrow().children();
 
         assertTrue(children.contains("com.sample.Widget.keptField"));
@@ -118,7 +118,7 @@ public class CodeDiffMergedChildrenTest {
                         + " class Gone { public void alsoGone() {} }",
                 "package com.sample; public class Widget { public void go() {} }");
 
-        Component gone = diff.mergedModel().getComponent("com.sample.Gone").orElseThrow();
+        Component gone = diff.mergedModel().copyOfComponent("com.sample.Gone").orElseThrow();
         assertTrue("an old-only component keeps its children, but held " + gone.children(),
                 gone.children().contains("com.sample.Gone.alsoGone()"));
     }

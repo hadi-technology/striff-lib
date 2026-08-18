@@ -35,13 +35,13 @@ public class PUMLClassChangeSummaryTest {
         ClarpseProject parseService = new ClarpseProject(rawData, Lang.JAVA);
         OOPSourceCodeModel codeModel = parseService.result().model();
 
-        DiagramComponent classComponent = new DiagramComponent(codeModel.getComponent(CLASS_NAME).get(), codeModel);
+        DiagramComponent classComponent = new DiagramComponent(codeModel.copyOfComponent(CLASS_NAME).get(), codeModel);
         DiagramComponent firstField = null;
         DiagramComponent secondField = null;
         DiagramComponent method = null;
 
         for (String childName : classComponent.children()) {
-            DiagramComponent child = new DiagramComponent(codeModel.getComponent(childName).get(), codeModel);
+            DiagramComponent child = new DiagramComponent(codeModel.copyOfComponent(childName).get(), codeModel);
             if (child.componentType() == OOPSourceModelConstants.ComponentType.FIELD) {
                 if (firstField == null) {
                     firstField = child;
@@ -84,7 +84,7 @@ public class PUMLClassChangeSummaryTest {
         ClarpseProject parseService = new ClarpseProject(rawData, Lang.JAVA);
         OOPSourceCodeModel codeModel = parseService.result().model();
 
-        DiagramComponent classComponent = new DiagramComponent(codeModel.getComponent(CLASS_NAME).get(), codeModel);
+        DiagramComponent classComponent = new DiagramComponent(codeModel.copyOfComponent(CLASS_NAME).get(), codeModel);
         DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), Set.of());
         PUMLDiagramData data = new PUMLDiagramData(
                 new RelationsMap(),
@@ -108,12 +108,12 @@ public class PUMLClassChangeSummaryTest {
         ClarpseProject parseService = new ClarpseProject(rawData, Lang.JAVA);
         OOPSourceCodeModel codeModel = parseService.result().model();
 
-        DiagramComponent classComponent = new DiagramComponent(codeModel.getComponent(CLASS_NAME).get(), codeModel);
+        DiagramComponent classComponent = new DiagramComponent(codeModel.copyOfComponent(CLASS_NAME).get(), codeModel);
         DiagramComponent firstField = null;
         DiagramComponent secondField = null;
 
         for (String childName : classComponent.children()) {
-            DiagramComponent child = new DiagramComponent(codeModel.getComponent(childName).get(), codeModel);
+            DiagramComponent child = new DiagramComponent(codeModel.copyOfComponent(childName).get(), codeModel);
             if (child.componentType() == OOPSourceModelConstants.ComponentType.FIELD) {
                 if (firstField == null) {
                     firstField = child;
@@ -146,7 +146,7 @@ public class PUMLClassChangeSummaryTest {
         ClarpseProject parseService = new ClarpseProject(rawData, Lang.JAVA);
         OOPSourceCodeModel codeModel = parseService.result().model();
 
-        DiagramComponent classComponent = new DiagramComponent(codeModel.getComponent(CLASS_NAME).get(), codeModel);
+        DiagramComponent classComponent = new DiagramComponent(codeModel.copyOfComponent(CLASS_NAME).get(), codeModel);
         DiagramDisplay display = new DiagramDisplay(new LightDiagramColorScheme(), Set.of());
         PUMLDiagramData data = new PUMLDiagramData(
                 new RelationsMap(),

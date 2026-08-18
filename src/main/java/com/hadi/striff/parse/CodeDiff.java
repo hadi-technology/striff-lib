@@ -110,7 +110,7 @@ public class CodeDiff implements Serializable {
      * Lists a deleted member among the children of the parent that survived it.
      *
      * <p><b>This branch of the merge had no effect at all before, and its absence was visible to a
-     * reader.</b> It read the surviving parent through {@code getComponent}, which deep-copies, and
+     * reader.</b> It read the surviving parent through {@code copyOfComponent}, which deep-copies, and
      * so inserted the missing children into a copy that was then discarded -- leaving the merged
      * parent listing only the members the head revision still declares. A class whose method was
      * deleted therefore rendered as though nothing had been removed from it, and
@@ -129,7 +129,7 @@ public class CodeDiff implements Serializable {
             if (oldCmp.children().isEmpty()) {
                 return;
             }
-            merged.liveComponent(oldCmp.uniqueName()).ifPresent(mergedCmp -> {
+            merged.component(oldCmp.uniqueName()).ifPresent(mergedCmp -> {
                 // Hoisted, and a set: this was a fresh copy of the list per child, with a linear
                 // scan of it on top, on a model of twelve thousand components.
                 final Set<String> alreadyListed = new HashSet<>(mergedCmp.children());

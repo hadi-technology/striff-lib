@@ -226,7 +226,7 @@ StriffOutput prOutput = prOp.result();
 1. **ExtractedRelationships** (45% of time) - Single extraction on merged model
    (optimized from original three extractions: old, new, and merged)
 
-2. **Defensive copying** in OOPSourceCodeModel.getComponent() creates deep copies
+2. **Defensive copying** in OOPSourceCodeModel.copyOfComponent() creates deep copies
    on every access
 
 3. **Full parsing** - For large codebases with few changes, full parsing is inefficient.

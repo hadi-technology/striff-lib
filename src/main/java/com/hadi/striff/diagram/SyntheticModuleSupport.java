@@ -107,7 +107,7 @@ public final class SyntheticModuleSupport {
             return null;
         }
         for (String childName : children) {
-            Component child = model.getComponent(childName).orElse(null);
+            Component child = model.copyOfComponent(childName).orElse(null);
             if (child == null) {
                 continue;
             }
@@ -124,7 +124,7 @@ public final class SyntheticModuleSupport {
             return null;
         }
         for (String childName : children) {
-            Component child = model.getComponent(childName).orElse(null);
+            Component child = model.copyOfComponent(childName).orElse(null);
             if (child == null) {
                 continue;
             }

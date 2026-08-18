@@ -93,7 +93,7 @@ public class StriffDiagramModel {
                             return true;
                         }
                         // Expanded files components are always included
-                        var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
+                        var cmpOpt = codeDiff.mergedModel().copyOfComponent(cmp);
                         if (cmpOpt.isEmpty()) {
                             return false;
                         }
@@ -109,7 +109,7 @@ public class StriffDiagramModel {
 
 
         unfilteredCoreCmps.forEach(diagramComponent -> {
-            var cmpOpt = codeDiff.mergedModel().getComponent(diagramComponent);
+            var cmpOpt = codeDiff.mergedModel().copyOfComponent(diagramComponent);
             if (cmpOpt.isEmpty()) {
                 LOGGER.debug("Component {} not found in merged model, skipping", diagramComponent);
                 return;
@@ -119,7 +119,7 @@ public class StriffDiagramModel {
                 diagramCmpNames.add(diagramComponent);
             } else {
                 try {
-                    Component parentBaseCmp = codeDiff.mergedModel().parentBaseCmp(diagramComponent);
+                    Component parentBaseCmp = codeDiff.mergedModel().copyOfParentBaseComponent(diagramComponent);
                     if (parentBaseCmp != null) {
                         diagramCmpNames.add(parentBaseCmp.uniqueName());
                     }

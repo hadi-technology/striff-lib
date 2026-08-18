@@ -70,14 +70,14 @@ public class CrossFileResolutionHazardTest {
 
     private static Set<String> internalTargets(final OOPSourceCodeModel model, final String cmp) {
         Set<String> targets = new TreeSet<>();
-        model.getComponent(cmp).orElseThrow().internalDependencies()
+        model.copyOfComponent(cmp).orElseThrow().internalDependencies()
                 .forEach(ref -> targets.add(ref.invokedComponent()));
         return targets;
     }
 
     private static Set<String> externalTargets(final OOPSourceCodeModel model, final String cmp) {
         Set<String> targets = new TreeSet<>();
-        model.getComponent(cmp).orElseThrow().externalDependencies()
+        model.copyOfComponent(cmp).orElseThrow().externalDependencies()
                 .forEach(ref -> targets.add(ref.invokedComponent()));
         return targets;
     }
@@ -177,7 +177,7 @@ public class CrossFileResolutionHazardTest {
         CodeDiff diff = diff(oldFiles, newFiles);
         assertTrue(diff.changeSet().deletedComponents().contains("com.sample.Widget"));
         assertTrue("the merged model keeps the deleted type, for context",
-                diff.mergedModel().getComponent("com.sample.Widget").isPresent());
+                diff.mergedModel().copyOfComponent("com.sample.Widget").isPresent());
         assertTrue("and the edge into it is reported deleted",
                 diff.changeSet().deletedRelations().allRels().stream()
                         .anyMatch(rel -> "com.sample.Widget".equals(

@@ -106,12 +106,12 @@ public final class ChangeSet implements Serializable {
         LOGGER.info("Found {} deleted relations.", this.deletedRelations.size());
 
         // Modified components
-        // liveComponent, not getComponent: one int is read off the old component and nothing is
-        // kept, and getComponent deep-copies the imports, the children and every reference to
-        // deliver it -- once per component the two revisions have in common, which on an ordinary
-        // pull request is very nearly all of them.
+        // The model's own component, not a copy of it: one int is read off the old component and
+        // nothing is kept, whereas copyOfComponent duplicates the imports, the children and every
+        // reference to deliver it -- once per component the two revisions have in common, which on
+        // an ordinary pull request is very nearly all of them.
         newModel.components()
-            .forEach(cmp -> oldModel.liveComponent(cmp.uniqueName()).ifPresent(oldCmp -> {
+            .forEach(cmp -> oldModel.component(cmp.uniqueName()).ifPresent(oldCmp -> {
                 if (cmp.codeHash() != oldCmp.codeHash()) {
                     this.modifiedComponents.add(cmp.uniqueName());
                 }
