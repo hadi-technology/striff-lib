@@ -67,10 +67,7 @@ public final class ChangeSet implements Serializable {
         LOGGER.info("Generating changeset between old and new code models..");
 
         // Short-circuit: if no components in either model, skip relationship extraction
-        boolean hasOldComponents = oldModel.components().count() > 0;
-        boolean hasNewComponents = newModel.components().count() > 0;
-
-        if (!hasOldComponents && !hasNewComponents) {
+        if (oldModel.size() == 0 && newModel.size() == 0) {
             LOGGER.info("No components in old or new models, skipping changeset analysis.");
             return;
         }
@@ -109,13 +106,16 @@ public final class ChangeSet implements Serializable {
         LOGGER.info("Found {} deleted relations.", this.deletedRelations.size());
 
         // Modified components
-        newModel.components().filter(cmp -> oldModel.containsComponent(cmp.uniqueName()))
-            .forEach(cmp -> {
-                Component oldCmp = oldModel.getComponent(cmp.uniqueName()).orElse(null);
-                if (oldCmp != null && cmp.codeHash() != oldCmp.codeHash()) {
+        // liveComponent, not getComponent: one int is read off the old component and nothing is
+        // kept, and getComponent deep-copies the imports, the children and every reference to
+        // deliver it -- once per component the two revisions have in common, which on an ordinary
+        // pull request is very nearly all of them.
+        newModel.components()
+            .forEach(cmp -> oldModel.liveComponent(cmp.uniqueName()).ifPresent(oldCmp -> {
+                if (cmp.codeHash() != oldCmp.codeHash()) {
                     this.modifiedComponents.add(cmp.uniqueName());
                 }
-            });
+            }));
         LOGGER.info("Found {} modified components.", this.modifiedComponents.size());
     }
 

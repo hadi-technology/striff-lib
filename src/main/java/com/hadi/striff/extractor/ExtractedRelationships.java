@@ -86,14 +86,8 @@ public class ExtractedRelationships {
                     .collect(java.util.stream.Collectors.toSet());
 
             for (Component moduleLevelCmp : modulesComps) {
-                Set<ComponentReference> references = new LinkedHashSet<>(moduleLevelCmp.internalDependencies());
-
-                for (ComponentReference ref : references) {
-                    if (!sourceCodeModel.containsComponent(ref.invokedComponent())) {
-                        continue;
-                    }
-
-                    Component target = sourceCodeModel.getComponent(ref.invokedComponent()).orElse(null);
+                for (ComponentReference ref : moduleLevelCmp.internalDependencies()) {
+                    Component target = sourceCodeModel.liveComponent(ref.invokedComponent()).orElse(null);
                     if (target == null) {
                         continue;
                     }
@@ -101,7 +95,7 @@ public class ExtractedRelationships {
                     // If target is not a base component, try to get its parent
                     if (!target.componentType().isBaseComponent()) {
                         try {
-                            target = sourceCodeModel.parentBaseCmp(target.uniqueName());
+                            target = sourceCodeModel.liveParentBaseCmp(target.uniqueName());
                         } catch (IllegalArgumentException e) {
                             LOGGER.debug("No parent base component for reference target: {}", ref.invokedComponent());
                             continue;
@@ -210,11 +204,17 @@ public class ExtractedRelationships {
                 .forEach(this::addRelationSafely);
     }
 
+    /**
+     * Resolves a reference to the base component it lands in.
+     *
+     * <p>Reads the model's own components rather than copies of them. This is the single hottest read
+     * path in the pipeline -- it runs once per reference in the model, and the model is extracted from
+     * three times in a two-revision analysis -- and {@code getComponent} deep-copies a component's
+     * imports, children and every one of its references in order to answer a question about its type.
+     * Nothing here mutates what it is given, and the relation the caller builds only ever reads.
+     */
     private Component resolveTargetBaseComponent(ComponentReference ref, OOPSourceCodeModel model) {
-        if (!model.containsComponent(ref.invokedComponent())) {
-            return null;
-        }
-        Component target = model.getComponent(ref.invokedComponent()).orElse(null);
+        Component target = model.liveComponent(ref.invokedComponent()).orElse(null);
         if (target == null) {
             return null;
         }
@@ -222,7 +222,7 @@ public class ExtractedRelationships {
             return target;
         }
         try {
-            return model.parentBaseCmp(target.uniqueName());
+            return model.liveParentBaseCmp(target.uniqueName());
         } catch (IllegalArgumentException e) {
             LOGGER.warn("No parent base component found for reference target: {}", target.uniqueName());
             return null;
@@ -234,7 +234,7 @@ public class ExtractedRelationships {
      */
     private Component findParentBaseComponent(Component component, OOPSourceCodeModel model) {
         try {
-            return model.parentBaseCmp(component.uniqueName());
+            return model.liveParentBaseCmp(component.uniqueName());
         } catch (IllegalArgumentException e) {
             LOGGER.warn("No parent component found for component: {}", component.uniqueName());
             return null;
