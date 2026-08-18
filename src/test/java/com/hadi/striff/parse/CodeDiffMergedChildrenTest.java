@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
  * <p>The merge loop in {@link CodeDiff} intends to union the two revisions' children onto the
  * merged component, so that a member deleted by the change still appears inside its surviving
  * parent. Whether it does so is the question these tests answer, and they are written to fail
- * loudly if the answer ever changes: the merged model is what every diagram, every detector and
- * every documented-rule evaluation reads.
+ * loudly if the answer ever changes: the merged model is what every downstream consumer reads, so a
+ * member missing from it is missing everywhere at once.
  */
 public class CodeDiffMergedChildrenTest {
 

@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * -- but the reference is <b>external</b> at a revision where no file declares that type and
  * <b>internal</b> at one where some file does. {@link Component} keeps the two in separate sets, and
  * downstream everything turns on which set a reference is in: relationship extraction walks both but
- * the package graph and the documented-rule facts are built from edges that point inside the
+ * the package graph and the structural facts derived from it are built from edges that point inside the
  * codebase, and an external reference is not one.
  *
  * <p>So the reuse case that looks safest is the one that breaks: a pull request that <b>adds a

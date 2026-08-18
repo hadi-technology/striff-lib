@@ -21,10 +21,10 @@ import java.util.Locale;
  * on when a collection happened to run -- the same merge reports the same figure to within a
  * fraction of a percent across runs, where free-memory deltas move by whole percentages.
  *
- * <p>Allocation rather than live size is the primary number because of how the failure presented: a
- * container was OOMKilled with {@code -Xmx} at 4g, no {@code OutOfMemoryError}, and roughly 6GB
- * outside every {@code jvm_memory_*} pool. Heap exhaustion does not do that; allocation churn and
- * the collector bookkeeping it drives does.
+ * <p>Allocation rather than live size is the primary number because of how the failure presented:
+ * the process was killed by the OS having exhausted a budget several times its configured heap, with
+ * no {@code OutOfMemoryError} and most of the excess outside every {@code jvm_memory_*} pool. Heap
+ * exhaustion does not do that; allocation churn and the collector bookkeeping it drives does.
  *
  * <p><b>Retained size</b> is reported alongside it, as a used-heap reading taken after repeated
  * {@code System.gc()} with only the models reachable. It is the weaker of the two numbers -- a

@@ -17,18 +17,18 @@ import java.util.Set;
  * Builds two source code models of a size and shape matching a real repository, deterministically
  * and without parsing anything.
  *
- * <p>Sized on querqy/querqy, the repository whose analysis was OOMKilled past a 10Gi container
- * limit: 452 files and 11,999 components per revision, so roughly 26 components per file. A
- * synthetic model is used rather than a checked-in repository because the merge is what is being
- * measured, and a parse would dominate both the wall clock and the allocation figure while adding
- * run-to-run variance from the parsers.
+ * <p>Sized on a real repository whose comparison exhausted its memory budget: 452 files and 11,999
+ * components per revision, so roughly 26 components per file. A synthetic model is used rather than
+ * a checked-in repository because the merge is what is being measured, and a parse would dominate
+ * both the wall clock and the allocation figure while adding run-to-run variance from the
+ * parsers.
  *
  * <p>Every count here is fixed, so two runs build byte-identical models and an allocation figure is
  * comparable across builds.
  */
 public final class SyntheticModels {
 
-    /** Base components, one per source file, matching querqy's file count. */
+    /** Base components, one per source file, matching the reference repository's file count. */
     public static final int CLASSES = 452;
     /** Packages the classes are spread over. */
     public static final int PACKAGES = 60;
