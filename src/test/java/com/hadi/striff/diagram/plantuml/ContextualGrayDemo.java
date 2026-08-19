@@ -39,7 +39,7 @@ public class ContextualGrayDemo {
         OOPSourceCodeModel codeModel = parseService.result().model();
 
         DiagramComponent classComponent = new DiagramComponent(
-                codeModel.getComponent("com.test.UserService").get(), codeModel);
+                codeModel.copyOfComponent("com.test.UserService").get(), codeModel);
 
         System.out.println("Component sourceFile: [" + classComponent.sourceFile() + "]");
         System.out.println("Filter: Set.of(\"/OtherFile.java\")");

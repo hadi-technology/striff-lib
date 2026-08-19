@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents the product of merging and comparing two code models.
@@ -71,30 +73,72 @@ public class CodeDiff implements Serializable {
         this.newModel = newerModel;
 
         // Short-circuit: if no components in either model, skip processing
-        boolean hasOldComponents = olderModel.components().count() > 0;
-        boolean hasNewComponents = newerModel.components().count() > 0;
-
-        if (!hasOldComponents && !hasNewComponents) {
+        if (olderModel.size() == 0 && newerModel.size() == 0) {
             LOGGER.info("No components in old or new models, skipping diff/merge/relationship extraction.");
-            this.changeSet = new ChangeSet(olderModel, newerModel.copy());
+            this.changeSet = new ChangeSet(olderModel, newerModel);
             this.mergedModel = newerModel.copy();
             this.relationsMap = new RelationsMap();
             return;
         }
 
-        OOPSourceCodeModel newerModelCopy = newerModel.copy();
-        this.changeSet = new ChangeSet(olderModel, newerModelCopy);
-        // Inefficient way to merge the given sets of components..
+        // The change set is computed from the two revisions as parsed, before anything is merged
+        // onto either. It used to be handed the copy that the merge then mutated, which was safe
+        // only because every component it held was a defensive copy; it holds the models' own
+        // components now, so the pristine model is what it must be given.
+        this.changeSet = new ChangeSet(olderModel, newerModel);
+
+        OOPSourceCodeModel merged = newerModel.copy();
         LOGGER.info("Merging old and new code models..");
-        olderModel.components().forEach(oldCmp -> {
-            newerModelCopy.getComponent(oldCmp.uniqueName()).ifPresentOrElse(
-                    newCmp -> oldCmp.children().stream()
-                            .filter(child -> !newCmp.children().contains(child))
-                            .forEach(newCmp::insertChildComponent),
-                    () -> newerModelCopy.insertComponent(oldCmp));
-        });
-        this.mergedModel = newerModelCopy;
+        mergeOldOnlyComponents(olderModel, merged);
+        mergeDeletedChildrenOntoSurvivingParents(olderModel, merged);
+        this.mergedModel = merged;
         this.relationsMap = new ExtractedRelationships(this.mergedModel).result();
+    }
+
+    /**
+     * Carries components the change deleted into the merged model, so that a diagram can show what
+     * went away beside what arrived.
+     */
+    private static void mergeOldOnlyComponents(final OOPSourceCodeModel olderModel,
+                                               final OOPSourceCodeModel merged) {
+        olderModel.components()
+                .filter(oldCmp -> !merged.containsComponent(oldCmp.uniqueName()))
+                .forEach(merged::insertComponent);
+    }
+
+    /**
+     * Lists a deleted member among the children of the parent that survived it.
+     *
+     * <p><b>This branch of the merge had no effect at all before, and its absence was visible to a
+     * reader.</b> It read the surviving parent through {@code copyOfComponent}, which deep-copies, and
+     * so inserted the missing children into a copy that was then discarded -- leaving the merged
+     * parent listing only the members the head revision still declares. A class whose method was
+     * deleted therefore rendered as though nothing had been removed from it, and
+     * {@code PUMLClassFieldsCode.generateChangeSummary} counts deleted children by walking exactly
+     * this list, so its deleted-member count was structurally incapable of being anything but zero.
+     * The deleted component itself was in the merged model the whole time; only its parent's account
+     * of it was missing.
+     *
+     * <p>It runs after {@link #mergeOldOnlyComponents} rather than in the same pass, so that the
+     * merged model is complete and a child can be dropped when it names no component in either
+     * revision. Callers dereference these names against the merged model without checking.
+     */
+    private static void mergeDeletedChildrenOntoSurvivingParents(final OOPSourceCodeModel olderModel,
+                                                                 final OOPSourceCodeModel merged) {
+        olderModel.components().forEach(oldCmp -> {
+            if (oldCmp.children().isEmpty()) {
+                return;
+            }
+            merged.component(oldCmp.uniqueName()).ifPresent(mergedCmp -> {
+                // Hoisted, and a set: this was a fresh copy of the list per child, with a linear
+                // scan of it on top, on a model of twelve thousand components.
+                final Set<String> alreadyListed = new HashSet<>(mergedCmp.children());
+                oldCmp.children().stream()
+                        .filter(child -> !alreadyListed.contains(child))
+                        .filter(merged::containsComponent)
+                        .forEach(mergedCmp::insertChildComponent);
+            });
+        });
     }
 
     /**

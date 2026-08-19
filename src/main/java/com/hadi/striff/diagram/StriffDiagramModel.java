@@ -93,7 +93,8 @@ public class StriffDiagramModel {
                             return true;
                         }
                         // Expanded files components are always included
-                        var cmpOpt = codeDiff.mergedModel().getComponent(cmp);
+                        // The model's own component: one path is read off it and nothing is kept.
+                        var cmpOpt = codeDiff.mergedModel().component(cmp);
                         if (cmpOpt.isEmpty()) {
                             return false;
                         }
@@ -109,7 +110,10 @@ public class StriffDiagramModel {
 
 
         unfilteredCoreCmps.forEach(diagramComponent -> {
-            var cmpOpt = codeDiff.mergedModel().getComponent(diagramComponent);
+            // Read-only throughout this block: a type is read off the component, and the parent
+            // walk below reads a name off its result. Neither is retained, and a copy of either
+            // would be discarded at the end of the iteration.
+            var cmpOpt = codeDiff.mergedModel().component(diagramComponent);
             if (cmpOpt.isEmpty()) {
                 LOGGER.debug("Component {} not found in merged model, skipping", diagramComponent);
                 return;
@@ -119,9 +123,9 @@ public class StriffDiagramModel {
                 diagramCmpNames.add(diagramComponent);
             } else {
                 try {
-                    Component parentBaseCmp = codeDiff.mergedModel().parentBaseCmp(diagramComponent);
-                    if (parentBaseCmp != null) {
-                        diagramCmpNames.add(parentBaseCmp.uniqueName());
+                    Component parentBase = codeDiff.mergedModel().parentBaseComponent(diagramComponent);
+                    if (parentBase != null) {
+                        diagramCmpNames.add(parentBase.uniqueName());
                     }
                 } catch (IllegalArgumentException e) {
                     // Component has no parent (e.g., module-level function/field)

@@ -40,7 +40,7 @@ public class ExtractedRelationshipsTest {
         pfs.insertFile(fileB);
         final OOPSourceCodeModel codeModel = new ClarpseProject(pfs, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertTrue(classARelations.size() == 1 &&
                 classARelations.stream().findFirst().get().originalComponent().name().equals(
@@ -63,7 +63,7 @@ public class ExtractedRelationshipsTest {
         final OOPSourceCodeModel codeModel = 
                 new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponentRelationMultiplicity().value(),
                 DefaultClassMultiplicities.NONE.value());
@@ -82,8 +82,8 @@ public class ExtractedRelationshipsTest {
         final OOPSourceCodeModel codeModel = 
                 new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
-        Component componentB = codeModel.getComponent("com.sample.ClassB").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
+        Component componentB = codeModel.copyOfComponent("com.sample.ClassB").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().originalComponent(), componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponent(), componentB);
@@ -101,7 +101,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(fileB);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentB = codeModel.getComponent("com.sample.ClassB").get();
+        Component componentB = codeModel.copyOfComponent("com.sample.ClassB").get();
         Set<ComponentRelation> classBRelations = relations.result().rels(componentB);
         assertTrue(classBRelations.isEmpty());
     }
@@ -119,7 +119,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         Assert.assertSame(classARelations.stream().findFirst().get().associationType(),
                 ComponentAssociation.REALIZATION);
@@ -138,7 +138,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponentRelationMultiplicity().value(),
                 DefaultClassMultiplicities.NONE.value());
@@ -157,8 +157,8 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
-        Component componentC = codeModel.getComponent("com.sample.ClassC").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
+        Component componentC = codeModel.copyOfComponent("com.sample.ClassC").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().originalComponent(), componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponent(), componentC);
@@ -177,7 +177,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         Assert.assertSame(classARelations.stream().findFirst().get().associationType(),
                 ComponentAssociation.SPECIALIZATION);
@@ -198,7 +198,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponentRelationMultiplicity().value(),
                 DefaultClassMultiplicities.NONE.value());
@@ -217,8 +217,8 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
-        Component componentD = codeModel.getComponent("com.sample.ClassD").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
+        Component componentD = codeModel.copyOfComponent("com.sample.ClassD").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().originalComponent(), componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponent(), componentD);
@@ -237,7 +237,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertTrue(classARelations.size() == 1 && classARelations.stream().findFirst().get()
                 .associationType() == ComponentAssociation.WEAK_ASSOCIATION);
@@ -256,8 +256,8 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
-        Component componentE = codeModel.getComponent("com.sample.ClassE").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
+        Component componentE = codeModel.copyOfComponent("com.sample.ClassE").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().originalComponent(), componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponent(), componentE);
@@ -276,7 +276,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         Assert.assertSame(classARelations.stream().findFirst().get().associationType(),
                 ComponentAssociation.WEAK_ASSOCIATION);
@@ -297,7 +297,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponentRelationMultiplicity().value(),
                 DefaultClassMultiplicities.NONE.value());
@@ -316,8 +316,8 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("com.sample.ClassA").get();
-        Component componentD = codeModel.getComponent("com.sample.ClassD").get();
+        Component componentA = codeModel.copyOfComponent("com.sample.ClassA").get();
+        Component componentD = codeModel.copyOfComponent("com.sample.ClassD").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertEquals(classARelations.stream().findFirst().get().originalComponent(), componentA);
         assertEquals(classARelations.stream().findFirst().get().targetComponent(), componentD);
@@ -409,7 +409,7 @@ public class ExtractedRelationshipsTest {
         ProjectFiles.insertFile(file2);
         final OOPSourceCodeModel codeModel = new ClarpseProject(ProjectFiles, Lang.JAVA).result().model();
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
-        Component componentA = codeModel.getComponent("ClassA").get();
+        Component componentA = codeModel.copyOfComponent("ClassA").get();
         Set<ComponentRelation> classARelations = relations.result().rels(componentA);
         assertTrue(classARelations.size() == 2
                 && classARelations.stream().findFirst().get().associationType() == ComponentAssociation.AGGREGATION);

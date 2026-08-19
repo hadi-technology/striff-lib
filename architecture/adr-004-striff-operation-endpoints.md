@@ -221,13 +221,23 @@ StriffOutput prOutput = prOp.result();
 | Model merge + copy | 600ms | 15% |
 | **Total** | **4000ms** | **100%** |
 
+> **Timings above predate 4.0.0 and have not been re-measured.** The 4.0.0 work was measured in
+> allocated bytes rather than wall clock, because allocation is exact and reproducible where a
+> free-memory or clock delta is not. Do not quote these percentages as current.
+
 ### Bottlenecks
 
-1. **ExtractedRelationships** (45% of time) - Single extraction on merged model
-   (optimized from original three extractions: old, new, and merged)
+1. **ExtractedRelationships** (45% of time) - and it is **not** a single extraction. Three
+   instantiations exist: `ChangeSet` builds one over the old model and one over the new, and
+   `CodeDiff` builds a third over the merged model. See the correction under "Single Extraction
+   on Merged Model" below.
 
-2. **Defensive copying** in OOPSourceCodeModel.getComponent() creates deep copies
-   on every access
+2. **Defensive copying** in `OOPSourceCodeModel` - addressed in 4.0.0, not eliminated. The
+   copying accessor still deep-copies a component, its imports, its children and every one of
+   its references on every call; what changed is that the read paths no longer use it. Measured
+   over a pair of 11,750-component models, the `CodeDiff` constructor fell from **629MiB to
+   166MiB of allocation (-73.7%)**, of which `ChangeSet` was 392.9 -> 94.6MiB and relationship
+   extraction 182.7 -> 44.7MiB.
 
 3. **Full parsing** - For large codebases with few changes, full parsing is inefficient.
    Use incremental parsing constructor to parse only changed files.
@@ -245,6 +255,22 @@ component names.
 - Simplifies code paths
 
 **Trade-off**: Slightly more memory usage (stores relations for all components)
+
+**Correction (4.0.0): this decision does not describe the code, and has not for some time.**
+There are three extractions, not one -- `ChangeSet` over the old model, `ChangeSet` over the
+new model, and `CodeDiff` over the merged model. Whether the optimisation regressed or was only
+ever partly applied is not recoverable from the history, so this is recorded as an open
+discrepancy rather than resolved.
+
+It matters more than a stale sentence, because the third extraction is the one this ADR argues
+for and the first two are the ones it claims were removed. They are also expensive: extraction
+resolves every reference in a model and walks a parent chain per member, which is why it was
+the single largest allocation term before 4.0.0 moved those paths onto the non-copying accessor.
+
+Reducing three to one is still the right destination and it is **not** what 4.0.0 did -- that
+change made each extraction cheaper and left the count alone. Anyone attacking the count should
+check first whether `ChangeSet` genuinely needs per-revision relations or whether it can be
+derived from the merged map.
 
 ### 2. Render-Only Constructor
 

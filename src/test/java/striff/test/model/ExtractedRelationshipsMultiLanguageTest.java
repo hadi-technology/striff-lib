@@ -186,7 +186,7 @@ public class ExtractedRelationshipsMultiLanguageTest {
                                              final String sourceUniqueName,
                                              final String targetUniqueName,
                                              final DiagramConstants.ComponentAssociation expectedType) {
-        Component source = model.getComponent(sourceUniqueName).orElseThrow();
+        Component source = model.copyOfComponent(sourceUniqueName).orElseThrow();
         Set<ComponentRelation> relations = map.rels(source);
         Assert.assertTrue("Missing relation " + sourceUniqueName + " -> " + targetUniqueName + " (" + expectedType
                         + "), got: " + relations,

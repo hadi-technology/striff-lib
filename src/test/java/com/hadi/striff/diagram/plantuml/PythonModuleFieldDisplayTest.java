@@ -50,8 +50,8 @@ public class PythonModuleFieldDisplayTest {
         OOPSourceCodeModel model = project.result().model();
 
         // Find the module-level field components
-        Component defaultTimeoutField = model.getComponent("src.config.DEFAULT_TIMEOUT").orElse(null);
-        Component maxRetriesField = model.getComponent("src.config.MAX_RETRIES").orElse(null);
+        Component defaultTimeoutField = model.copyOfComponent("src.config.DEFAULT_TIMEOUT").orElse(null);
+        Component maxRetriesField = model.copyOfComponent("src.config.MAX_RETRIES").orElse(null);
 
         Assert.assertNotNull("Module field DEFAULT_TIMEOUT should be parsed", defaultTimeoutField);
         Assert.assertEquals("DEFAULT_TIMEOUT should be a MODULE_FIELD",
@@ -124,8 +124,8 @@ public class PythonModuleFieldDisplayTest {
         OOPSourceCodeModel model = project.result().model();
 
         // Find the module-level field components
-        Component errorLevelField = model.getComponent("src.logger._SINK_ERROR_LOG_LEVEL").orElse(null);
-        Component warningLevelField = model.getComponent("src.logger._SINK_WARNING_LOG_LEVEL").orElse(null);
+        Component errorLevelField = model.copyOfComponent("src.logger._SINK_ERROR_LOG_LEVEL").orElse(null);
+        Component warningLevelField = model.copyOfComponent("src.logger._SINK_WARNING_LOG_LEVEL").orElse(null);
 
         Assert.assertNotNull("Module field _SINK_ERROR_LOG_LEVEL should be parsed", errorLevelField);
         Assert.assertEquals("_SINK_ERROR_LOG_LEVEL should be a MODULE_FIELD",
