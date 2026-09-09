@@ -3,6 +3,7 @@ package com.hadi.striff.extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hadi.clarpse.reference.AnnotationReference;
 import com.hadi.clarpse.reference.ComponentReference;
 import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
@@ -136,6 +137,11 @@ public class ExtractedRelationships {
                         sinceCheck = 0;
                         throwIfInterrupted();
                     }
+                    // Annotations/decorators are captured on the model for doc-fact consumers but
+                    // are not structural diagram dependencies, so they never become module edges.
+                    if (ref instanceof AnnotationReference) {
+                        continue;
+                    }
                     Component target = sourceCodeModel.component(ref.invokedComponent()).orElse(null);
                     if (target == null) {
                         continue;
@@ -241,6 +247,9 @@ public class ExtractedRelationships {
         Set<ComponentReference> references = Stream.concat(
                 component.internalDependencies().stream(),
                 component.externalDependencies().stream())
+                // Annotations/decorators are captured on the model for doc-fact consumers but are
+                // not structural diagram dependencies, so they must not become association edges.
+                .filter(ref -> !(ref instanceof AnnotationReference))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         removeRedundantReferences(references, model, baseComponent);
 
