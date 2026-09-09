@@ -3,6 +3,7 @@ package com.hadi.striff.extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hadi.clarpse.reference.AnnotationReference;
 import com.hadi.clarpse.reference.ComponentReference;
 import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
@@ -13,7 +14,9 @@ import com.hadi.striff.annotations.LogExecutionTime;
 import com.hadi.striff.diagram.SyntheticModuleSupport;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,6 +51,19 @@ public class ExtractedRelationships {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtractedRelationships.class);
 
     /**
+     * How many components are processed between interrupt checks during extraction.
+     *
+     * <p>Relationship extraction is the single most expensive phase in the pipeline and is
+     * single-threaded and CPU-bound. A caller that enforces a time budget interrupts this thread
+     * when the budget expires, and without a cooperative checkpoint the extraction runs to
+     * completion regardless. This mirrors the cooperative-cancellation checkpoint that
+     * {@code OOPSourceCodeModel.merge} performs in clarpse: checking every few hundred components
+     * keeps cancellation responsive within milliseconds while the overhead is unmeasurable, and the
+     * checkpoint is completely inert on any run that is never interrupted.
+     */
+    private static final int INTERRUPT_CHECK_INTERVAL = 512;
+
+    /**
      * Extracts all relationships from the given source code model.
      *
      * <p>This constructor processes all relevant components and builds a complete
@@ -58,12 +74,40 @@ public class ExtractedRelationships {
      */
     @LogExecutionTime
     public ExtractedRelationships(final OOPSourceCodeModel sourceCodeModel) {
-        sourceCodeModel.components()
+        final List<Component> relevantComponents = sourceCodeModel.components()
                 .filter(this::isRelevantComponent)
-                .forEach(component -> processComponentRelations(component, sourceCodeModel));
+                .collect(Collectors.toList());
+
+        // Upfront as well as periodic, so an extraction that begins already-cancelled stops before
+        // it touches the first component rather than after the first batch.
+        throwIfInterrupted();
+        int sinceCheck = 0;
+        for (final Component component : relevantComponents) {
+            if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
+                sinceCheck = 0;
+                throwIfInterrupted();
+            }
+            processComponentRelations(component, sourceCodeModel);
+        }
 
         // Create synthetic modules and fold module-level relations
         createSyntheticModulesAndRelations(sourceCodeModel);
+    }
+
+    /**
+     * Aborts extraction when the calling thread has been interrupted.
+     *
+     * <p>Cooperative cancellation: a caller that enforces a time budget interrupts this thread, and
+     * relationship extraction is one of the long CPU-bound phases that would otherwise ignore the
+     * request. Re-asserts the interrupt flag before throwing so callers can still observe it, then throws an
+     * unchecked {@link CancellationException} that unwinds out of the constructor (and, in turn, out
+     * of {@code CodeDiff} / {@code StriffOperation}) so the caller can convert it to a timeout.
+     */
+    private static void throwIfInterrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            Thread.currentThread().interrupt();
+            throw new CancellationException("Analysis interrupted during relationship extraction.");
+        }
     }
 
     /**
@@ -85,8 +129,18 @@ public class ExtractedRelationships {
                     .filter(cmp -> moduleKey.equals(cmp.module()))
                     .collect(java.util.stream.Collectors.toSet());
 
+            int sinceCheck = 0;
             for (Component moduleLevelCmp : modulesComps) {
                 for (ComponentReference ref : moduleLevelCmp.internalDependencies()) {
+                    if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
+                        sinceCheck = 0;
+                        throwIfInterrupted();
+                    }
+                    // Annotations/decorators are captured on the model for doc-fact consumers but
+                    // are not structural diagram dependencies, so they never become module edges.
+                    if (ref instanceof AnnotationReference) {
+                        continue;
+                    }
                     Component target = sourceCodeModel.component(ref.invokedComponent()).orElse(null);
                     if (target == null) {
                         continue;
@@ -192,6 +246,9 @@ public class ExtractedRelationships {
         Set<ComponentReference> references = Stream.concat(
                 component.internalDependencies().stream(),
                 component.externalDependencies().stream())
+                // Annotations/decorators are captured on the model for doc-fact consumers but are
+                // not structural diagram dependencies, so they must not become association edges.
+                .filter(ref -> !(ref instanceof AnnotationReference))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         removeRedundantReferences(references, model, baseComponent);
 
