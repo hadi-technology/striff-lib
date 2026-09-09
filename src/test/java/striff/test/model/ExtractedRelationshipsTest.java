@@ -4,12 +4,14 @@ import com.hadi.clarpse.compiler.ClarpseProject;
 import com.hadi.clarpse.compiler.Lang;
 import com.hadi.clarpse.compiler.ProjectFile;
 import com.hadi.clarpse.compiler.ProjectFiles;
+import com.hadi.clarpse.reference.AnnotationReference;
 import com.hadi.clarpse.reference.SimpleTypeReference;
 import com.hadi.clarpse.reference.TypeExtensionReference;
 import com.hadi.clarpse.reference.TypeImplementationReference;
 import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants;
+import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.TypeReferences;
 import com.hadi.striff.extractor.ComponentRelation;
 import com.hadi.striff.extractor.DiagramConstants.ComponentAssociation;
 import com.hadi.striff.extractor.DiagramConstants.DefaultClassMultiplicities;
@@ -21,6 +23,7 @@ import org.junit.Test;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -541,6 +544,63 @@ public class ExtractedRelationshipsTest {
                 ComponentAssociation.REALIZATION);
         final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
         assertTrue(relations.result().contains(expectedRelation));
+    }
+
+    /**
+     * clarpse 11.3.0 models an applied annotation/decorator/attribute as an
+     * {@link AnnotationReference} routed into a component's dependency references, the same set
+     * {@code extends}/{@code implements} and ordinary type usages flow through. An annotation is
+     * architectural intent, not a structural dependency, so it must be excluded from diagram edge
+     * building. Here the annotation target is an in-model base component (as a C#/Python/TypeScript
+     * decorator that resolves to a class would be): an ordinary reference to it would produce an
+     * edge, so this proves the exclusion is what suppresses it rather than an unrelated filter.
+     */
+    @Test
+    public void testAnnotationReferenceDoesNotCreateEdge() {
+        OOPSourceCodeModel codeModel = new OOPSourceCodeModel();
+        Component classA = setupComponent("classA", "classA", codeModel,
+                OOPSourceModelConstants.ComponentType.CLASS);
+        Component classAMethod = setupComponent("methodA", "classA.methodA", codeModel,
+                OOPSourceModelConstants.ComponentType.METHOD);
+        classA.insertChildComponent("classA.methodA");
+        // An applied annotation whose type is an in-model class (e.g. a decorator/attribute class).
+        classAMethod.insertCmpRef(new AnnotationReference("classB"));
+        Component classB = setupComponent("classB", "classB", codeModel,
+                OOPSourceModelConstants.ComponentType.CLASS);
+        codeModel.insertComponent(classA);
+        codeModel.insertComponent(classAMethod);
+        codeModel.insertComponent(classB);
+        final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
+        // No edge is drawn from the annotated component to the annotation type.
+        assertTrue(relations.result().rels(classA).isEmpty());
+        // Control: the same reference kind, as an ordinary type usage, WOULD have produced an edge
+        // (see testGenericMethodAssociationRelationExists), so emptiness is caused by the exclusion.
+        assertTrue(relations.result().allRels().isEmpty());
+    }
+
+    /**
+     * Companion to {@link #testAnnotationReferenceDoesNotCreateEdge} exercising the real parser:
+     * a class annotated with an in-project annotation must not gain a diagram edge to that
+     * annotation, yet the annotation must remain on the parsed component's references so downstream
+     * doc-fact consumers can still read it. We exclude annotations from EDGES only, not the model.
+     */
+    @Test
+    public void testParsedAnnotationExcludedFromEdgesButKeptOnModel() throws Exception {
+        final ProjectFile foo = new ProjectFile("/Foo.java",
+                "package com.sample; @Service public class Foo { }");
+        final ProjectFile service = new ProjectFile("/Service.java",
+                "package com.sample; public @interface Service { }");
+        final ProjectFiles pfs = new ProjectFiles();
+        pfs.insertFile(foo);
+        pfs.insertFile(service);
+        final OOPSourceCodeModel codeModel = new ClarpseProject(pfs, Lang.JAVA).result().model();
+        final ExtractedRelationships relations = new ExtractedRelationships(codeModel);
+        Component fooComponent = codeModel.copyOfComponent("com.sample.Foo").get();
+        // No diagram edge from Foo to the Service annotation.
+        assertTrue(relations.result().rels(fooComponent).isEmpty());
+        // The annotation is still present on the model for doc-fact consumers.
+        assertFalse("annotation reference should remain on the parsed component",
+                fooComponent.references(TypeReferences.ANNOTATION).isEmpty());
     }
 
     private Component setupComponent(String name, String componentName,

@@ -1,5 +1,6 @@
 package com.hadi.striff.parse;
 
+import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.striff.ChangeSet;
 import com.hadi.striff.extractor.ExtractedRelationships;
@@ -10,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.stream.Collectors;
 
 /**
  * Represents the product of merging and comparing two code models.
@@ -53,6 +57,34 @@ public class CodeDiff implements Serializable {
     private final ChangeSet changeSet;
     private final RelationsMap relationsMap;
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeDiff.class);
+
+    /**
+     * How many components are processed between interrupt checks during the merge.
+     *
+     * <p>Merging two large models is single-threaded and CPU-bound, and is one of the phases where a
+     * caller that enforces a time budget otherwise sits past its interrupt. This mirrors the
+     * cooperative-cancellation checkpoint that {@code OOPSourceCodeModel.merge} performs in clarpse:
+     * checking every few hundred
+     * components keeps cancellation responsive within milliseconds while the overhead is unmeasurable,
+     * and the checkpoint is completely inert on any run that is never interrupted.
+     */
+    private static final int INTERRUPT_CHECK_INTERVAL = 512;
+
+    /**
+     * Aborts the merge when the calling thread has been interrupted.
+     *
+     * <p>Cooperative cancellation: a caller that enforces a time budget interrupts this thread, and the
+     * model merge is one of the long CPU-bound phases that would otherwise ignore the request.
+     * Re-asserts the interrupt flag before throwing so callers can still observe it, then throws an unchecked
+     * {@link CancellationException} that unwinds out of the {@code CodeDiff} constructor so the caller
+     * can convert it to a timeout.
+     */
+    private static void throwIfInterrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            Thread.currentThread().interrupt();
+            throw new CancellationException("Analysis interrupted while merging code models.");
+        }
+    }
 
     /**
      * Merges the newer source code model onto the older model and computes differences.
@@ -101,9 +133,18 @@ public class CodeDiff implements Serializable {
      */
     private static void mergeOldOnlyComponents(final OOPSourceCodeModel olderModel,
                                                final OOPSourceCodeModel merged) {
-        olderModel.components()
-                .filter(oldCmp -> !merged.containsComponent(oldCmp.uniqueName()))
-                .forEach(merged::insertComponent);
+        final List<Component> oldComponents = olderModel.components().collect(Collectors.toList());
+        throwIfInterrupted();
+        int sinceCheck = 0;
+        for (final Component oldCmp : oldComponents) {
+            if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
+                sinceCheck = 0;
+                throwIfInterrupted();
+            }
+            if (!merged.containsComponent(oldCmp.uniqueName())) {
+                merged.insertComponent(oldCmp);
+            }
+        }
     }
 
     /**
@@ -125,9 +166,16 @@ public class CodeDiff implements Serializable {
      */
     private static void mergeDeletedChildrenOntoSurvivingParents(final OOPSourceCodeModel olderModel,
                                                                  final OOPSourceCodeModel merged) {
-        olderModel.components().forEach(oldCmp -> {
+        final List<Component> oldComponents = olderModel.components().collect(Collectors.toList());
+        throwIfInterrupted();
+        int sinceCheck = 0;
+        for (final Component oldCmp : oldComponents) {
+            if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
+                sinceCheck = 0;
+                throwIfInterrupted();
+            }
             if (oldCmp.children().isEmpty()) {
-                return;
+                continue;
             }
             merged.component(oldCmp.uniqueName()).ifPresent(mergedCmp -> {
                 // Hoisted, and a set: this was a fresh copy of the list per child, with a linear
@@ -138,7 +186,7 @@ public class CodeDiff implements Serializable {
                         .filter(merged::containsComponent)
                         .forEach(mergedCmp::insertChildComponent);
             });
-        });
+        }
     }
 
     /**
