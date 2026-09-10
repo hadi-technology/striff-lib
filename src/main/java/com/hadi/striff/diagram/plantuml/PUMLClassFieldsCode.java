@@ -19,6 +19,12 @@ import java.util.stream.Collectors;
 
 final class PUMLClassFieldsCode {
 
+    /**
+     * Visible characters of a component's documentation drawn in its box. Measured on the plain text,
+     * before bold and inline-code markup is added, so the cut never splits that markup.
+     */
+    private static final int MAX_DOC_TEXT_CHARS = 800;
+
     private static final int MAX_ATTRIBUTE_SIZE = 20;
     private final OOPSourceCodeModel mergedModel;
     private final Set<String> deletedComponents;
@@ -333,16 +339,12 @@ final class PUMLClassFieldsCode {
      * Generates PlantUML code for the given component's documentation.
      */
     private String componentDocText(int docTextCharLen, DiagramComponent component) {
-        String commentStr = new StriffComponentDocText(component.comment().trim(), docTextCharLen).value();
-        if (!commentStr.isEmpty()) {
-            if (commentStr.length() < 800) {
-                commentStr += "\n";
-            } else {
-                commentStr = commentStr.substring(0, 797).trim();
-                commentStr += "...\n";
-            }
+        String commentStr = new StriffComponentDocText(
+                component.comment().trim(), docTextCharLen, MAX_DOC_TEXT_CHARS).value();
+        if (commentStr.isEmpty()) {
+            return commentStr;
         }
-        return commentStr;
+        return commentStr + "\n";
     }
 
     /**
