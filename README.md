@@ -10,9 +10,7 @@ Give striff-lib two versions of a codebase and it gives you back a "striff": a d
 
 Every striff is a [PlantUML](https://plantuml.com) class diagram. striff-lib builds the PlantUML model from your code and renders it with PlantUML's MIT-licensed build, so the output follows PlantUML's conventions, and the decorators below can inject any PlantUML (notes, legends, skinparams) into it.
 
-![A striff of Ericsson/ecchronos pull request 1786: NodeWorker loses its RepairScheduler field and methods, and the new SchemaRefresher class, in green, takes over handing repair configurations to RepairScheduler](striff.png)
-
-<sub>A striff of [Ericsson/ecchronos #1786](https://github.com/Ericsson/ecchronos/pull/1786), rendered by striff-lib with its default layout. `NodeWorker` hands its repair scheduling to the new `SchemaRefresher`. Green members were added, red were removed, and blue were modified.</sub>
+![sample_striff](striff.png)
 
 ### Getting Started
 
