@@ -8,6 +8,8 @@ A line-wise diff tells you which characters changed. It does not tell you that a
 
 Give striff-lib two versions of a codebase and it gives you back a "striff": a diagram of the classes and relationships the change actually touched, with added, deleted, and modified components marked. Nothing else is drawn, so the picture stays small enough to read during a review.
 
+Every striff is a [PlantUML](https://plantuml.com) class diagram. striff-lib builds the PlantUML model from your code and renders it with PlantUML's MIT-licensed build, so the output follows PlantUML's conventions, and the decorators below can inject any PlantUML (notes, legends, skinparams) into it.
+
 ![sample_striff](striff.png)
 
 ### Getting Started
@@ -20,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>4.0.0</version>
+  <version>4.3.0</version>
 </dependency>
 ```
 

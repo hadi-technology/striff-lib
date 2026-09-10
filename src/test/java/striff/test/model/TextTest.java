@@ -146,4 +146,37 @@ public class TextTest {
         assertTrue(new StriffComponentDocText("/** See {@link Foo#bar() custom label} here. */", 80).value().equals(
                 "**See <back:#E6E6E6>custom label</back> here.**"));
     }
+
+    @Test
+    public void striffComponentDocTextCutsBeforeMarkupNotThroughIt() {
+        StringBuilder doc = new StringBuilder("/** ");
+        for (int i = 0; i < 40; i++) {
+            doc.append("The worker hands {@link RepairScheduler} its configuration. ");
+        }
+        doc.append("*/");
+        String value = new StriffComponentDocText(doc.toString(), 80, 300).value();
+        for (String line : value.split("\n")) {
+            assertTrue(line, line.startsWith("**") && line.endsWith("**"));
+        }
+        assertTrue(value, value.endsWith("...**"));
+        assertTrue(value, occurrences(value, "<back:") == occurrences(value, "</back>"));
+        String visible = value.replace("**", "").replace("<back:#E6E6E6>", "").replace("</back>", "")
+                .replace("\n", " ");
+        assertTrue(visible, visible.length() <= 300);
+    }
+
+    @Test
+    public void striffComponentDocTextClosesAnInlineCodeSpanItCutsThrough() {
+        assertTrue(new StriffComponentDocText(
+                "/** Start {@code one two three four five six seven} end. */", 80, 20).value().equals(
+                "**Start <back:#E6E6E6>one two</back>...**"));
+    }
+
+    private static int occurrences(String text, String part) {
+        int count = 0;
+        for (int i = text.indexOf(part); i >= 0; i = text.indexOf(part, i + part.length())) {
+            count++;
+        }
+        return count;
+    }
 }
