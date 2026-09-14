@@ -22,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>4.3.2</version>
+  <version>4.3.3</version>
 </dependency>
 ```
 
@@ -72,6 +72,14 @@ Supported languages (via Clarpse):
 Parsing failures (e.g., unsupported syntax) are reported by Clarpse and surfaced
 through Striff as compile warnings on the output. Striff will still attempt to
 return diagrams/metadata when possible.
+
+#### Cancellation
+Interrupting the thread that constructs a `StriffOperation` cancels it, so a caller can enforce a
+time budget with `Thread.interrupt()`. The interrupt reaches the threads parsing each revision as
+well as the merge and relationship-extraction phases, and the constructor throws a
+`java.util.concurrent.CancellationException` with the interrupt flag still set. Cancellation is
+cooperative: it takes effect at the next checkpoint in Clarpse or Striff, so it is prompt rather
+than instantaneous.
 
 #### File filters
 Limit parsing and diagram generation to a specific file list:
