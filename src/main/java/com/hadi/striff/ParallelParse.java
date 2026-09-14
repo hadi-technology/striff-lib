@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * forwarded to both parse threads, where the parsers' own cancellation checks can see it.</p>
  *
  * <p>No parse outlives the call. Whatever ends the wait, whether both results, the first failure or
- * an interrupt, the other parse is cancelled and the call returns only after both threads have
- * stopped. A caller that sees this method return can rely on the parse work having ended.</p>
+ * an interrupt, the other parse is cancelled and the call returns only after both parses have
+ * ended. A caller that sees this method return can rely on the parse work having stopped.</p>
  */
 final class ParallelParse {
 
@@ -110,7 +110,7 @@ final class ParallelParse {
     }
 
     /**
-     * Interrupts whatever is still running and waits for both threads to end.
+     * Interrupts whatever is still running and waits until neither parse is running.
      *
      * <p>The wait does not give up. A parse that ignores its interrupt runs to completion, as it would
      * have without cancellation, and returning before it does would tell the caller the work had

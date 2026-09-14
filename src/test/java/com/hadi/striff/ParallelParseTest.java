@@ -143,7 +143,7 @@ public class ParallelParseTest {
         assertSame(baseResult, results.base());
         assertSame(headResult, results.head());
         assertFalse(Thread.currentThread().isInterrupted());
-        assertEquals("no parse thread may outlive the call", 0, liveParseThreads());
+        assertEquals("no parse thread may outlive the call", 0, parseThreadsAliveAfterExit());
     }
 
     @Test
@@ -164,13 +164,28 @@ public class ParallelParseTest {
             assertTrue("the interrupt flag must remain observable after the throw",
                     Thread.currentThread().isInterrupted());
         }
-        assertEquals("no parse thread may outlive the operation", 0, liveParseThreads());
+        // Clear this test's own interrupt so the bounded waits below are not cut short by it.
+        Thread.interrupted();
+        assertEquals("no parse thread may outlive the operation", 0, parseThreadsAliveAfterExit());
     }
 
-    private static long liveParseThreads() {
-        return Thread.getAllStackTraces().keySet().stream()
-                .filter(Thread::isAlive)
-                .filter(t -> t.getName().startsWith("striff-parse-"))
-                .count();
+    /**
+     * Counts parse threads still alive after each has had a bounded time to finish exiting.
+     *
+     * <p>A pool reports termination from inside its last worker, so that thread can outlive the call
+     * by an instant while it unwinds, after its parse has ended. That the parse work itself has ended
+     * by the time the call returns is pinned by the latch checks in the tests above.</p>
+     */
+    private static long parseThreadsAliveAfterExit() throws InterruptedException {
+        long alive = 0;
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().startsWith("striff-parse-")) {
+                thread.join(TimeUnit.SECONDS.toMillis(WAIT_SECONDS));
+                if (thread.isAlive()) {
+                    alive++;
+                }
+            }
+        }
+        return alive;
     }
 }
