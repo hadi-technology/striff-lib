@@ -59,8 +59,11 @@ final class ParallelParse {
      * @throws CancellationException if the calling thread is interrupted while waiting; both parses
      *                               are cancelled and the interrupt flag is re-asserted
      */
+    @SuppressWarnings("PMD.CloseResource")
     static Results run(Callable<CompileResult> base, Callable<CompileResult> head)
             throws CompileException {
+        // Not try-with-resources: ExecutorService is AutoCloseable only from Java 19 and this library
+        // targets Java 17. stop(pool) in the finally shuts the pool down and waits for it instead.
         ExecutorService pool = Executors.newFixedThreadPool(2, THREADS);
         boolean interrupted = false;
         try {
