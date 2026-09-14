@@ -172,6 +172,29 @@ public class TextTest {
                 "**Start <back:#E6E6E6>one two</back>...**"));
     }
 
+    @Test
+    public void striffComponentDocTextStripsLineCommentMarkersFromEveryLine() {
+        String value = new StriffComponentDocText("/// <summary>\n"
+                + "/// Wraps a subscription and delivers\n"
+                + "/// events in order.\n"
+                + "/// </summary>", 80).value();
+        assertFalse(value, value.contains("/"));
+        assertTrue(value, value.contains("Wraps a subscription and delivers events in order."));
+    }
+
+    @Test
+    public void striffComponentDocTextStripsAPlainLineComment() {
+        String value = new StriffComponentDocText("// A plain line comment.", 80).value();
+        assertTrue(value, value.equals("**A plain line comment.**"));
+    }
+
+    @Test
+    public void striffComponentDocTextKeepsSlashesInsideALine() {
+        String value = new StriffComponentDocText("// See https://example.com for details.", 80).value();
+        assertTrue(value, value.contains("https://example.com"));
+        assertFalse(value, value.startsWith("**/"));
+    }
+
     private static int occurrences(String text, String part) {
         int count = 0;
         for (int i = text.indexOf(part); i >= 0; i = text.indexOf(part, i + part.length())) {
