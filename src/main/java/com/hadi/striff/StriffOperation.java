@@ -53,6 +53,10 @@ public class StriffOperation {
      * <p>After construction, call {@link #codeDiff()} and {@link #compileFailures()}
      * to obtain the intermediate state needed for a subsequent render-only pass.</p>
      *
+     * <p>Interrupting the calling thread cancels the operation: parsing stops on every thread doing it,
+     * and a {@link java.util.concurrent.CancellationException} is thrown with the interrupt flag
+     * still set.</p>
+     *
      * @param originalPFs original project files
      * @param newPFs      updated project files
      * @param config      generation configuration
@@ -219,24 +223,11 @@ public class StriffOperation {
         LOGGER.info("pathsToAnalyze: {}, filesFilter size: {}", pathsToAnalyzeStr, filesFilter.size());
         for (Lang currLang : config.languages()) {
             LOGGER.info("Processing language: {}", currLang);
-            // Compile old and new in parallel for better performance
-            var oldCRFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                try {
-                    return new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            var newCRFuture = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                try {
-                    return new ClarpseProject(newPFs, currLang, pathsToAnalyze).result();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            CompileResult oldCR = joinCompileResult(oldCRFuture);
-            CompileResult newCR = joinCompileResult(newCRFuture);
+            ParallelParse.Results parsed = ParallelParse.run(
+                    () -> new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result(),
+                    () -> new ClarpseProject(newPFs, currLang, pathsToAnalyze).result());
+            CompileResult oldCR = parsed.base();
+            CompileResult newCR = parsed.head();
 
             long oldComponentCount = oldCR.model().components().count();
             long newComponentCount = newCR.model().components().count();
@@ -412,21 +403,6 @@ public class StriffOperation {
                 newComponentCount, baseComponentCount, newComponentCount - baseComponentCount);
         LOGGER.info("Generating code diff b/w base and updated code models..");
         return new CodeDiff(oldModel, newModel);
-    }
-
-    private static CompileResult joinCompileResult(java.util.concurrent.CompletableFuture<CompileResult> future) throws CompileException {
-        try {
-            return future.join();
-        } catch (java.util.concurrent.CompletionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof CompileException ce) {
-                throw ce;
-            }
-            if (cause instanceof RuntimeException re) {
-                throw re;
-            }
-            throw new RuntimeException(cause);
-        }
     }
 
     private void validateProjectFiles(ProjectFiles originalFiles, ProjectFiles newFiles,
