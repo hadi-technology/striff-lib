@@ -76,8 +76,14 @@ public class DiagramComponent {
      * If the internal list is empty but the underlying component has children,
      * those are wrapped in an unmodifiable list as well.
      *
+     * <p>Serialized as {@code children} so that a consumer storing components as JSON keeps the
+     * members a component holds -- the fields and methods of a class, the functions and fields of
+     * a synthetic module -- instead of having to re-derive them from a source model it may no
+     * longer have.
+     *
      * @return unmodifiable list of child component names
      */
+    @JsonProperty("children")
     public List<String> children() {
         if (this.children.isEmpty() && !this.cmp.children().isEmpty()) {
             // If the internal list is empty but the underlying component has children,
@@ -85,6 +91,20 @@ public class DiagramComponent {
             return Collections.unmodifiableList(new ArrayList<>(this.cmp.children()));
         }
         return Collections.unmodifiableList(this.children);
+    }
+
+    /**
+     * Populates the child component names from serialized form, so that a component survives a
+     * JSON round trip with its members intact.
+     *
+     * @param childNames the child component names to hold
+     */
+    @JsonProperty("children")
+    private void setChildren(List<String> childNames) {
+        this.children.clear();
+        if (childNames != null) {
+            this.children.addAll(childNames);
+        }
     }
 
     @JsonProperty("uniqueName")
