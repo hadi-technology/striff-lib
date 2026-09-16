@@ -22,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>4.3.4</version>
+  <version>4.4.0</version>
 </dependency>
 ```
 
@@ -162,6 +162,46 @@ If you have augmenters on the classpath, you can turn them off:
 StriffConfig config = new StriffConfig()
         .setEnableAugmenters(false);
 ```
+
+### Component identity
+
+Every `DiagramComponent` is identified by `uniqueName()`, which is also the value of the
+`data-qualified-name` attribute on the matching element of the rendered SVG. That is the
+value to map a diagram element back to a component with; treat it as opaque.
+
+A class is named by its package and its own name, `com.example.MyClass`. A **synthetic
+module** — the container drawn for the module-level functions and fields of one source file,
+as TypeScript and Python code commonly has — is named the same way:
+
+```
+<package path, dot separated>.module:<module name>     src.orders.module:update
+module:<module name>                                   update.py in the root package
+```
+
+`SyntheticModuleSupport.isSyntheticUniqueName(String)` recognises both spellings.
+
+#### Breaking change in 4.4.0 for consumers that map components by unique name
+
+Synthetic modules used to be keyed by the module's bare name alone. Two files of the same
+name in different directories therefore collapsed into **one** module, drawn in one package
+and holding both files' members:
+
+| | 4.3.x | 4.4.0 |
+|---|---|---|
+| `src/orders/update.py` | `src.orders.module:update` — holding **both** files' members | `src.orders.module:update` — holding its own |
+| `src/billing/update.py` | *(no component of its own)* | `src.billing.module:update` |
+
+What a consumer must do:
+
+* **The spelling of an id has not changed.** A module that was the only one of its name keeps
+  exactly the id it had, so stored ids for it stay valid.
+* **New ids appear** wherever same-named files collapsed, and the surviving module's member
+  list shrinks to its own file. Anything caching a module's members should be refreshed.
+* **Ids for collapsed modules were never stable**: which package won depended on which file
+  was encountered first, so the same codebase could produce a different id between runs. They
+  are now deterministic.
+* **Do not parse the id to get a label.** `name()` is the module's own short name (`update`)
+  and is serialized as `name`; `package` carries the package. Nothing needs to split the id.
 
 ### Examples
 * Library usage: `src/test/java/striff/test/model/StriffAPITest.java`

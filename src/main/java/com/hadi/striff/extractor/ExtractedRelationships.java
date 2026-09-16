@@ -149,7 +149,7 @@ public class ExtractedRelationships {
             // Create relations from module-level components to the synthetic module
             Set<Component> modulesComps = sourceCodeModel.components()
                     .filter(SyntheticModuleSupport::isModuleLevelComponent)
-                    .filter(cmp -> moduleKey.equals(cmp.module()))
+                    .filter(cmp -> moduleKey.equals(SyntheticModuleSupport.moduleKey(cmp)))
                     .collect(java.util.stream.Collectors.toSet());
 
             int sinceCheck = 0;

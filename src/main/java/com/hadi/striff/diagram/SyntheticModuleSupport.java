@@ -30,8 +30,21 @@ public final class SyntheticModuleSupport {
         return component != null && isSyntheticUniqueName(component.uniqueName());
     }
 
+    /**
+     * Whether a unique name names a synthetic module.
+     *
+     * <p>A synthetic module is held under its package path, then {@code module:}, then the module's
+     * own name -- {@code src.orders.module:update} -- or, for a module in the root package, under
+     * {@code module:update} alone.
+     *
+     * @param uniqueName the unique name to check
+     * @return true if the name is a synthetic module's
+     */
     public static boolean isSyntheticUniqueName(String uniqueName) {
-        return uniqueName != null && uniqueName.startsWith(SYNTHETIC_PREFIX);
+        if (uniqueName == null) {
+            return false;
+        }
+        return uniqueName.startsWith(SYNTHETIC_PREFIX) || uniqueName.contains("." + SYNTHETIC_PREFIX);
     }
 
     /**
@@ -46,19 +59,55 @@ public final class SyntheticModuleSupport {
         return component != null && isSyntheticUniqueName(component.componentName());
     }
 
+    /**
+     * The key identifying the module a module-level component belongs to.
+     *
+     * <p>Qualified by the component's package, because a module's own name is a bare file name in
+     * every language that has module-level members. Keyed by that name alone, two files called
+     * {@code update.ts} in different directories are one module, drawn in one package and holding
+     * both files' members, and which package that is depends on which file was seen first.
+     *
+     * @param component the module-level component
+     * @return the key of the module holding it, such as {@code src.orders.update}
+     */
     public static String moduleKey(Component component) {
         if (component == null) {
             throw new IllegalStateException("Module-level component is null.");
         }
         String module = component.module();
-        if (module != null && !module.trim().isEmpty()) {
+        if (module == null || module.trim().isEmpty()) {
+            throw new IllegalStateException("Module-level component has no module name: " + component.uniqueName());
+        }
+        String packagePath = ComponentHelper.packagePath(component.pkg());
+        if (packagePath.isEmpty()) {
             return module.trim();
         }
-        throw new IllegalStateException("Module-level component has no module name: " + component.uniqueName());
+        return packagePath + "." + module.trim();
     }
 
-    public static String syntheticUniqueName(String moduleKey) {
-        return SYNTHETIC_PREFIX + moduleKey;
+    /**
+     * The unique name a synthetic module is held under.
+     *
+     * @param packagePath the module's package path, dot separated, or empty for the root package
+     * @param moduleName the module's own name
+     * @return {@code src.orders.module:update}, or {@code module:update} in the root package
+     */
+    public static String syntheticUniqueName(String packagePath, String moduleName) {
+        String prefixedName = SYNTHETIC_PREFIX + moduleName;
+        if (packagePath == null || packagePath.isEmpty()) {
+            return prefixedName;
+        }
+        return packagePath + "." + prefixedName;
+    }
+
+    /**
+     * The unique name of a synthetic module in the root package.
+     *
+     * @param moduleName the module's own name
+     * @return {@code module:update}
+     */
+    public static String syntheticUniqueName(String moduleName) {
+        return syntheticUniqueName("", moduleName);
     }
 
     public static Map<String, Set<String>> moduleChildren(OOPSourceCodeModel model) {
@@ -75,7 +124,10 @@ public final class SyntheticModuleSupport {
         Map<String, Component> syntheticByModule = new HashMap<>();
         for (Map.Entry<String, Set<String>> entry : childrenByModule.entrySet()) {
             String moduleKey = entry.getKey();
-            Component synthetic = syntheticComponent(moduleKey, entry.getValue());
+            // Every member under one key now comes from one file, so any of them carries the
+            // module's own name; the key carries the package it sits in.
+            Component synthetic = syntheticComponent(moduleName(model, entry.getValue(), moduleKey),
+                    entry.getValue());
             String sourceFile = moduleSourceFile(model, entry.getValue());
             if (sourceFile != null && !sourceFile.trim().isEmpty()) {
                 synthetic.setSourceFilePath(sourceFile);
@@ -89,17 +141,48 @@ public final class SyntheticModuleSupport {
         return syntheticByModule;
     }
 
-    public static Component syntheticComponent(String moduleKey, Collection<String> children) {
+    /**
+     * Builds the synthetic module holding the given members.
+     *
+     * <p>Takes the module's own name, not its key: the package is carried by the component's own
+     * package, which the caller sets, and which qualifies the unique name. The name stays the
+     * short one so a reader sees the file's name rather than a path.
+     *
+     * @param moduleName the module's own name, such as {@code update}
+     * @param children the unique names of the members it holds
+     * @return the synthetic module component
+     */
+    public static Component syntheticComponent(String moduleName, Collection<String> children) {
         Component synthetic = new Component();
         synthetic.setComponentType(OOPSourceModelConstants.ComponentType.CLASS);
-        synthetic.setComponentName(syntheticUniqueName(moduleKey));
-        synthetic.setName(moduleKey);
-        synthetic.setValue(syntheticUniqueName(moduleKey));
-        synthetic.setModule(moduleKey);
+        synthetic.setComponentName(SYNTHETIC_PREFIX + moduleName);
+        synthetic.setName(moduleName);
+        synthetic.setValue(SYNTHETIC_PREFIX + moduleName);
+        synthetic.setModule(moduleName);
         if (children != null) {
             children.forEach(synthetic::insertChildComponent);
         }
         return synthetic;
+    }
+
+    /**
+     * The module's own name, read off any of its members, falling back to the key itself.
+     */
+    private static String moduleName(OOPSourceCodeModel model, Collection<String> children, String moduleKey) {
+        if (model == null || children == null) {
+            return moduleKey;
+        }
+        for (String childName : children) {
+            Component child = model.component(childName).orElse(null);
+            if (child == null) {
+                continue;
+            }
+            String module = child.module();
+            if (module != null && !module.trim().isEmpty()) {
+                return module.trim();
+            }
+        }
+        return moduleKey;
     }
 
     private static String moduleSourceFile(OOPSourceCodeModel model, Collection<String> children) {
