@@ -50,7 +50,7 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
                 // Create a DiagramComponent for the synthetic module
                 DiagramComponent syntheticDiagram = new DiagramComponent(synthetic, model);
                 syntheticDiagram.putAugmentation("synthetic", true);
-                syntheticDiagram.putAugmentation("syntheticDisplayName", moduleKey);
+                syntheticDiagram.putAugmentation("syntheticDisplayName", synthetic.name());
 
                 // Add it to the components set
                 components.add(syntheticDiagram);
@@ -88,12 +88,11 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
         for (String componentName : diffComponentNames) {
             Component cmp = model.component(componentName).orElse(null);
             if (cmp != null && cmp.module() != null && !cmp.module().trim().isEmpty()) {
-                relevantModuleKeys.add(cmp.module());
+                relevantModuleKeys.add(SyntheticModuleSupport.moduleKey(cmp));
             }
         }
 
         // Find modules containing module-level components referenced by changed components
-        Set<String> processedModules = new HashSet<>();
         for (String componentName : diffComponentNames) {
             Component cmp = model.component(componentName).orElse(null);
             if (cmp != null) {
@@ -104,7 +103,7 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
                             && SyntheticModuleSupport.isModuleLevelComponent(referencedCmp)
                             && referencedCmp.module() != null
                             && !referencedCmp.module().trim().isEmpty()) {
-                        relevantModuleKeys.add(referencedCmp.module());
+                        relevantModuleKeys.add(SyntheticModuleSupport.moduleKey(referencedCmp));
                     }
                 });
             }

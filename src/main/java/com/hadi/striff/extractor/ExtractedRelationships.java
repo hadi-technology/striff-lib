@@ -13,8 +13,10 @@ import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
 import com.hadi.striff.annotations.LogExecutionTime;
 import com.hadi.striff.diagram.SyntheticModuleSupport;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
@@ -51,6 +53,25 @@ public class ExtractedRelationships {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtractedRelationships.class);
 
     /**
+     * The synthetic module standing in for each module key in the model.
+     *
+     * <p>Built once, before any relation is extracted, because a reference to a module-level
+     * function or field has to resolve to the module drawn in its place, and that resolution
+     * happens on the hottest read path in the pipeline.
+     */
+    private final Map<String, Component> syntheticModules;
+
+    /**
+     * The synthetic module each module-level function or field belongs to, indexed by every name a
+     * reference can use to name that member.
+     *
+     * <p>A module-level function is held under a unique name carrying its signature, such as
+     * {@code src.a.helper() : Any}, while a reference to it names only {@code src.a.helper}, so a
+     * lookup by the referenced name alone finds nothing and the reference was discarded.
+     */
+    private final Map<String, Component> modulesByMemberReference;
+
+    /**
      * How many components are processed between interrupt checks during extraction.
      *
      * <p>Relationship extraction is the single most expensive phase in the pipeline and is
@@ -74,6 +95,8 @@ public class ExtractedRelationships {
      */
     @LogExecutionTime
     public ExtractedRelationships(final OOPSourceCodeModel sourceCodeModel) {
+        this.syntheticModules = SyntheticModuleSupport.syntheticComponentsByModule(sourceCodeModel);
+        this.modulesByMemberReference = indexModulesByMemberReference(sourceCodeModel, this.syntheticModules);
         final List<Component> relevantComponents = sourceCodeModel.components()
                 .filter(this::isRelevantComponent)
                 .collect(Collectors.toList());
@@ -122,16 +145,16 @@ public class ExtractedRelationships {
             return;
         }
 
-        SyntheticModuleSupport.syntheticComponentsByModule(sourceCodeModel).forEach((moduleKey, synthetic) -> {
+        this.syntheticModules.forEach((moduleKey, synthetic) -> {
             // Create relations from module-level components to the synthetic module
             Set<Component> modulesComps = sourceCodeModel.components()
                     .filter(SyntheticModuleSupport::isModuleLevelComponent)
-                    .filter(cmp -> moduleKey.equals(cmp.module()))
+                    .filter(cmp -> moduleKey.equals(SyntheticModuleSupport.moduleKey(cmp)))
                     .collect(java.util.stream.Collectors.toSet());
 
             int sinceCheck = 0;
             for (Component moduleLevelCmp : modulesComps) {
-                for (ComponentReference ref : moduleLevelCmp.internalDependencies()) {
+                for (ComponentReference ref : allReferences(moduleLevelCmp)) {
                     if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
                         sinceCheck = 0;
                         throwIfInterrupted();
@@ -143,20 +166,33 @@ public class ExtractedRelationships {
                     }
                     Component target = sourceCodeModel.component(ref.invokedComponent()).orElse(null);
                     if (target == null) {
-                        continue;
-                    }
-
-                    // If target is not a base component, try to get its parent
-                    if (!target.componentType().isBaseComponent()) {
-                        try {
-                            target = sourceCodeModel.parentBaseComponent(target.uniqueName());
-                        } catch (IllegalArgumentException e) {
-                            LOGGER.debug("No parent base component for reference target: {}", ref.invokedComponent());
+                        // Not resolvable by name: a member of another module, or a type that is
+                        // genuinely outside the model, which stays undrawn.
+                        target = this.modulesByMemberReference.get(ref.invokedComponent());
+                        if (target == null) {
                             continue;
                         }
                     }
 
-                    if (target == null || target.equals(synthetic)) {
+                    // If the target is not a base component, resolve it to the component the
+                    // diagram draws in its place: its own module when the target is itself
+                    // module-level, otherwise the class that owns it.
+                    if (!target.componentType().isBaseComponent()) {
+                        Component targetModule = syntheticModuleOf(target);
+                        if (targetModule != null) {
+                            target = targetModule;
+                        } else {
+                            try {
+                                target = sourceCodeModel.parentBaseComponent(target.uniqueName());
+                            } catch (IllegalArgumentException e) {
+                                LOGGER.debug("No parent base component for reference target: {}",
+                                        ref.invokedComponent());
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (target == null || target.uniqueName().equals(synthetic.uniqueName())) {
                         continue;
                     }
 
@@ -273,10 +309,15 @@ public class ExtractedRelationships {
     private Component resolveTargetBaseComponent(ComponentReference ref, OOPSourceCodeModel model) {
         Component target = model.component(ref.invokedComponent()).orElse(null);
         if (target == null) {
-            return null;
+            // Not resolvable by name: a module-level member, or a type outside the model entirely.
+            return this.modulesByMemberReference.get(ref.invokedComponent());
         }
         if (target.componentType().isBaseComponent()) {
             return target;
+        }
+        Component targetModule = syntheticModuleOf(target);
+        if (targetModule != null) {
+            return targetModule;
         }
         try {
             return model.parentBaseComponent(target.uniqueName());
@@ -284,6 +325,76 @@ public class ExtractedRelationships {
             LOGGER.warn("No parent base component found for reference target: {}", target.uniqueName());
             return null;
         }
+    }
+
+    /**
+     * Returns the synthetic module a module-level function or field belongs to.
+     *
+     * <p>A module-level component has no parent class, so a reference to one has no base component
+     * to land on and was discarded. Its module is what the diagram draws in its place -- exactly as
+     * it does for the module-level component itself -- so that is what such a reference resolves to,
+     * and the relation is drawn between the two modules.
+     *
+     * <p>A reference to a type that is genuinely absent from the model, such as a type owned by an
+     * external library, is not module-level and still resolves to nothing.
+     *
+     * @param target the referenced component
+     * @return the synthetic module holding the target, or null if the target is not module-level
+     */
+    private Component syntheticModuleOf(Component target) {
+        if (!SyntheticModuleSupport.isModuleLevelComponent(target)) {
+            return null;
+        }
+        String module = target.module();
+        if (module == null || module.trim().isEmpty()) {
+            return null;
+        }
+        return this.syntheticModules.get(SyntheticModuleSupport.moduleKey(target));
+    }
+
+    /**
+     * Indexes each module-level member's own module under every name a reference can use for it:
+     * the member's unique name, and that name without the signature it carries.
+     */
+    private static Map<String, Component> indexModulesByMemberReference(
+            final OOPSourceCodeModel model, final Map<String, Component> syntheticModules) {
+        Map<String, Component> index = new HashMap<>();
+        model.components()
+                .filter(SyntheticModuleSupport::isModuleLevelComponent)
+                .filter(member -> member.module() != null && !member.module().trim().isEmpty())
+                .forEach(member -> {
+                    Component module = syntheticModules.get(SyntheticModuleSupport.moduleKey(member));
+                    if (module == null) {
+                        return;
+                    }
+                    index.put(member.uniqueName(), module);
+                    index.put(signatureFreeName(member.uniqueName()), module);
+                });
+        return index;
+    }
+
+    /**
+     * Strips the signature a function's unique name carries, so {@code src.a.helper() : Any}
+     * becomes {@code src.a.helper}, which is how a reference to it is recorded.
+     */
+    private static String signatureFreeName(final String uniqueName) {
+        int signatureStart = uniqueName.indexOf('(');
+        if (signatureStart < 0) {
+            return uniqueName;
+        }
+        return uniqueName.substring(0, signatureStart).trim();
+    }
+
+    /**
+     * Every structural reference a component makes.
+     *
+     * <p>A reference from one module to a member of another is recorded as an external dependency,
+     * so reading only the internal ones leaves module-to-module edges undrawn.
+     */
+    private static Set<ComponentReference> allReferences(final Component component) {
+        return Stream.concat(component.internalDependencies().stream(),
+                        component.externalDependencies().stream())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**
@@ -307,8 +418,13 @@ public class ExtractedRelationships {
     }
 
     private boolean isSelfReferencing(ComponentReference ref, Component baseComponent, OOPSourceCodeModel model) {
-        return ref.invokedComponent().equals(baseComponent.uniqueName())
-                || !model.containsComponent(ref.invokedComponent());
+        if (ref.invokedComponent().equals(baseComponent.uniqueName())) {
+            return true;
+        }
+        // A reference naming a module-level member is not absent from the model: it names a member
+        // under the name a reference uses for it, rather than the one the member is held under.
+        return !model.containsComponent(ref.invokedComponent())
+                && !this.modulesByMemberReference.containsKey(ref.invokedComponent());
     }
 
     /**
