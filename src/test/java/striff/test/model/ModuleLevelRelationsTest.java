@@ -89,9 +89,6 @@ public class ModuleLevelRelationsTest {
 
     /**
      * TypeScript: a module-level function relates its own module to a type it references.
-     *
-     * <p>A reference from one module-level function to another is not present in the parsed
-     * TypeScript model at all, so that shape cannot be drawn here regardless of this resolution.
      */
     @Test
     public void typeScriptModuleLevelFunctionRelatesItsModuleToAReferencedClass() throws Exception {
@@ -107,6 +104,32 @@ public class ModuleLevelRelationsTest {
         RelationsMap relations = new ExtractedRelationships(model).result();
 
         assertRelation(relations, model, "src.module:use", "src.model.Order");
+    }
+
+    /**
+     * TypeScript: a call from one module-level function to another relates the two modules.
+     *
+     * <p>The same shape as the Python case above, and it resolves the same way: the callee is
+     * recorded as a reference on the calling function, and neither end has an owning class, so each
+     * resolves to the module that holds it. This is the ordinary shape of code written as functions
+     * rather than classes, where a parser that recorded only what a call evaluates to would leave
+     * every file in such a codebase unrelated to every other.
+     */
+    @Test
+    public void aModuleLevelTypeScriptFunctionCallingAnotherDrawsAModuleToModuleRelation() throws Exception {
+        Assume.assumeTrue(NodeRuntime.isNodeAvailable());
+        ProjectFiles files = new ProjectFiles();
+        files.insertFile(new ProjectFile("/src/a.ts",
+                "export function helper(): number { return 1; }\n"));
+        files.insertFile(new ProjectFile("/src/b.ts",
+                "import { helper } from \"./a\";\n"
+                        + "export function useIt(): number { return helper(); }\n"));
+        writeTsConfig(files);
+
+        OOPSourceCodeModel model = compileModel(files, Lang.TYPESCRIPT);
+        RelationsMap relations = new ExtractedRelationships(model).result();
+
+        assertRelation(relations, model, "src.module:b", "src.module:a");
     }
 
     private static void assertRelation(final RelationsMap map, final OOPSourceCodeModel model,

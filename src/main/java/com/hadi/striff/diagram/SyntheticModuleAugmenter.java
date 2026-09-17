@@ -93,7 +93,6 @@ public class SyntheticModuleAugmenter implements DiagramAugmenter {
         }
 
         // Find modules containing module-level components referenced by changed components
-        Set<String> processedModules = new HashSet<>();
         for (String componentName : diffComponentNames) {
             Component cmp = model.component(componentName).orElse(null);
             if (cmp != null) {
