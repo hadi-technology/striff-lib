@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +37,11 @@ import java.util.stream.Stream;
  *       parsing entirely. This allows a second render pass with a different
  *       configuration without re-parsing the source files.</li>
  * </ul>
+ *
+ * <p>With {@link StriffConfig#analysisDepth()} of 1 and a non-empty filter, the full pipeline runs a
+ * one-level analysis: the filter's files are modelled in full and the files they reference as
+ * boundary components, with the same level-one files loaded in both revisions. The diff is built
+ * from the final compile only. See {@link FocusExtender} and {@link #analysisScope()}.</p>
  */
 public class StriffOperation {
 
@@ -46,6 +50,7 @@ public class StriffOperation {
     private final CodeDiff codeDiff;
     private final StriffOutput striffOutput;
     private final Set<CompileFailure> compileFailures;
+    private AnalysisScope analysisScope = AnalysisScope.none();
 
     /**
      * Full pipeline: parse source files, compute a CodeDiff, and render diagrams.
@@ -152,6 +157,10 @@ public class StriffOperation {
         if (changedFiles == null || changedFiles.isEmpty()) {
             throw new IllegalArgumentException("changedFiles must not be null or empty");
         }
+        if (config.analysisDepth() > 0) {
+            throw new IllegalArgumentException("A one-level analysis needs both revisions' files; "
+                    + "use the full pipeline constructor.");
+        }
         LOGGER.info("Starting incremental operation with {} changed files", changedFiles.size());
         filterConfigLanguages(config, newFiles, newFiles);
         this.compileFailures = new HashSet<>();
@@ -187,6 +196,16 @@ public class StriffOperation {
     }
 
     /**
+     * Returns what a one-level analysis modelled beyond the filter's files and what its budgets held
+     * back; {@link AnalysisScope#none()} for any other operation.
+     *
+     * @return the analysis scope, never null
+     */
+    public AnalysisScope analysisScope() {
+        return this.analysisScope;
+    }
+
+    /**
      * Returns the generated Striff output for this operation.
      *
      * @return diagram output and compile warnings
@@ -196,9 +215,18 @@ public class StriffOperation {
     }
 
     @LogExecutionTime
-    private static CodeDiff generateCodeDiff(ProjectFiles originalPFs, ProjectFiles newPFs,
+    private CodeDiff generateCodeDiff(ProjectFiles originalPFs, ProjectFiles newPFs,
             StriffConfig config,
             Set<CompileFailure> allFailures) throws CompileException {
+        if (config.oneLevel()) {
+            LOGGER.info("Running a one-level analysis of {} filter file(s).", config.filesFilter().size());
+            OneLevelAnalysis.Outcome outcome = OneLevelAnalysis.run(originalPFs, newPFs, config);
+            allFailures.addAll(outcome.failures());
+            this.analysisScope = outcome.scope();
+            LOGGER.info("One-level scope: {}", outcome.scope());
+            LOGGER.info("Generating code diff b/w old and new code models..");
+            return new CodeDiff(outcome.base(), outcome.head());
+        }
         // One pool across both revisions, and that is the whole point of it: a pull request touching
         // three files leaves the base and head models naming almost entirely the same packages, types
         // and members, and each parse allocates its own instance of every one of those names. Both
@@ -223,7 +251,7 @@ public class StriffOperation {
         LOGGER.info("pathsToAnalyze: {}, filesFilter size: {}", pathsToAnalyzeStr, filesFilter.size());
         for (Lang currLang : config.languages()) {
             LOGGER.info("Processing language: {}", currLang);
-            ParallelParse.Results parsed = ParallelParse.run(
+            ParallelParse.Results<CompileResult> parsed = ParallelParse.run(
                     () -> new ClarpseProject(originalPFs, currLang, pathsToAnalyze).result(),
                     () -> new ClarpseProject(newPFs, currLang, pathsToAnalyze).result());
             CompileResult oldCR = parsed.base();
@@ -241,113 +269,8 @@ public class StriffOperation {
             oldModel.merge(oldCR.model());
             newModel.merge(newCR.model());
         }
-        if (config.resolveContextualComponents() && !filesFilter.isEmpty()) {
-            resolveMissingContextualComponents(oldModel, newModel, originalPFs, newPFs,
-                    config.languages(), allFailures);
-        }
         LOGGER.info("Generating code diff b/w old and new code models..");
         return new CodeDiff(oldModel, newModel);
-    }
-
-    private static void resolveMissingContextualComponents(
-            OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel,
-            ProjectFiles originalPFs, ProjectFiles newPFs,
-            Set<Lang> languages, Set<CompileFailure> allFailures) {
-        Set<String> missingNames = collectUnresolvedReferences(oldModel, newModel);
-        if (missingNames.isEmpty()) {
-            return;
-        }
-        LOGGER.info("Found {} potentially missing component references for contextual resolution", missingNames.size());
-        for (Lang lang : languages) {
-            Set<String> oldFilesToParse = new HashSet<>();
-            Set<String> newFilesToParse = new HashSet<>();
-            for (String missingName : missingNames) {
-                findSourceFile(missingName, lang, originalPFs)
-                        .ifPresent(oldFilesToParse::add);
-                findSourceFile(missingName, lang, newPFs)
-                        .ifPresent(newFilesToParse::add);
-            }
-            if (oldFilesToParse.isEmpty() && newFilesToParse.isEmpty()) {
-                continue;
-            }
-            LOGGER.info("Parsing {} old and {} new additional source files for {} to resolve contextual components",
-                    oldFilesToParse.size(), newFilesToParse.size(), lang);
-            try {
-                if (!oldFilesToParse.isEmpty()) {
-                    CompileResult oldCR = new ClarpseProject(originalPFs, lang, oldFilesToParse).result();
-                    allFailures.addAll(oldCR.failures());
-                    oldModel.merge(oldCR.model());
-                }
-                if (!newFilesToParse.isEmpty()) {
-                    CompileResult newCR = new ClarpseProject(newPFs, lang, newFilesToParse).result();
-                    allFailures.addAll(newCR.failures());
-                    newModel.merge(newCR.model());
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Failed to parse additional contextual source files: {}", e.getMessage());
-            }
-        }
-    }
-
-    private static Set<String> collectUnresolvedReferences(
-            OOPSourceCodeModel oldModel, OOPSourceCodeModel newModel) {
-        Set<String> missing = new HashSet<>();
-        Stream.concat(oldModel.components(), newModel.components()).forEach(cmp -> {
-            Stream.concat(cmp.internalDependencies().stream(), cmp.externalDependencies().stream())
-                    .forEach(ref -> {
-                        String target = ref.invokedComponent();
-                        if (!oldModel.containsComponent(target) && !newModel.containsComponent(target)) {
-                            missing.add(target);
-                        }
-                    });
-        });
-        return missing;
-    }
-
-    private static Optional<String> findSourceFile(String componentUniqueName, Lang lang,
-            ProjectFiles projectFiles) {
-        String simpleName = extractTopLevelClassName(componentUniqueName);
-        String fileName = simpleName + "." + lang.sourceFileExtns().iterator().next();
-        Set<ProjectFile> matches = new HashSet<>(projectFiles.matchingFilesByName(fileName));
-        if (matches.isEmpty()) {
-            return Optional.empty();
-        }
-        if (matches.size() == 1) {
-            return Optional.of(matches.iterator().next().path());
-        }
-        String packagePath = extractPackagePath(componentUniqueName);
-        if (!packagePath.isEmpty()) {
-            Optional<String> best = matches.stream()
-                    .filter(pf -> pf.path().contains(packagePath))
-                    .findFirst().map(ProjectFile::path);
-            if (best.isPresent()) {
-                return best;
-            }
-        }
-        return Optional.of(matches.iterator().next().path());
-    }
-
-    private static String extractTopLevelClassName(String uniqueName) {
-        String name = uniqueName;
-        if (name.contains("$")) {
-            name = name.substring(0, name.indexOf("$"));
-        }
-        if (name.contains(".")) {
-            name = name.substring(name.lastIndexOf(".") + 1);
-        }
-        return name;
-    }
-
-    private static String extractPackagePath(String uniqueName) {
-        int lastDot = uniqueName.lastIndexOf(".");
-        if (lastDot <= 0) {
-            return "";
-        }
-        String pkg = uniqueName.substring(0, lastDot);
-        if (pkg.contains("$")) {
-            pkg = pkg.substring(0, pkg.indexOf("$"));
-        }
-        return pkg.replace(".", "/");
     }
 
     /**

@@ -188,4 +188,36 @@ public class ParallelParseTest {
         }
         return alive;
     }
+
+    @Test
+    public void aResultWhoseSiblingFailedIsDiscarded() throws Exception {
+        AtomicReference<Object> discarded = new AtomicReference<>();
+        Object produced = new Object();
+        CountDownLatch produceFirst = new CountDownLatch(1);
+        try {
+            ParallelParse.run(
+                    () -> {
+                        produceFirst.countDown();
+                        return produced;
+                    },
+                    () -> {
+                        produceFirst.await(WAIT_SECONDS, TimeUnit.SECONDS);
+                        throw new CompileException("head failed");
+                    },
+                    discarded::set);
+            fail("the failure should propagate");
+        } catch (CompileException expected) {
+            assertSame(produced, discarded.get());
+        }
+    }
+
+    @Test
+    public void nothingIsDiscardedWhenBothSucceed() throws Exception {
+        AtomicBoolean discarded = new AtomicBoolean();
+        ParallelParse.Results<String> results = ParallelParse.run(() -> "base", () -> "head",
+                result -> discarded.set(true));
+        assertEquals("base", results.base());
+        assertEquals("head", results.head());
+        assertFalse(discarded.get());
+    }
 }

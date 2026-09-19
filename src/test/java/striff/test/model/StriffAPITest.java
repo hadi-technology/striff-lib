@@ -120,7 +120,7 @@ public class StriffAPITest {
 		ProjectFiles newFiles = githubProjectFiles(
 				baseRepoOwner, repoName, "pull/50095/head", Lang.JAVA);
 		StriffConfig config = new StriffConfig()
-				.setResolveContextualComponents(true);
+				.setAnalysisDepth(1);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, config).result().diagrams();
 		System.out.println("Spring Boot #50095 - Total diagrams: "
@@ -143,7 +143,7 @@ public class StriffAPITest {
 		ProjectFiles newFiles = githubProjectFiles(
 				baseRepoOwner, repoName, "pull/50273/head", Lang.JAVA);
 		StriffConfig config = new StriffConfig()
-				.setResolveContextualComponents(true);
+				.setAnalysisDepth(1);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, config).result().diagrams();
 		System.out.println("Spring Boot #50273 - Total diagrams: "
@@ -166,7 +166,7 @@ public class StriffAPITest {
 		ProjectFiles newFiles = githubProjectFiles(
 				baseRepoOwner, repoName, "pull/5060/head", Lang.JAVA);
 		StriffConfig config = new StriffConfig()
-				.setResolveContextualComponents(true);
+				.setAnalysisDepth(1);
 		List<StriffDiagram> striffs = new StriffOperation(
 				oldFiles, newFiles, config).result().diagrams();
 		System.out.println("Langchain4j #5060 - Total diagrams: "

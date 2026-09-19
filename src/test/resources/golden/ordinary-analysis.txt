@@ -1,0 +1,303 @@
+## unfiltered
+added=[app.A.b, app.A.go(C), app.A.go(C).c, py.service.Service.run(h: Helper) : Any, py.service.Service.run(h: Helper) : Any.h]
+deleted=[app.A.go(), py.service.Service.run() : Any]
+modified=[app.A, py.service.Service]
+keyRelations=[app.A, app.C, lib.B, py.helper.Helper, py.service.Service]
+addedRelations=[ComponentRelation{originalComponent=A, targetComponent=B, targetMultiplicity=, associationType=COMPOSITION}, ComponentRelation{originalComponent=A, targetComponent=C, targetMultiplicity=, associationType=WEAK_ASSOCIATION}, ComponentRelation{originalComponent=Service, targetComponent=Helper, targetMultiplicity=, associationType=WEAK_ASSOCIATION}]
+deletedRelations=[]
+relations=[ComponentRelation{originalComponent=A, targetComponent=B, targetMultiplicity=, associationType=COMPOSITION}, ComponentRelation{originalComponent=A, targetComponent=C, targetMultiplicity=, associationType=WEAK_ASSOCIATION}, ComponentRelation{originalComponent=B, targetComponent=Base, targetMultiplicity=, associationType=SPECIALIZATION}, ComponentRelation{originalComponent=Caller, targetComponent=A, targetMultiplicity=, associationType=COMPOSITION}, ComponentRelation{originalComponent=Service, targetComponent=Helper, targetMultiplicity=, associationType=WEAK_ASSOCIATION}]
+components=[app.A, app.C, lib.B, py.helper.Helper, py.service.Service]
+puml=
+@startuml
+!pragma layout smetana
+<style>
+classDiagram {
+class {
+      FontSize: 14;
+header {
+        FontSize: 14;
+        FontColor: #FFDEAD;
+      }
+}
+spot{
+}
+  spotClass {
+    BackgroundColor: #dfdfdf;
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotAbstractClass {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotInterface {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotStruct {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotEnum {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+}
+</style>
+hide empty methods
+hide empty attributes
+skinparam defaultFontName Consolas,Menlo,Liberation Mono
+skinparam backgroundColor  #f8f8f8
+skinparam classArrowColor #464646
+skinparam legendBackgroundColor #f8f8ff
+skinparam classBackgroundColor #f8f8ff
+skinparam classArrowFontColor #24292E
+skinparam classArrowFontSize 18
+skinparam classFontColor #FFDEAD
+skinparam classBorderColor #24292e
+skinparam classBorderThickness 1
+skinparam classFontName Consolas,Menlo,Liberation Mono
+skinparam classAttributeFontName Consolas,Menlo,Liberation Mono
+skinparam titleFontColor Black
+skinparam packageBackgroundColor #A0A0A0
+skinparam groupInheritance 2
+skinparam titleFontName Copperplate Gothic Light
+skinparam packageBorderColor #A0A0A0
+skinparam packageBorderThickness 1.0
+skinparam packageFontColor #24292E
+skinparam packageFontName Consolas,Menlo,Liberation Mono
+skinparam packageFontStyle plain
+skinparam stereotypeFontColor #C0C0C0
+skinparam classStereotypeFontColor #C0C0C0
+package "app" as pkg_app_17a21 #f0fffa {
+class app-C as "C" #back:f8f8f8;header:24292e  {
+}
+class app-A as "A [ <color:#bef5cb>+2</color> <color:#fdaeb7>-1</color>]" #back:f8f8f8;header:24292e  {
+ -  <back:#bef5cb>b : B</back>         
+ --
+ +  <back:#fdaeb7>go()</back>         
+ +  <back:#bef5cb>go(C)</back>         
+}
+}
+package "lib" as pkg_lib_1a285 #f0fffd {
+class lib-B as "B" #back:f8f8f8;header:24292e  {
+ +  run()
+}
+}
+package "py" as pkg_py_e09 #f9fff0 {
+class py-service-Service as "Service [ <color:#bef5cb>+1</color> <color:#fdaeb7>-1</color>]" #back:f8f8f8;header:24292e  {
+ +  <back:#bef5cb>run(h: Helper) : Any</back>         
+ +  <back:#fdaeb7>run() : Any</back>         
+}
+class py-helper-Helper as "Helper" #back:f8f8f8;header:24292e  {
+}
+}
+
+"py-service-Service" --[#00cc00]>"py-helper-Helper" 
+"app-A" --[#00cc00]>"app-C" 
+"app-A" *--[#00cc00]--"lib-B" 
+
+
+@enduml
+## filtered
+added=[app.A.b, app.A.go(C), app.A.go(C).c, py.service.Service.run(h: Helper) : Any, py.service.Service.run(h: Helper) : Any.h]
+deleted=[app.A.go(), py.service.Service.run() : Any]
+modified=[app.A, py.service.Service]
+keyRelations=[]
+addedRelations=[]
+deletedRelations=[]
+relations=[]
+components=[app.A, py.service.Service]
+puml=
+@startuml
+!pragma layout smetana
+<style>
+classDiagram {
+class {
+      FontSize: 14;
+header {
+        FontSize: 14;
+        FontColor: #FFDEAD;
+      }
+}
+spot{
+}
+  spotClass {
+    BackgroundColor: #dfdfdf;
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotAbstractClass {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotInterface {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotStruct {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotEnum {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+}
+</style>
+hide empty methods
+hide empty attributes
+skinparam defaultFontName Consolas,Menlo,Liberation Mono
+skinparam backgroundColor  #f8f8f8
+skinparam classArrowColor #464646
+skinparam legendBackgroundColor #f8f8ff
+skinparam classBackgroundColor #f8f8ff
+skinparam classArrowFontColor #24292E
+skinparam classArrowFontSize 18
+skinparam classFontColor #FFDEAD
+skinparam classBorderColor #24292e
+skinparam classBorderThickness 1
+skinparam classFontName Consolas,Menlo,Liberation Mono
+skinparam classAttributeFontName Consolas,Menlo,Liberation Mono
+skinparam titleFontColor Black
+skinparam packageBackgroundColor #A0A0A0
+skinparam groupInheritance 2
+skinparam titleFontName Copperplate Gothic Light
+skinparam packageBorderColor #A0A0A0
+skinparam packageBorderThickness 1.0
+skinparam packageFontColor #24292E
+skinparam packageFontName Consolas,Menlo,Liberation Mono
+skinparam packageFontStyle plain
+skinparam stereotypeFontColor #C0C0C0
+skinparam classStereotypeFontColor #C0C0C0
+package "app" as pkg_app_17a21 #f0fffa {
+class app-A as "A [ <color:#bef5cb>+2</color> <color:#fdaeb7>-1</color>]" #back:f8f8f8;header:24292e  {
+ -  <back:#bef5cb>b : B</back>         
+ --
+ +  <back:#fdaeb7>go()</back>         
+ +  <back:#bef5cb>go(C)</back>         
+}
+}
+package "py" as pkg_py_e09 #f0fffd {
+class py-service-Service as "Service [ <color:#bef5cb>+1</color> <color:#fdaeb7>-1</color>]" #back:f8f8f8;header:24292e  {
+ +  <back:#bef5cb>run(h: Helper) : Any</back>         
+ +  <back:#fdaeb7>run() : Any</back>         
+}
+}
+
+
+
+@enduml
+## filtered-expanded
+added=[app.A.b, app.A.go(C), app.A.go(C).c]
+deleted=[app.A.go()]
+modified=[app.A]
+keyRelations=[]
+addedRelations=[]
+deletedRelations=[]
+relations=[]
+components=[app.A]
+puml=
+@startuml
+!pragma layout smetana
+<style>
+classDiagram {
+class {
+      FontSize: 14;
+header {
+        FontSize: 14;
+        FontColor: #FFDEAD;
+      }
+}
+spot{
+}
+  spotClass {
+    BackgroundColor: #dfdfdf;
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotAbstractClass {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotInterface {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotStruct {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+  spotEnum {
+    FontColor: #24292e;
+    LineColor: #24292e;
+    FontSize: 16;
+    FontStyle: bold;
+  }
+}
+</style>
+hide empty methods
+hide empty attributes
+skinparam defaultFontName Consolas,Menlo,Liberation Mono
+skinparam backgroundColor  #f8f8f8
+skinparam classArrowColor #464646
+skinparam legendBackgroundColor #f8f8ff
+skinparam classBackgroundColor #f8f8ff
+skinparam classArrowFontColor #24292E
+skinparam classArrowFontSize 18
+skinparam classFontColor #FFDEAD
+skinparam classBorderColor #24292e
+skinparam classBorderThickness 1
+skinparam classFontName Consolas,Menlo,Liberation Mono
+skinparam classAttributeFontName Consolas,Menlo,Liberation Mono
+skinparam titleFontColor Black
+skinparam packageBackgroundColor #A0A0A0
+skinparam groupInheritance 2
+skinparam titleFontName Copperplate Gothic Light
+skinparam packageBorderColor #A0A0A0
+skinparam packageBorderThickness 1.0
+skinparam packageFontColor #24292E
+skinparam packageFontName Consolas,Menlo,Liberation Mono
+skinparam packageFontStyle plain
+skinparam stereotypeFontColor #C0C0C0
+skinparam classStereotypeFontColor #C0C0C0
+package "app" as pkg_app_17a21 #f0fffa {
+class app-A as "A [ <color:#bef5cb>+2</color> <color:#fdaeb7>-1</color>]" #back:f8f8f8;header:24292e  {
+ -  <back:#bef5cb>b : B</back>         
+ --
+ +  <back:#fdaeb7>go()</back>         
+ +  <back:#bef5cb>go(C)</back>         
+}
+}
+
+
+
+@enduml

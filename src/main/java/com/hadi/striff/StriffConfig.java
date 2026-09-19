@@ -1,5 +1,6 @@
 package com.hadi.striff;
 
+import com.hadi.clarpse.compiler.AnalysisOptions;
 import com.hadi.clarpse.compiler.Lang;
 import com.hadi.striff.diagram.display.DiagramColorScheme;
 import com.hadi.striff.diagram.display.DiagramDisplayOverride;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
  */
 public class StriffConfig {
 
+    /** The default most context files a one-level analysis models per language. */
+    public static final int DEFAULT_CONTEXT_BUDGET = 200;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StriffConfig.class);
 
     private OutputMode outputMode = OutputMode.DEFAULT;
@@ -39,19 +43,26 @@ public class StriffConfig {
     private DiagramDisplayOverride displayOverride = null;
     private boolean enableAugmenters = true;
     /**
-     * When true and filesFilter is non-empty, dynamically parses source files for
-     * components referenced by filtered files (e.g., parent classes, implemented
-     * interfaces) so they can appear as gray contextual components in the diagram.
-     */
-    private boolean resolveContextualComponents = false;
-    /**
      * Source files whose components are forced into the diagram regardless of
      * whether they appear in {@link #filesFilter} or in keyRelationsComponents().
      * Components from these files that are not added/deleted/modified are
      * rendered as gray contextual. Callers use this to expand diagram scope
-     * explicitly (e.g., for AI review neighborhood components).
+     * explicitly, typically with the files that use the changed code.
+     *
+     * <p>In a one-level analysis ({@link #analysisDepth()} of 1) these are the
+     * <em>context files</em>: they are modelled as boundary components of both
+     * revisions, without their own references being followed, and at most
+     * {@link #contextBudget()} of them are modelled.
      */
     private Set<String> expandedFiles = Collections.emptySet();
+    /**
+     * Levels of referenced files modelled past {@link #filesFilter}: 0 for an
+     * ordinary analysis, 1 for a one-level analysis.
+     */
+    private int analysisDepth = 0;
+    private int levelOneBudget = AnalysisOptions.DEFAULT_LEVEL_ONE_BUDGET;
+    private int contextBudget = DEFAULT_CONTEXT_BUDGET;
+    private FocusExtender focusExtender = null;
     private LayoutEngine layoutEngine = LayoutEngine.SMETANA;
     /**
      * Hard limit to avoid sending extremely large diagrams to PlantUML.
@@ -117,8 +128,65 @@ public class StriffConfig {
         return this;
     }
 
-    public StriffConfig setResolveContextualComponents(boolean resolveContextualComponents) {
-        this.resolveContextualComponents = resolveContextualComponents;
+    /**
+     * Sets how many levels of referenced files are modelled past {@link #filesFilter()}.
+     *
+     * <p>0, the default, is an ordinary analysis. 1 is a one-level analysis: the files of the
+     * filter are modelled in full, together with the repository files they reference, which are
+     * modelled as boundary components; nothing further is compiled. It applies only when the
+     * filter is non-empty, and only to the full pipeline.
+     *
+     * @param analysisDepth 0 or 1
+     * @return this config
+     * @throws IllegalArgumentException for any other depth
+     */
+    public StriffConfig setAnalysisDepth(int analysisDepth) {
+        if (analysisDepth != 0 && analysisDepth != AnalysisOptions.MAX_DEPTH) {
+            throw new IllegalArgumentException("analysisDepth must be 0 or " + AnalysisOptions.MAX_DEPTH
+                    + ", got " + analysisDepth + ".");
+        }
+        this.analysisDepth = analysisDepth;
+        return this;
+    }
+
+    /**
+     * Sets the most level-one files a one-level analysis models per language.
+     *
+     * @param levelOneBudget the budget; must not be negative
+     * @return this config
+     */
+    public StriffConfig setLevelOneBudget(int levelOneBudget) {
+        if (levelOneBudget < 0) {
+            throw new IllegalArgumentException("levelOneBudget must not be negative.");
+        }
+        this.levelOneBudget = levelOneBudget;
+        return this;
+    }
+
+    /**
+     * Sets the most context files ({@link #expandedFiles()}) a one-level analysis models per
+     * language, separately from {@link #levelOneBudget()}.
+     *
+     * @param contextBudget the budget; must not be negative
+     * @return this config
+     */
+    public StriffConfig setContextBudget(int contextBudget) {
+        if (contextBudget < 0) {
+            throw new IllegalArgumentException("contextBudget must not be negative.");
+        }
+        this.contextBudget = contextBudget;
+        return this;
+    }
+
+    /**
+     * Sets the hook a one-level analysis calls once, after its first compile, to add files to
+     * the analysed set before the final compile. {@code null} removes it.
+     *
+     * @param focusExtender the hook, or {@code null}
+     * @return this config
+     */
+    public StriffConfig setFocusExtender(FocusExtender focusExtender) {
+        this.focusExtender = focusExtender;
         return this;
     }
 
@@ -151,8 +219,33 @@ public class StriffConfig {
         return this.enableAugmenters;
     }
 
-    public boolean resolveContextualComponents() {
-        return this.resolveContextualComponents;
+    /** Returns levels of referenced files modelled past the filter: 0 or 1. */
+    public int analysisDepth() {
+        return this.analysisDepth;
+    }
+
+    /** Returns the most level-one files a one-level analysis models per language. */
+    public int levelOneBudget() {
+        return this.levelOneBudget;
+    }
+
+    /** Returns the most context files a one-level analysis models per language. */
+    public int contextBudget() {
+        return this.contextBudget;
+    }
+
+    /** Returns the one-level focus extension hook, or {@code null} when there is none. */
+    public FocusExtender focusExtender() {
+        return this.focusExtender;
+    }
+
+    /**
+     * Whether the full pipeline runs a one-level analysis: depth 1 with a non-empty filter.
+     *
+     * @return {@code true} for a one-level analysis
+     */
+    public boolean oneLevel() {
+        return this.analysisDepth > 0 && !this.filesFilter.isEmpty();
     }
 
     /** Returns source files forced into the diagram as gray contextual components. */
@@ -180,6 +273,7 @@ public class StriffConfig {
     @Override
     public String toString() {
         return "Output Mode: " + this.outputMode + ", Languages: " + this.languages + ", Filter Files: "
-                + this.filesFilter + ", Max Components/Diagram: " + this.maxComponentsPerDiagram;
+                + this.filesFilter + ", Max Components/Diagram: " + this.maxComponentsPerDiagram
+                + ", Analysis Depth: " + this.analysisDepth;
     }
 }

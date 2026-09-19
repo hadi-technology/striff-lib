@@ -358,7 +358,7 @@ public class StriffOperationIntegrationTest {
     }
 
     @Test
-    public void contextualResolutionShowsParentClassAsGray() throws Exception {
+    public void oneLevelAnalysisShowsParentClassAsGray() throws Exception {
         // Old: ClassA has no relation to ClassB
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
@@ -376,18 +376,18 @@ public class StriffOperationIntegrationTest {
         StriffConfig config = new StriffConfig()
                 .setLanguages(List.of(Lang.JAVA))
                 .setFilesFilter(List.of("/ClassA.java"))
-                .setResolveContextualComponents(true);
+                .setAnalysisDepth(1);
         StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
 
         assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
         StriffDiagram diagram = output.diagrams().get(0);
-        // ClassB should appear as a gray contextual component
+        // ClassB is level one, a boundary component on an added relation: gray context
         assertTrue("SVG should contain ClassB (resolved contextual)",
                 diagram.svg().contains("ClassB"));
     }
 
     @Test
-    public void contextualResolutionDisabledByDefault() throws Exception {
+    public void referencedFileNotShownInOrdinaryFilteredAnalysis() throws Exception {
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { }"));
@@ -400,7 +400,7 @@ public class StriffOperationIntegrationTest {
         newFiles.insertFile(new ProjectFile("/ClassB.java",
                 "package com.sample; public class ClassB { }"));
 
-        // Default: resolveContextualComponents is false
+        // Default: analysis depth 0, only the filter's files are modelled
         StriffConfig config = new StriffConfig()
                 .setLanguages(List.of(Lang.JAVA))
                 .setFilesFilter(List.of("/ClassA.java"));
@@ -408,13 +408,13 @@ public class StriffOperationIntegrationTest {
 
         assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
         StriffDiagram diagram = output.diagrams().get(0);
-        // ClassB should NOT appear when toggle is off
-        assertFalse("SVG should not contain ClassB when resolution disabled",
+        // ClassB is not modelled in an ordinary analysis of the filter
+        assertFalse("SVG should not contain ClassB in an ordinary analysis",
                 diagram.svg().contains("ClassB"));
     }
 
     @Test
-    public void contextualResolutionWithExternalLibRefDoesNotCrash() throws Exception {
+    public void oneLevelAnalysisWithExternalLibRefDoesNotCrash() throws Exception {
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { }"));
@@ -427,7 +427,7 @@ public class StriffOperationIntegrationTest {
         StriffConfig config = new StriffConfig()
                 .setLanguages(List.of(Lang.JAVA))
                 .setFilesFilter(List.of("/ClassA.java"))
-                .setResolveContextualComponents(true);
+                .setAnalysisDepth(1);
         StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
 
         // Should not crash, just skip the unresolved external reference
@@ -435,7 +435,7 @@ public class StriffOperationIntegrationTest {
     }
 
     @Test
-    public void contextualResolutionNoFilterIsNoOp() throws Exception {
+    public void oneLevelAnalysisWithoutFilterIsOrdinary() throws Exception {
         ProjectFiles oldFiles = new ProjectFiles();
         oldFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { }"));
@@ -444,10 +444,10 @@ public class StriffOperationIntegrationTest {
         newFiles.insertFile(new ProjectFile("/ClassA.java",
                 "package com.sample; public class ClassA { private int x; }"));
 
-        // No filesFilter, toggle on — should behave like normal (all files parsed)
+        // No filesFilter, depth 1: an ordinary analysis of every file
         StriffConfig config = new StriffConfig()
                 .setLanguages(List.of(Lang.JAVA))
-                .setResolveContextualComponents(true);
+                .setAnalysisDepth(1);
         StriffOutput output = new StriffOperation(oldFiles, newFiles, config).result();
 
         assertFalse("Expected at least one diagram", output.diagrams().isEmpty());
