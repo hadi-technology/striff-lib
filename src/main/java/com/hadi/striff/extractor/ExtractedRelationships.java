@@ -13,11 +13,13 @@ import com.hadi.clarpse.sourcemodel.OOPSourceModelConstants.ComponentType;
 import com.hadi.striff.annotations.LogExecutionTime;
 import com.hadi.striff.diagram.SyntheticModuleSupport;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +43,10 @@ import java.util.stream.Stream;
  *   <li>Creates synthetic modules for module-level components (Python/TypeScript)</li>
  * </ol>
  *
+ * <p>References to repository types the model holds no component for, which only a one-level
+ * analysis produces ({@code Component.notLoadedDependencies()}), have no target to relate to. They
+ * are kept apart, as {@link NotLoadedRelation}s, and never enter the {@link RelationsMap}.</p>
+ *
  * <p><strong>Performance note:</strong> Relationship extraction is the most
  * expensive operation in the Striff pipeline (~45% of processing time for a
  * 1000-file codebase). The {@link RelationsMap} result is typically used
@@ -50,6 +56,7 @@ import java.util.stream.Stream;
 public class ExtractedRelationships {
 
     private final RelationsMap relationMap = new RelationsMap();
+    private final Set<NotLoadedRelation> notLoadedRelations = new TreeSet<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtractedRelationships.class);
 
     /**
@@ -154,6 +161,7 @@ public class ExtractedRelationships {
 
             int sinceCheck = 0;
             for (Component moduleLevelCmp : modulesComps) {
+                collectModuleNotLoadedRelations(moduleLevelCmp, synthetic);
                 for (ComponentReference ref : allReferences(moduleLevelCmp)) {
                     if (++sinceCheck >= INTERRUPT_CHECK_INTERVAL) {
                         sinceCheck = 0;
@@ -232,6 +240,86 @@ public class ExtractedRelationships {
         analyzeSpecializations(component, model);
         analyzeRealizations(component, model);
         extractAssociations(component, model);
+        collectNotLoadedRelations(component, model);
+    }
+
+    /**
+     * Keeps the component's references to repository types that were not loaded, as the relations
+     * they would be: a base component's supertypes, and a member's references from its base
+     * component. Module-level components are handled with their synthetic module.
+     */
+    private void collectNotLoadedRelations(final Component component, final OOPSourceCodeModel model) {
+        if (component.notLoadedDependencies().isEmpty()
+                || SyntheticModuleSupport.isModuleLevelComponent(component)) {
+            return;
+        }
+        final NotLoadedRelation.Origin origin = originOf(component);
+        if (component.componentType().isBaseComponent()) {
+            for (ComponentReference ref : component.notLoadedDependencies()) {
+                final DiagramConstants.ComponentAssociation type = supertypeAssociation(ref);
+                if (type != null) {
+                    this.notLoadedRelations.add(new NotLoadedRelation(
+                            component.uniqueName(), ref.invokedComponent(), type, origin));
+                }
+            }
+            return;
+        }
+        final DiagramConstants.ComponentAssociation type = determineAssociationType(component, null);
+        if (type == null) {
+            return;
+        }
+        final Component baseComponent;
+        try {
+            baseComponent = model.parentBaseComponent(component.uniqueName());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        if (baseComponent == null) {
+            return;
+        }
+        for (ComponentReference ref : component.notLoadedDependencies()) {
+            if (!(ref instanceof AnnotationReference)) {
+                this.notLoadedRelations.add(new NotLoadedRelation(
+                        baseComponent.uniqueName(), ref.invokedComponent(), type, origin));
+            }
+        }
+    }
+
+    /** Keeps a module-level component's not-loaded references as relations of its synthetic module. */
+    private void collectModuleNotLoadedRelations(final Component moduleLevelCmp, final Component synthetic) {
+        final NotLoadedRelation.Origin origin = originOf(moduleLevelCmp);
+        final DiagramConstants.ComponentAssociation type;
+        if (moduleLevelCmp.componentType() == ComponentType.FIELD
+                || moduleLevelCmp.componentType() == ComponentType.MODULE_FIELD) {
+            type = DiagramConstants.ComponentAssociation.COMPOSITION;
+        } else {
+            type = DiagramConstants.ComponentAssociation.WEAK_ASSOCIATION;
+        }
+        for (ComponentReference ref : moduleLevelCmp.notLoadedDependencies()) {
+            if (!(ref instanceof AnnotationReference)) {
+                this.notLoadedRelations.add(new NotLoadedRelation(
+                        synthetic.uniqueName(), ref.invokedComponent(), type, origin));
+            }
+        }
+    }
+
+    private static NotLoadedRelation.Origin originOf(final Component component) {
+        if (component.isBoundary()) {
+            return NotLoadedRelation.Origin.BOUNDARY;
+        }
+        return NotLoadedRelation.Origin.FOCUS;
+    }
+
+    /** The relation a base component's reference makes when it names a supertype, else null. */
+    private static DiagramConstants.ComponentAssociation supertypeAssociation(final ComponentReference ref) {
+        if (OOPSourceModelConstants.TypeReferences.EXTENSION.getMatchingClass().isAssignableFrom(ref.getClass())) {
+            return DiagramConstants.ComponentAssociation.SPECIALIZATION;
+        }
+        if (OOPSourceModelConstants.TypeReferences.IMPLEMENTATION.getMatchingClass()
+                .isAssignableFrom(ref.getClass())) {
+            return DiagramConstants.ComponentAssociation.REALIZATION;
+        }
+        return null;
     }
 
     /**
@@ -520,5 +608,15 @@ public class ExtractedRelationships {
      */
     public RelationsMap result() {
         return this.relationMap;
+    }
+
+    /**
+     * Returns the relationships to repository types the model holds no component for, in a stable
+     * order. Empty unless the model comes from a one-level analysis.
+     *
+     * @return an unmodifiable view of the not-loaded relationships
+     */
+    public Set<NotLoadedRelation> notLoadedRelations() {
+        return Collections.unmodifiableSet(this.notLoadedRelations);
     }
 }

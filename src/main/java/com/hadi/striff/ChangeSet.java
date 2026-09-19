@@ -35,6 +35,11 @@ import org.slf4j.LoggerFactory;
  * components are important to include in diagrams as they represent the
  * "connective tissue" between changes.</p>
  *
+ * <p>In a one-level analysis a boundary component, one modelled only because analysed code
+ * references it, becomes a key relations component only when the other end of the added or deleted
+ * relation is not itself a boundary component. A relation between two boundary components says
+ * nothing about the change.</p>
+ *
  * <p><strong>Short-circuit optimization:</strong> If both models are empty,
  * relationship extraction is skipped entirely for performance.</p>
  */
@@ -119,10 +124,12 @@ public final class ChangeSet implements Serializable {
         LOGGER.info("Found {} modified components.", this.modifiedComponents.size());
     }
 
-    private void addKeyRelComponents(Component... keyRelCmps) {
-        for (Component keyRelCmp : keyRelCmps) {
-            this.keyRelationsComponents.add(keyRelCmp.uniqueName());
+    private void addKeyRelComponents(Component original, Component target) {
+        if (original.isBoundary() && target.isBoundary()) {
+            return;
         }
+        this.keyRelationsComponents.add(original.uniqueName());
+        this.keyRelationsComponents.add(target.uniqueName());
     }
 
     @JsonProperty("addedComponents")

@@ -66,6 +66,7 @@ public class StriffOutput {
         }
 
         StriffDiagramModel sDM = new StriffDiagramModel(codeDiff, config.filesFilter(), config.expandedFiles(), config.enableAugmenters());
+        sDM.trimBoundaryComponents(config.maxComponentsPerDiagram(), config.expandedFiles());
         generateDiagrams(codeDiff, sDM.diagramRels(), partitionConfig(sDM, config), config);
         if (config.filesFilter().isEmpty()) {
             compileFailures.forEach(failure -> this.compileWarnings.add(failure.file().path()));

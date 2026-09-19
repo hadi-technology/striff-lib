@@ -22,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>4.4.0</version>
+  <version>5.0.0</version>
 </dependency>
 ```
 
@@ -91,6 +91,67 @@ StriffConfig config = new StriffConfig()
 
 Note: the file filter is applied to parsing, so only the filtered files are compiled
 and considered for diagram components.
+
+#### One-level analysis
+With a filter, an ordinary analysis compiles only the filter's files: a reference that leaves them
+has nothing on the other end. A **one-level analysis** also models the repository files the
+filter's files reference, without compiling the rest of the repository. It is built on Clarpse's
+one-level analysis (see Clarpse's `docs/one-level-analysis.md`).
+
+```java
+StriffConfig config = new StriffConfig()
+        .setFilesFilter(changedFiles)            // the files of the change
+        .setAnalysisDepth(1);                    // 0, the default, is an ordinary analysis
+try (ProjectFiles base = new ProjectFiles(baseZip);   // every file of the repository,
+     ProjectFiles head = new ProjectFiles(headZip)) { // not only the changed ones
+    StriffOperation op = new StriffOperation(base, head, config);
+    AnalysisScope scope = op.analysisScope();         // what was modelled and held back
+}
+```
+
+* **Both revisions load the same files.** Each revision is prepared, the files either revision
+  references are joined, and both are compiled with that union, so a type referenced in only one
+  revision is not shown as added or deleted.
+* **Boundary components.** Components of the referenced files are modelled with
+  `Component.isBoundary()`, are drawn as gray context, and are serialised with `"boundary": true`.
+  Their outgoing references past that level are not followed, so a missing edge from a boundary
+  component says nothing. A boundary component becomes a key relations component only when the
+  other end of the added or deleted relation is not a boundary component, and boundary components
+  are the first removed when a diagram is over `maxComponentsPerDiagram`.
+* **Not-loaded relationships.** A reference to a repository type that was not modelled has no
+  component to relate to, so it is not drawn. It is kept on `CodeDiff.notLoadedRelations()` with
+  the component it starts from, the kind of relation, and its origin: `FOCUS` when that component
+  was analysed in full (for example, its target's file was held back by the budget), `BOUNDARY`
+  when it is a boundary component's reference past the boundary.
+* **Context files.** `setExpandedFiles(...)` names files to show as context, such as the files that
+  use the changed code. In a one-level analysis they are modelled as boundary components, without
+  their own references being followed.
+* **Budgets**, per language: `setLevelOneBudget(n)` (default 1000) caps the referenced files and
+  `setContextBudget(n)` (default 200) the context files. Context files never displace referenced
+  files: when the referenced files reach their budget, no context file is modelled. Each budget is
+  exact. Over the context budget, the context files that name the filter's files most often are
+  kept.
+* **Focus extension.** A `FocusExtender` sees the first compile's base and head models once, and
+  can name more files to analyse in full, for example files whose outgoing references a check
+  depends on. Both revisions are extended and compiled again; the diff, relationships and diagram
+  come from that final compile only.
+
+```java
+config.setFocusExtender((baseModel, headModel) -> filesToCheckInFull(headModel));
+```
+
+* **Not for the incremental constructor**, which has only one revision's files; it rejects a depth
+  of 1.
+* **Incoming references are out of scope.** Only outgoing references are followed. Every
+  relationship a change adds or removes starts in a changed file, so it is found; an existing
+  reference from an unchanged file into the changed code is seen only if that file is modelled
+  (for example, as a context file).
+
+**Cleanup.** Nothing a one-level analysis creates outlives the operation: its prepared analyses
+are closed on success, failure and interruption, and any copy of the sources they write to disk
+(TypeScript and Python resolve against files on disk; Java and C# do not) is deleted with them.
+Close your `ProjectFiles`, and call `ProjectFiles.deleteStaleTempDirs(Duration.ofHours(6))` at
+startup to remove what a process killed without running its shutdown hooks left behind.
 
 #### Styling and color schemes
 Start from an existing scheme and override only what you need:
@@ -202,6 +263,24 @@ What a consumer must do:
   are now deterministic.
 * **Do not parse the id to get a label.** `name()` is the module's own short name (`update`)
   and is serialized as `name`; `package` carries the package. Nothing needs to split the id.
+
+### Migrating from 4.x
+
+5.0.0 removes `StriffConfig.setResolveContextualComponents(boolean)` and
+`StriffConfig.resolveContextualComponents()`. That option looked up the source files of referenced
+components by file name and parsed them. One-level analysis replaces it with Clarpse's own
+resolution:
+
+* Replace `.setResolveContextualComponents(true)` with `.setAnalysisDepth(1)`, and give
+  `StriffOperation` every file of both revisions, not only the filtered ones.
+* Files you want shown as context go in `setExpandedFiles(...)`, as before.
+* With a depth of 1, read `CodeDiff.notLoadedRelations()` alongside `extractedRels()` if you need
+  every reference of the analysed code: a reference to a repository type that was not modelled is
+  in neither `internalDependencies()` nor `externalDependencies()` of its component, but in
+  `notLoadedDependencies()`.
+
+Also in 5.0.0: rendering a diagram no longer removes relations to undrawn components from
+`CodeDiff.extractedRels()`, so a diff rendered once still holds all of its relations.
 
 ### Examples
 * Library usage: `src/test/java/striff/test/model/StriffAPITest.java`

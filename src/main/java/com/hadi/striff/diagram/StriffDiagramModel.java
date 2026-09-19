@@ -10,9 +10,12 @@ import com.hadi.striff.spi.SpiLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +29,7 @@ public class StriffDiagramModel {
 
     private final Set<DiagramComponent> diagramCmps = new HashSet<>();
     private RelationsMap diagramRels = new RelationsMap();
+    private RelationsMap extractedRels = new RelationsMap();
     private static final Logger LOGGER = LoggerFactory.getLogger(StriffDiagramModel.class);
 
     public StriffDiagramModel(CodeDiff codeDiff) {
@@ -55,7 +59,52 @@ public class StriffDiagramModel {
         if (enableAugmenters) {
             applyAugmenters(codeDiff);
         }
-        getCoreRelations(this.diagramCmps, codeDiff.extractedRels());
+        this.extractedRels = codeDiff.extractedRels();
+        getCoreRelations(this.diagramCmps, this.extractedRels);
+    }
+
+    /**
+     * Removes boundary components until at most {@code maxComponents} remain, or none is left to
+     * remove.
+     *
+     * <p>Only a one-level analysis has boundary components: components modelled because analysed
+     * code references them. They are drawn as context, so they go before any other component:
+     * first those of context files, the callers a caller asked to show, then the others, each group
+     * in unique-name order. Every other component stays, so a diagram still over the limit after
+     * this is left to the renderer's own limit. The relations shown are narrowed to what remains.
+     *
+     * @param maxComponents the most components the diagram should hold
+     * @param contextFiles  the context files ({@code StriffConfig.expandedFiles()})
+     * @return how many components were removed
+     */
+    public int trimBoundaryComponents(final int maxComponents, final Set<String> contextFiles) {
+        if (this.diagramCmps.size() <= maxComponents) {
+            return 0;
+        }
+        final List<DiagramComponent> removable = new ArrayList<>();
+        for (DiagramComponent cmp : this.diagramCmps) {
+            if (cmp.boundary()) {
+                removable.add(cmp);
+            }
+        }
+        if (removable.isEmpty()) {
+            return 0;
+        }
+        removable.sort(Comparator
+                .comparing((DiagramComponent cmp) -> !(cmp.sourceFile() != null && contextFiles.contains(cmp.sourceFile())))
+                .thenComparing(DiagramComponent::uniqueName));
+        int removed = 0;
+        for (DiagramComponent cmp : removable) {
+            if (this.diagramCmps.size() <= maxComponents) {
+                break;
+            }
+            this.diagramCmps.remove(cmp);
+            removed++;
+        }
+        LOGGER.info("Removed {} boundary component(s) to keep the diagram within {} components.",
+                removed, maxComponents);
+        getCoreRelations(this.diagramCmps, this.extractedRels);
+        return removed;
     }
 
     private void getCoreRelations(Set<DiagramComponent> diagramCmps, RelationsMap extractedRels) {

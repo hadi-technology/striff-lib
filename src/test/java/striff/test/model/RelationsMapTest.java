@@ -179,4 +179,14 @@ public class RelationsMapTest {
                 RelationsMap filteredMap = relMap.filteredRelations(filterCmps);
                 assertEquals("Filtered map should contain all relations", 2, filteredMap.size());
         }
+
+        @Test
+        public void testFilteredRelationsLeavesTheSourceMapUnchanged() {
+                RelationsMap relMap = new RelationsMap();
+                relMap.insertRelation(new ComponentRelation(classA, classB));
+                relMap.insertRelation(new ComponentRelation(classA, classC));
+                relMap.filteredRelations(new HashSet<>(Arrays.asList("ClassA", "ClassB")));
+                assertEquals("Filtering must not remove relations from the map it filters",
+                                2, relMap.allRels().size());
+        }
 }

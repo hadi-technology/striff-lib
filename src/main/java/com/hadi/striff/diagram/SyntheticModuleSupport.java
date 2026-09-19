@@ -136,6 +136,8 @@ public final class SyntheticModuleSupport {
             if (pkg != null) {
                 synthetic.setPkg(pkg);
             }
+            // A module's members all come from one file, so they are boundary components together.
+            synthetic.setBoundary(anyBoundary(model, entry.getValue()));
             syntheticByModule.put(moduleKey, synthetic);
         }
         return syntheticByModule;
@@ -163,6 +165,16 @@ public final class SyntheticModuleSupport {
             children.forEach(synthetic::insertChildComponent);
         }
         return synthetic;
+    }
+
+    private static boolean anyBoundary(OOPSourceCodeModel model, Collection<String> children) {
+        for (String childName : children) {
+            Component child = model.component(childName).orElse(null);
+            if (child != null && child.isBoundary()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
