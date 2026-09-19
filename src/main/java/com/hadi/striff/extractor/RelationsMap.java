@@ -197,14 +197,21 @@ public class RelationsMap implements Serializable {
      * A relation is included only if both its source and target component names are
      * present in the filter set.</p>
      *
+     * <p>This map is left unchanged: each retained source gets its own copy of its target map
+     * before targets are removed from it.</p>
+     *
      * @param filterCmps set of component names to include in the filtered result
      * @return a new RelationsMap with filtered relationships
      */
     public RelationsMap filteredRelations(Set<String> filterCmps) {
-        Map<String, Map<Component, TreeSet<ComponentRelation>>> filteredRelMap = new HashMap<>(this.relMap);
-        filteredRelMap.keySet().removeIf(key -> !filterCmps.contains(key));
-        for (Map.Entry<String, Map<Component, TreeSet<ComponentRelation>>> entry : filteredRelMap.entrySet()) {
-            entry.getValue().keySet().removeIf(key -> !filterCmps.contains(key.uniqueName()));
+        Map<String, Map<Component, TreeSet<ComponentRelation>>> filteredRelMap = new HashMap<>();
+        for (Map.Entry<String, Map<Component, TreeSet<ComponentRelation>>> entry : this.relMap.entrySet()) {
+            if (!filterCmps.contains(entry.getKey())) {
+                continue;
+            }
+            Map<Component, TreeSet<ComponentRelation>> targets = new HashMap<>(entry.getValue());
+            targets.keySet().removeIf(key -> !filterCmps.contains(key.uniqueName()));
+            filteredRelMap.put(entry.getKey(), targets);
         }
         return new RelationsMap(filteredRelMap);
     }
