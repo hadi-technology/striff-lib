@@ -167,6 +167,16 @@ public class OneLevelAnalysisTest {
     }
 
     @Test
+    public void levelOneBudgetIsExactWhateverTheContextBudget() throws Exception {
+        StriffConfig config = oneLevel().setLevelOneBudget(0).setContextBudget(5);
+        StriffOperation op = new StriffOperation(files(A_WITHOUT_B), files(A_WITH_B), config);
+
+        assertFalse(op.codeDiff().mergedModel().containsComponent("lib.B"));
+        assertTrue(op.analysisScope().levelOneFiles().isEmpty());
+        assertTrue(op.analysisScope().levelOneHeldByBudget().contains(B));
+    }
+
+    @Test
     public void contextFilesAreBoundaryWithoutTheirOwnLevelOne() throws Exception {
         StriffConfig config = oneLevel().setExpandedFiles(List.of(CALLER));
         StriffOperation op = new StriffOperation(files(A_WITHOUT_B), files(A_WITH_B), config);

@@ -39,10 +39,10 @@ import java.util.regex.Pattern;
  * models returned are always those of the last compile.
  *
  * <p>Budgets: level one is capped by {@link StriffConfig#levelOneBudget()}, context files by
- * {@link StriffConfig#contextBudget()}, per language. Context files never displace level-one files:
- * when the level-one union reaches its budget, no context file is modelled, and level one may then
- * use the room the context budget leaves. When there are more context files than the budget allows,
- * those naming the analysed files most often are kept.
+ * {@link StriffConfig#contextBudget()}, per language, each exactly. Context files never displace
+ * level-one files: when the level-one union reaches its budget, no context file is modelled. When
+ * there are more context files than the budget allows, those naming the analysed files most often
+ * are kept.
  *
  * <p>Every prepared analysis is closed before {@link #run} returns or throws, including on
  * interruption.
@@ -191,9 +191,12 @@ final class OneLevelAnalysis {
             context.addAll(kept);
             final Set<String> extra = new TreeSet<>(union);
             extra.addAll(kept);
+            // The prepared budget is only an upper bound; each compile caps level one at its own
+            // budget, leaving room for exactly the context files kept.
+            final int budget = config.levelOneBudget() + kept.size();
             final ParallelParse.Results<CompileResult> results = ParallelParse.run(
-                    () -> analyses.base.compile(extra),
-                    () -> analyses.head.compile(extra));
+                    () -> analyses.base.compile(extra, budget),
+                    () -> analyses.head.compile(extra, budget));
             for (CompileResult result : List.of(results.base(), results.head())) {
                 failures.addAll(result.failures());
                 result.levelOne().levelOneFiles().stream()

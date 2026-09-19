@@ -128,9 +128,9 @@ try (ProjectFiles base = new ProjectFiles(baseZip);   // every file of the repos
   their own references being followed.
 * **Budgets**, per language: `setLevelOneBudget(n)` (default 1000) caps the referenced files and
   `setContextBudget(n)` (default 200) the context files. Context files never displace referenced
-  files: when the referenced files reach their budget, no context file is modelled, and the
-  referenced files may use the room the context budget leaves. Over the context budget, the
-  context files that name the filter's files most often are kept.
+  files: when the referenced files reach their budget, no context file is modelled. Each budget is
+  exact. Over the context budget, the context files that name the filter's files most often are
+  kept.
 * **Focus extension.** A `FocusExtender` sees the first compile's base and head models once, and
   can name more files to analyse in full, for example files whose outgoing references a check
   depends on. Both revisions are extended and compiled again; the diff, relationships and diagram
