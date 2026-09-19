@@ -4,15 +4,18 @@ import com.hadi.clarpse.sourcemodel.Component;
 import com.hadi.clarpse.sourcemodel.OOPSourceCodeModel;
 import com.hadi.striff.ChangeSet;
 import com.hadi.striff.extractor.ExtractedRelationships;
+import com.hadi.striff.extractor.NotLoadedRelation;
 import com.hadi.striff.extractor.RelationsMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
@@ -30,6 +33,8 @@ import java.util.stream.Collectors;
  *       components and relations)</li>
  *   <li><strong>relationsMap</strong> - All relationships extracted from the
  *       merged model</li>
+ *   <li><strong>notLoadedRelations</strong> - Relationships of the merged model to repository
+ *       types it holds no component for; only a one-level analysis produces them</li>
  * </ul>
  *
  * <h2>Key Optimization: Single Extraction</h2>
@@ -56,6 +61,7 @@ public class CodeDiff implements Serializable {
     private final OOPSourceCodeModel newModel;
     private final ChangeSet changeSet;
     private final RelationsMap relationsMap;
+    private final TreeSet<NotLoadedRelation> notLoadedRelations;
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeDiff.class);
 
     /**
@@ -110,6 +116,7 @@ public class CodeDiff implements Serializable {
             this.changeSet = new ChangeSet(olderModel, newerModel);
             this.mergedModel = newerModel.copy();
             this.relationsMap = new RelationsMap();
+            this.notLoadedRelations = new TreeSet<>();
             return;
         }
 
@@ -124,7 +131,9 @@ public class CodeDiff implements Serializable {
         mergeOldOnlyComponents(olderModel, merged);
         mergeDeletedChildrenOntoSurvivingParents(olderModel, merged);
         this.mergedModel = merged;
-        this.relationsMap = new ExtractedRelationships(this.mergedModel).result();
+        ExtractedRelationships extracted = new ExtractedRelationships(this.mergedModel);
+        this.relationsMap = extracted.result();
+        this.notLoadedRelations = new TreeSet<>(extracted.notLoadedRelations());
     }
 
     /**
@@ -211,6 +220,23 @@ public class CodeDiff implements Serializable {
      */
     public RelationsMap extractedRels() {
         return this.relationsMap;
+    }
+
+    /**
+     * Returns the merged model's relationships to repository types it holds no component for.
+     *
+     * <p>Only a one-level analysis produces them: a boundary component's references past the
+     * boundary, and references into files a budget held back. They are never drawn. Each records
+     * whether it starts from a component analysed in full or from a boundary component.</p>
+     *
+     * @return the not-loaded relationships, in a stable order; empty for an ordinary analysis
+     */
+    public Set<NotLoadedRelation> notLoadedRelations() {
+        // Null only in an instance serialised before the field existed.
+        if (this.notLoadedRelations == null) {
+            return Collections.emptySet();
+        }
+        return Collections.unmodifiableSet(this.notLoadedRelations);
     }
 
     /**

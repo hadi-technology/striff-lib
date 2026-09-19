@@ -1,6 +1,7 @@
 package com.hadi.striff.diagram;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hadi.clarpse.reference.ComponentReference;
 import com.hadi.clarpse.sourcemodel.Component;
@@ -198,6 +199,24 @@ public class DiagramComponent {
     @JsonProperty("cyclo")
     public int cyclo() {
         return this.cmp.cyclo();
+    }
+
+    /**
+     * Whether the component was modelled only because analysed code references it, in a one-level
+     * analysis. Its outgoing references past that level are incomplete, so a missing edge from it
+     * says nothing. Serialised only when {@code true}.
+     *
+     * @return {@code true} for a boundary component
+     */
+    @JsonProperty("boundary")
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public boolean boundary() {
+        return this.cmp.isBoundary();
+    }
+
+    @JsonProperty("boundary")
+    private void setBoundary(boolean boundary) {
+        this.cmp.setBoundary(boundary);
     }
 
     @JsonIgnore
