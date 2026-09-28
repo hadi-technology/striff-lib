@@ -11,12 +11,47 @@ import java.io.IOException;
 
 public class PUMLHelper {
 
+    /**
+     * The identifier a component is drawn under.
+     *
+     * <p>A component's name is taken from its source, and for a language that names a module
+     * after its file, from its path. A path can hold what PlantUML reads as syntax: a directory
+     * called <code>{{project_slug}}</code>, a space, a quote, a letter outside ASCII. One such
+     * character in one identifier fails the whole diagram. Each is written as an underscore, and
+     * the identifier is closed with a number made from the name, so two names that differ only
+     * in such a character are still two identifiers. A name holding none of them is written as
+     * it always was.
+     *
+     * @param uniqueName the component's unique name
+     * @return the identifier
+     */
     public static String pumlId(String uniqueName) {
         // Strip generic type parameters (e.g., List<String> -> List) to avoid
         // PlantUML syntax issues with angle brackets
         String stripped = uniqueName.replaceAll("<[^>]*>", "");
-        return stripped.replace(".", "-").replace(":", "-")
+        String id = stripped.replace(".", "-").replace(":", "-")
                 .replace("(", "-").replace(")", "-");
+        StringBuilder drawable = null;
+        for (int at = 0; at < id.length(); at++) {
+            if (!readAsSyntax(id.charAt(at))) {
+                continue;
+            }
+            if (drawable == null) {
+                drawable = new StringBuilder(id);
+            }
+            drawable.setCharAt(at, '_');
+        }
+        if (drawable == null) {
+            return id;
+        }
+        return drawable.append('_').append(Integer.toUnsignedString(uniqueName.hashCode(), 16))
+                .toString();
+    }
+
+    /** Whether PlantUML fails a diagram holding this character in an identifier. */
+    private static boolean readAsSyntax(char character) {
+        return character <= ' ' || character >= 127 || character == '"' || character == '<'
+                || character == '>' || character == '{' || character == '}';
     }
 
     public static String pumlQualifiedId(Component component) {
