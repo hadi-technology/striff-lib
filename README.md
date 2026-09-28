@@ -22,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>5.0.1</version>
+  <version>5.2.0</version>
 </dependency>
 ```
 
@@ -66,7 +66,7 @@ By default every language Clarpse supports is enabled; narrow that with `StriffC
 Supported languages (via Clarpse):
 * Java
 * C#
-* TypeScript (requires Node.js and a valid `tsconfig.json`)
+* TypeScript (requires Node.js; read through the project's `tsconfig.json` files where it has them)
 * Python (requires Node.js)
 
 Parsing failures (e.g., unsupported syntax) are reported by Clarpse and surfaced
