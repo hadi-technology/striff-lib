@@ -2,7 +2,7 @@
 
 **Turn a code diff into an architectural diagram.**
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.hadi-technology/striff-lib?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-technology/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technology-violet.svg)](https://haditechnology.com) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![Striff](https://striff.io/badge/hadi-technology/striff-lib.svg)](https://striff.io/hadi-technology/striff-lib)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.hadi-technology/striff-lib?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.hadi-technology/striff-lib) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f52c429a0a514abf86d252fe263d7c17)](https://app.codacy.com/gh/hadi-technology/striff-lib/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![maintained-by](https://img.shields.io/badge/Maintained%20by-Hadi%20Technology-violet.svg)](https://haditechnology.com) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![Striff](https://striff.io/badge/hadi-technology/striff-lib.svg)](https://striff.io/hadi-technology/striff-lib?ref=badge)
 
 A line-wise diff tells you which characters changed. It does not tell you that a change moved a dependency across a package boundary, or introduced a cycle, or coupled two modules that used to be independent. Reviewers reconstruct that from memory, one file at a time.
 
@@ -22,7 +22,7 @@ Add the dependency (check the badge above for the latest version):
 <dependency>
   <groupId>io.github.hadi-technology</groupId>
   <artifactId>striff-lib</artifactId>
-  <version>5.2.0</version>
+  <version>5.3.0</version>
 </dependency>
 ```
 
@@ -68,6 +68,7 @@ Supported languages (via Clarpse):
 * C#
 * TypeScript (requires Node.js; read through the project's `tsconfig.json` files where it has them)
 * Python (requires Node.js)
+* Kotlin (`.kt` files; names line up with Java's, so a mixed Java and Kotlin project can be analysed as one)
 
 Parsing failures (e.g., unsupported syntax) are reported by Clarpse and surfaced
 through Striff as compile warnings on the output. Striff will still attempt to
@@ -149,7 +150,7 @@ config.setFocusExtender((baseModel, headModel) -> filesToCheckInFull(headModel))
 
 **Cleanup.** Nothing a one-level analysis creates outlives the operation: its prepared analyses
 are closed on success, failure and interruption, and any copy of the sources they write to disk
-(TypeScript and Python resolve against files on disk; Java and C# do not) is deleted with them.
+(TypeScript and Python resolve against files on disk; Java, C# and Kotlin do not) is deleted with them.
 Close your `ProjectFiles`, and call `ProjectFiles.deleteStaleTempDirs(Duration.ofHours(6))` at
 startup to remove what a process killed without running its shutdown hooks left behind.
 
