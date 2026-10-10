@@ -5,7 +5,7 @@ When `filesFilter` is set (e.g., only the 5 changed files in a PR), Clarpse only
 
 A previous approach parsed **all** files regardless of the filter and applied the filter only during diagram generation (commit `fd83e13`, reverted in `1e30573`). This was too slow for large codebases.
 
-## Status: **Accepted**
+## Status: **Superseded** in 5.0.0 by one-level analysis (see *Superseded* below)
 
 ## Approaches
 
@@ -21,10 +21,19 @@ Relations to components outside the filter are simply not shown. Users who need 
 ## Decision
 **Approach #1**
 
-**Rationale:** This provides a middle ground between approaches #2 and #3. It avoids the performance cost of parsing an entire codebase (approach #2) while still showing relation context for key components. It is opt-in via `StriffConfig.setResolveContextualComponents(true)` so existing behavior is unchanged.
+**Rationale:** This provides a middle ground between approaches #2 and #3. It avoids the performance cost of parsing an entire codebase (approach #2) while still showing relation context for key components. It was opt-in through a configuration toggle, so existing behavior was unchanged. That toggle was removed in 5.0.0; see *Superseded*.
 
-Key implementation details:
-- Resolution happens **after** filtered parsing but **before** `CodeDiff` construction, so the entire downstream pipeline (relationship extraction, change set, gray contextual rendering) works without modification.
-- Source files are located by deriving the file name from the component unique name (e.g., `com.sample.ClassB` -> `ClassB.java`) and searching `ProjectFiles.matchingFilesByName()`.
+Key implementation details, as built in 4.x:
+- Resolution happened **after** filtered parsing but **before** `CodeDiff` construction, so the entire downstream pipeline (relationship extraction, change set, gray contextual rendering) worked without modification.
+- Source files were located by deriving the file name from the component unique name (e.g., `com.sample.ClassB` -> `ClassB.java`) and searching `ProjectFiles.matchingFilesByName()`.
 - `ExtractedRelationships` was updated to check both `internalDependencies()` and `externalDependencies()` for specialization and realization references, since Clarpse classifies references to unparsed components as external.
-- Only one resolution pass is performed. Transitive references from newly resolved components are not followed, keeping the scope bounded.
+- Only one resolution pass was performed. Transitive references from newly resolved components were not followed, keeping the scope bounded.
+
+## Superseded
+
+5.0.0 removed this mechanism, its toggle and its file-name lookup, and one-level analysis replaced
+them, leaving resolution to Clarpse: `StriffConfig.setAnalysisDepth(1)` with every file of
+both revisions handed to `StriffOperation` has Clarpse model the filter's files in full and the
+repository files they reference as boundary components, using its own resolution. A reference to a
+repository type that was not modelled is in `notLoadedDependencies()`, not reported as external.
+The README's *Migrating from 4.x* section lists the steps for a caller.
